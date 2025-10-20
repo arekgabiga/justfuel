@@ -8,3 +8,15 @@ export const listCarsQuerySchema = z
   .strict();
 
 export type ListCarsQueryInput = z.infer<typeof listCarsQuerySchema>;
+
+// ----------------------------------------------------------------------------
+// Route params validation
+// ----------------------------------------------------------------------------
+
+export const carIdParamSchema = z
+  .object({
+    carId: z.string().uuid(),
+  })
+  .strict();
+
+export type CarIdParamInput = z.infer<typeof carIdParamSchema>;

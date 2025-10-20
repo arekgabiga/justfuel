@@ -87,6 +87,68 @@ Endpoint example (production-like):
 curl -H "Authorization: Bearer <token>" -X GET "http://localhost:3000/api/cars"
 ```
 
+### API Endpoints
+
+#### GET /api/cars
+
+Returns a list of user's cars with aggregated statistics.
+
+Query params:
+
+- `sort`: `name | created_at` (default: `created_at`)
+- `order`: `asc | desc` (default: `desc`)
+
+Response:
+
+```json
+{
+  "data": [
+    {
+      "id": "uuid",
+      "name": "My car",
+      "initial_odometer": 10000,
+      "mileage_input_preference": "odometer",
+      "statistics": {
+        "total_fuel_cost": 0,
+        "total_fuel_amount": 0,
+        "total_distance": 0,
+        "average_consumption": 0,
+        "average_price_per_liter": 0,
+        "fillup_count": 0
+      }
+    }
+  ]
+}
+```
+
+#### GET /api/cars/{carId}
+
+Returns a single car with aggregated statistics and creation timestamp.
+
+Path params:
+
+- `carId`: UUID
+
+Response:
+
+```json
+{
+  "id": "uuid",
+  "name": "My car",
+  "initial_odometer": 10000,
+  "mileage_input_preference": "odometer",
+  "created_at": "2025-01-01T00:00:00.000Z",
+  "statistics": {
+    "total_fuel_cost": 0,
+    "total_fuel_amount": 0,
+    "total_distance": 0,
+    "average_consumption": 0,
+    "average_price_per_liter": 0,
+    "fillup_count": 0
+  }
+}
+```
+
 ## Available Scripts
 
 In the project directory, run:
@@ -139,6 +201,15 @@ In the project directory, run:
 ## Project Status
 
 This project is currently in **MVP development**. Core features are implemented; UI and UX improvements, testing, and documentation are ongoing.
+
+## Logging and Diagnostics
+
+- Correlate requests using `x-request-id` header. If present, include it in all server logs for the request lifecycle (e.g., `console.error("[GET /api/cars/{carId}] requestId=...", err)`).
+- Log only non-sensitive context. Avoid PII such as raw Authorization headers, tokens, or user emails. Prefer IDs and counts.
+- Favor structured messages that include: route, requestId, outcome (success/error), and brief reason on error.
+- On validation failures (Zod), include parser message in `details.issues` of `ErrorResponseDTO`; avoid logging user-provided payloads.
+- For upstream errors (e.g., Supabase failures), log the error object and return `INTERNAL_ERROR` with a generic message.
+- In development, surface stack traces in the console; in production, keep responses minimal and leverage external log collectors if needed.
 
 ## License
 

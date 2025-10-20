@@ -48,6 +48,13 @@ export type CarWithStatisticsDTO = CarDTO & {
 };
 
 /**
+ * Detailed car data returned by API for single car view
+ * Used in responses for: GET /api/cars/{carId}
+ * Extends CarWithStatisticsDTO with created_at timestamp (ISO string)
+ */
+export type CarDetailsDTO = CarWithStatisticsDTO & { created_at: string };
+
+/**
  * Extended car statistics with additional computed fields
  * Used in response for: GET /api/cars/{carId}/statistics
  * Combines database statistics with additional computed fields

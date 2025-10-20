@@ -1,4 +1,4 @@
-import type { CarWithStatisticsDTO, CarStatisticsView } from "../../types.ts";
+import type { CarWithStatisticsDTO, CarStatisticsView, CarDetailsDTO } from "../../types.ts";
 import type { AppSupabaseClient } from "../../db/supabase.client.ts";
 
 export interface ListCarsParams {
@@ -102,4 +102,64 @@ export async function listUserCarsWithStats(
       },
     };
   });
+}
+
+export async function getUserCarWithStats(
+  supabase: AppSupabaseClient,
+  carId: string,
+  options?: { userId?: string }
+): Promise<CarDetailsDTO | null> {
+  let carQuery = supabase
+    .from("cars")
+    .select("id, name, initial_odometer, mileage_input_preference, created_at, user_id")
+    .eq("id", carId);
+
+  if (options?.userId) {
+    carQuery = carQuery.eq("user_id", options.userId);
+  }
+
+  const { data: car, error: carError } = await carQuery.limit(1).maybeSingle();
+  if (carError) {
+    // Return null on not found; throw on other errors
+    if (carError.code === "PGRST116" /* No rows returned */ || carError.details?.includes("Results contain 0 rows")) {
+      return null;
+    }
+    return null;
+  }
+
+  if (!car) {
+    return null;
+  }
+
+  const { data: statsRow, error: statsError } = await supabase
+    .from("car_statistics")
+    .select(
+      "car_id,total_fuel_cost,total_fuel_amount,total_distance,average_consumption,average_price_per_liter,fillup_count"
+    )
+    .eq("car_id", car.id)
+    .limit(1)
+    .maybeSingle();
+
+  if (statsError) {
+    // If stats view fails, still return car with zeroed statistics instead of failing the whole request
+    // Intentionally swallow the error to provide a resilient response
+  }
+
+  const result: CarDetailsDTO = {
+    id: car.id,
+    name: car.name,
+    initial_odometer: car.initial_odometer,
+    mileage_input_preference: car.mileage_input_preference,
+    created_at: car.created_at,
+    statistics: {
+      total_fuel_cost: statsRow?.total_fuel_cost ?? 0,
+      total_fuel_amount: statsRow?.total_fuel_amount ?? 0,
+      total_distance: statsRow?.total_distance ?? 0,
+      average_consumption: statsRow?.average_consumption ?? 0,
+      average_price_per_liter: statsRow?.average_price_per_liter ?? 0,
+      fillup_count: statsRow?.fillup_count ?? 0,
+    },
+  };
+
+  return result;
 }
