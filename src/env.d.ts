@@ -1,12 +1,11 @@
 /// <reference types="astro/client" />
 
-import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Database } from "./db/database.types.ts";
+import type { AppSupabaseClient } from "./db/supabase.client.ts";
 
 declare global {
   namespace App {
     interface Locals {
-      supabase: SupabaseClient<Database>;
+      supabase: AppSupabaseClient;
     }
   }
 }
@@ -14,6 +13,7 @@ declare global {
 interface ImportMetaEnv {
   readonly SUPABASE_URL: string;
   readonly SUPABASE_KEY: string;
+  readonly DEV_AUTH_FALLBACK?: string;
   // more env variables...
 }
 

@@ -4,14 +4,14 @@
 
 ## Table of Contents
 
-1. [Project Description](#project-description)  
-2. [Tech Stack](#tech-stack)  
-3. [Getting Started Locally](#getting-started-locally)  
-4. [Available Scripts](#available-scripts)  
-5. [Project Scope](#project-scope)  
-   - [In Scope](#in-scope)  
-   - [Out of Scope](#out-of-scope)  
-6. [Project Status](#project-status)  
+1. [Project Description](#project-description)
+2. [Tech Stack](#tech-stack)
+3. [Getting Started Locally](#getting-started-locally)
+4. [Available Scripts](#available-scripts)
+5. [Project Scope](#project-scope)
+   - [In Scope](#in-scope)
+   - [Out of Scope](#out-of-scope)
+6. [Project Status](#project-status)
 7. [License](#license)
 
 ## Project Description
@@ -20,20 +20,20 @@ JustFuel is a minimalist web application designed to simplify manual tracking of
 
 ## Tech Stack
 
-- **Frontend**: Astro 5 with React 19 components  
-- **Language**: TypeScript 5  
-- **Styling**: Tailwind 4 & Shadcn/ui  
-- **State & Utilities**: clsx, class-variance-authority, lucide-react, tailwind-merge  
-- **Backend**: Supabase (PostgreSQL, Auth, SDK)  
-- **CI/CD**: GitHub Actions  
+- **Frontend**: Astro 5 with React 19 components
+- **Language**: TypeScript 5
+- **Styling**: Tailwind 4 & Shadcn/ui
+- **State & Utilities**: clsx, class-variance-authority, lucide-react, tailwind-merge
+- **Backend**: Supabase (PostgreSQL, Auth, SDK)
+- **CI/CD**: GitHub Actions
 - **Hosting**: DigitalOcean (Docker)
 
 ## Getting Started Locally
 
 ### Prerequisites
 
-- [Node.js 22.14.0](https://nodejs.org/) (managed via NVM)  
-- [npm](https://www.npmjs.com/) (bundled with Node.js)  
+- [Node.js 22.14.0](https://nodejs.org/) (managed via NVM)
+- [npm](https://www.npmjs.com/) (bundled with Node.js)
 - A Supabase project with API URL and Anon Key
 
 ### Setup
@@ -52,13 +52,40 @@ npm install
 
 # Create a .env file with the following variables:
 # SUPABASE_URL=<your-supabase-url>
-# SUPABASE_ANON_KEY=<your-supabase-anon-key>
+# SUPABASE_KEY=<your-supabase-anon-key>
 
 # Start the development server
 npm run dev
 ```
 
 Open `http://localhost:3000` in your browser to see the app.
+
+### Development Auth Fallback (optional)
+
+During early development you can bypass Bearer auth for server endpoints by enabling a fallback user.
+
+Add the following to your `.env` to enable the fallback:
+
+```bash
+DEV_AUTH_FALLBACK=true
+```
+
+Behavior when enabled:
+
+- If an incoming request lacks a valid `Authorization: Bearer <token>` header, the backend will scope queries to the development user id defined as `DEFAULT_USER_ID` in `src/db/supabase.client.ts`.
+- When a valid Bearer token is present, normal RLS-based auth is used.
+
+Endpoint example (dev fallback enabled, no token):
+
+```bash
+curl -X GET "http://localhost:3000/api/cars"
+```
+
+Endpoint example (production-like):
+
+```bash
+curl -H "Authorization: Bearer <token>" -X GET "http://localhost:3000/api/cars"
+```
 
 ## Available Scripts
 
@@ -89,24 +116,24 @@ In the project directory, run:
 
 ### In Scope
 
-- **User Account Management**: register, login, logout.  
-- **Vehicle Management (CRUD)**: add, list, edit, delete vehicles (with confirmation).  
-- **Fuel Entry Management (CRUD)**:  
-  - Log refuels with date, volume, cost, odometer or distance.  
-  - Infinite scroll grid of entries, color-coded consumption.  
-  - Edit/delete entries with auto-recalculation of stats.  
-- **Statistics & Visualizations**:  
-  - Compute L/100km, cost per liter, distance between refuels.  
-  - Color-coded fuel consumption based on deviation from average.  
-  - Three charts: consumption over time, price per liter, distance per refuel.  
+- **User Account Management**: register, login, logout.
+- **Vehicle Management (CRUD)**: add, list, edit, delete vehicles (with confirmation).
+- **Fuel Entry Management (CRUD)**:
+  - Log refuels with date, volume, cost, odometer or distance.
+  - Infinite scroll grid of entries, color-coded consumption.
+  - Edit/delete entries with auto-recalculation of stats.
+- **Statistics & Visualizations**:
+  - Compute L/100km, cost per liter, distance between refuels.
+  - Color-coded fuel consumption based on deviation from average.
+  - Three charts: consumption over time, price per liter, distance per refuel.
 - **Onboarding**: guide new users to add first vehicle and refuel entry.
 
 ### Out of Scope
 
-- Data export (CSV/PDF).  
-- Social features or data sharing.  
-- Native mobile apps (iOS/Android).  
-- In-app feedback collection.  
+- Data export (CSV/PDF).
+- Social features or data sharing.
+- Native mobile apps (iOS/Android).
+- In-app feedback collection.
 - Automatic GPS/OBD-II integrations.
 
 ## Project Status
