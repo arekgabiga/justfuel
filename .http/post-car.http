@@ -1,9 +1,0 @@
-### Create a new car
-POST http://localhost:3000/api/cars
-Content-Type: application/json
-
-{
-  "name": "My Audi A4",
-  "initial_odometer": 50000,
-  "mileage_input_preference": "odometer"
-}
