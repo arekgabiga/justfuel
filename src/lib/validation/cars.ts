@@ -50,3 +50,15 @@ export const updateCarCommandSchema = z
   });
 
 export type UpdateCarCommandInput = z.infer<typeof updateCarCommandSchema>;
+
+// ----------------------------------------------------------------------------
+// Delete car command validation
+// ----------------------------------------------------------------------------
+
+export const deleteCarCommandSchema = z
+  .object({
+    confirmation_name: z.string().trim().min(1).max(100),
+  })
+  .strict();
+
+export type DeleteCarCommandInput = z.infer<typeof deleteCarCommandSchema>;

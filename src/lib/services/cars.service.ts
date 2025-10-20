@@ -4,6 +4,8 @@ import type {
   CarDetailsDTO,
   CreateCarCommand,
   UpdateCarCommand,
+  DeleteCarCommand,
+  DeleteResponseDTO,
 } from "../../types.ts";
 import type { AppSupabaseClient } from "../../db/supabase.client.ts";
 
@@ -352,5 +354,58 @@ export async function updateCar(
       average_price_per_liter: statsRow?.average_price_per_liter ?? 0,
       fillup_count: statsRow?.fillup_count ?? 0,
     },
+  };
+}
+
+// ----------------------------------------------------------------------------
+// Delete car service
+// ----------------------------------------------------------------------------
+
+/**
+ * Deletes a car and all associated fillups for the authenticated user
+ * @param supabase - Supabase client instance
+ * @param userId - Authenticated user ID
+ * @param carId - ID of the car to delete
+ * @param input - Delete confirmation data (confirmation_name)
+ * @returns DeleteResponseDTO with success message
+ * @throws Error when car not found, confirmation name mismatch, or deletion fails
+ */
+export async function deleteCar(
+  supabase: AppSupabaseClient,
+  userId: string,
+  carId: string,
+  input: DeleteCarCommand
+): Promise<DeleteResponseDTO> {
+  // First, verify the car exists and belongs to the user
+  const { data: existingCar, error: fetchError } = await supabase
+    .from("cars")
+    .select("id, name, user_id")
+    .eq("id", carId)
+    .eq("user_id", userId)
+    .limit(1)
+    .maybeSingle();
+
+  if (fetchError) {
+    throw new Error(`Failed to fetch car: ${fetchError.message}`);
+  }
+
+  if (!existingCar) {
+    throw new Error("Car not found");
+  }
+
+  // Verify confirmation name matches the actual car name
+  if (input.confirmation_name !== existingCar.name) {
+    throw new Error("Confirmation name does not match car name");
+  }
+
+  // Delete the car (cascade delete will handle fillups automatically)
+  const { error: deleteError } = await supabase.from("cars").delete().eq("id", carId).eq("user_id", userId);
+
+  if (deleteError) {
+    throw new Error(`Failed to delete car: ${deleteError.message}`);
+  }
+
+  return {
+    message: "Car and all associated fillups deleted successfully",
   };
 }

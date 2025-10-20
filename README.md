@@ -194,6 +194,37 @@ Error responses:
 - `409 Conflict` - Car name already exists for this user
 - `500 Internal Server Error` - Server error
 
+#### DELETE /api/cars/{carId}
+
+Permanently deletes a car and all associated fillups. Requires confirmation by providing the exact car name.
+
+Path params:
+
+- `carId`: UUID
+
+Request body:
+
+```json
+{
+  "confirmation_name": "My Audi A4"
+}
+```
+
+Response (200 OK):
+
+```json
+{
+  "message": "Car and all associated fillups deleted successfully"
+}
+```
+
+Error responses:
+
+- `400 Bad Request` - Invalid request body, carId format, or confirmation name doesn't match
+- `401 Unauthorized` - Missing or invalid authentication token
+- `404 Not Found` - Car not found or doesn't belong to user
+- `500 Internal Server Error` - Server error
+
 ## Available Scripts
 
 In the project directory, run:

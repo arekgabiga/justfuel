@@ -1,0 +1,8 @@
+### Delete Car - Manual Test
+DELETE http://localhost:3000/api/cars/{{carId}}
+# Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "confirmation_name": "My Audi A4"
+}
