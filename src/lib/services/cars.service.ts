@@ -1,4 +1,10 @@
-import type { CarWithStatisticsDTO, CarStatisticsView, CarDetailsDTO, CreateCarCommand } from "../../types.ts";
+import type {
+  CarWithStatisticsDTO,
+  CarStatisticsView,
+  CarDetailsDTO,
+  CreateCarCommand,
+  UpdateCarCommand,
+} from "../../types.ts";
 import type { AppSupabaseClient } from "../../db/supabase.client.ts";
 
 export interface ListCarsParams {
@@ -230,6 +236,121 @@ export async function createCar(
       average_consumption: 0,
       average_price_per_liter: 0,
       fillup_count: 0,
+    },
+  };
+}
+
+// ----------------------------------------------------------------------------
+// Update car service
+// ----------------------------------------------------------------------------
+
+/**
+ * Updates an existing car for the authenticated user
+ * @param supabase - Supabase client instance
+ * @param userId - Authenticated user ID
+ * @param carId - ID of the car to update
+ * @param input - Car update data (name, mileage_input_preference)
+ * @returns CarDetailsDTO with updated data and current statistics
+ * @throws ConflictError when car name already exists for the user
+ */
+export async function updateCar(
+  supabase: AppSupabaseClient,
+  userId: string,
+  carId: string,
+  input: UpdateCarCommand
+): Promise<CarDetailsDTO> {
+  // First, verify the car exists and belongs to the user
+  const { data: existingCar, error: fetchError } = await supabase
+    .from("cars")
+    .select("id, name, user_id")
+    .eq("id", carId)
+    .eq("user_id", userId)
+    .limit(1)
+    .maybeSingle();
+
+  if (fetchError) {
+    throw new Error(`Failed to fetch car: ${fetchError.message}`);
+  }
+
+  if (!existingCar) {
+    throw new Error("Car not found or does not belong to user");
+  }
+
+  // Check for name uniqueness if name is being updated
+  if (input.name && input.name !== existingCar.name) {
+    const { data: duplicateCar, error: duplicateError } = await supabase
+      .from("cars")
+      .select("id")
+      .eq("user_id", userId)
+      .eq("name", input.name)
+      .neq("id", carId)
+      .limit(1)
+      .maybeSingle();
+
+    if (duplicateError) {
+      throw new Error(`Failed to check name uniqueness: ${duplicateError.message}`);
+    }
+
+    if (duplicateCar) {
+      throw new ConflictError("Car name already exists");
+    }
+  }
+
+  // Update the car
+  const { data, error } = await supabase
+    .from("cars")
+    .update(input)
+    .eq("id", carId)
+    .eq("user_id", userId)
+    .select("id, name, initial_odometer, mileage_input_preference, created_at")
+    .single();
+
+  if (error) {
+    // Handle unique constraint violation (car name already exists for user)
+    interface SupabaseErrorLike {
+      code?: string;
+      message: string;
+    }
+    const supaErr = error as SupabaseErrorLike;
+    if (supaErr.code === "23505" || /duplicate key/i.test(supaErr.message)) {
+      throw new ConflictError("Car name already exists");
+    }
+    throw new Error(`Failed to update car: ${error.message}`);
+  }
+
+  if (!data) {
+    throw new Error("Failed to update car");
+  }
+
+  // Fetch current statistics for the updated car
+  const { data: statsRow, error: statsError } = await supabase
+    .from("car_statistics")
+    .select(
+      "car_id,total_fuel_cost,total_fuel_amount,total_distance,average_consumption,average_price_per_liter,fillup_count"
+    )
+    .eq("car_id", data.id)
+    .limit(1)
+    .maybeSingle();
+
+  if (statsError) {
+    // If stats view fails, still return car with zeroed statistics instead of failing the whole request
+    // Intentionally swallow the error to provide a resilient response
+  }
+
+  // Return updated car details with current statistics
+  return {
+    id: data.id,
+    name: data.name,
+    initial_odometer: data.initial_odometer,
+    mileage_input_preference: data.mileage_input_preference,
+    created_at: data.created_at,
+    statistics: {
+      total_fuel_cost: statsRow?.total_fuel_cost ?? 0,
+      total_fuel_amount: statsRow?.total_fuel_amount ?? 0,
+      total_distance: statsRow?.total_distance ?? 0,
+      average_consumption: statsRow?.average_consumption ?? 0,
+      average_price_per_liter: statsRow?.average_price_per_liter ?? 0,
+      fillup_count: statsRow?.fillup_count ?? 0,
     },
   };
 }

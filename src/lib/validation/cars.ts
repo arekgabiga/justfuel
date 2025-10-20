@@ -34,3 +34,19 @@ export const createCarCommandSchema = z
   .strict();
 
 export type CreateCarCommandInput = z.infer<typeof createCarCommandSchema>;
+
+// ----------------------------------------------------------------------------
+// Update car command validation
+// ----------------------------------------------------------------------------
+
+export const updateCarCommandSchema = z
+  .object({
+    name: z.string().trim().min(1).max(100).optional(),
+    mileage_input_preference: z.enum(["odometer", "distance"]).optional(),
+  })
+  .strict()
+  .refine((data) => Object.keys(data).length > 0, {
+    message: "At least one field must be provided for update",
+  });
+
+export type UpdateCarCommandInput = z.infer<typeof updateCarCommandSchema>;

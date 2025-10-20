@@ -1,0 +1,8 @@
+### Update car name
+PATCH http://localhost:3000/api/cars/{{carId}}
+# Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Updated Car Name"
+}

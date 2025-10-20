@@ -149,6 +149,51 @@ Response:
 }
 ```
 
+#### PATCH /api/cars/{carId}
+
+Updates an existing car's information. Allows partial updates of car name and mileage input preference.
+
+Path params:
+
+- `carId`: UUID
+
+Request body (at least one field required):
+
+```json
+{
+  "name": "Updated Car Name",
+  "mileage_input_preference": "odometer"
+}
+```
+
+Response (200 OK):
+
+```json
+{
+  "id": "uuid",
+  "name": "Updated Car Name",
+  "initial_odometer": 10000,
+  "mileage_input_preference": "odometer",
+  "created_at": "2025-01-01T00:00:00.000Z",
+  "statistics": {
+    "total_fuel_cost": 0,
+    "total_fuel_amount": 0,
+    "total_distance": 0,
+    "average_consumption": 0,
+    "average_price_per_liter": 0,
+    "fillup_count": 0
+  }
+}
+```
+
+Error responses:
+
+- `400 Bad Request` - Invalid request body or carId format
+- `401 Unauthorized` - Missing or invalid authentication token
+- `404 Not Found` - Car not found or doesn't belong to user
+- `409 Conflict` - Car name already exists for this user
+- `500 Internal Server Error` - Server error
+
 ## Available Scripts
 
 In the project directory, run:
