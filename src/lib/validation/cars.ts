@@ -20,3 +20,17 @@ export const carIdParamSchema = z
   .strict();
 
 export type CarIdParamInput = z.infer<typeof carIdParamSchema>;
+
+// ----------------------------------------------------------------------------
+// Create car command validation
+// ----------------------------------------------------------------------------
+
+export const createCarCommandSchema = z
+  .object({
+    name: z.string().trim().min(1).max(100),
+    initial_odometer: z.number().int().nonnegative().optional(),
+    mileage_input_preference: z.enum(["odometer", "distance"]),
+  })
+  .strict();
+
+export type CreateCarCommandInput = z.infer<typeof createCarCommandSchema>;

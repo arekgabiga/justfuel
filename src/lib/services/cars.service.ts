@@ -1,4 +1,4 @@
-import type { CarWithStatisticsDTO, CarStatisticsView, CarDetailsDTO } from "../../types.ts";
+import type { CarWithStatisticsDTO, CarStatisticsView, CarDetailsDTO, CreateCarCommand } from "../../types.ts";
 import type { AppSupabaseClient } from "../../db/supabase.client.ts";
 
 export interface ListCarsParams {
@@ -162,4 +162,74 @@ export async function getUserCarWithStats(
   };
 
   return result;
+}
+
+// ----------------------------------------------------------------------------
+// Create car service
+// ----------------------------------------------------------------------------
+
+/**
+ * Custom error thrown when car name already exists for the user
+ * Maps to HTTP 409 Conflict status
+ */
+export class ConflictError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "ConflictError";
+  }
+}
+
+/**
+ * Creates a new car for the authenticated user
+ * @param supabase - Supabase client instance
+ * @param userId - Authenticated user ID
+ * @param input - Car creation data (name, initial_odometer, mileage_input_preference)
+ * @returns CarDetailsDTO with zeroed statistics for the new car
+ * @throws ConflictError when car name already exists for the user
+ */
+export async function createCar(
+  supabase: AppSupabaseClient,
+  userId: string,
+  input: CreateCarCommand
+): Promise<CarDetailsDTO> {
+  // Insert new car with user_id to ensure RLS compliance
+  const { data, error } = await supabase
+    .from("cars")
+    .insert({ user_id: userId, ...input })
+    .select("id, name, initial_odometer, mileage_input_preference, created_at")
+    .single();
+
+  if (error) {
+    // Handle unique constraint violation (car name already exists for user)
+    interface SupabaseErrorLike {
+      code?: string;
+      message: string;
+    }
+    const supaErr = error as SupabaseErrorLike;
+    if (supaErr.code === "23505" || /duplicate key/i.test(supaErr.message)) {
+      throw new ConflictError("Car name already exists");
+    }
+    throw error;
+  }
+
+  if (!data) {
+    throw new Error("Failed to insert car");
+  }
+
+  // Return car details with zeroed statistics (no fillups yet)
+  return {
+    id: data.id,
+    name: data.name,
+    initial_odometer: data.initial_odometer,
+    mileage_input_preference: data.mileage_input_preference,
+    created_at: data.created_at,
+    statistics: {
+      total_fuel_cost: 0,
+      total_fuel_amount: 0,
+      total_distance: 0,
+      average_consumption: 0,
+      average_price_per_liter: 0,
+      fillup_count: 0,
+    },
+  };
 }
