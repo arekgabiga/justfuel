@@ -1,0 +1,2 @@
+### Get fillups for a car (default pagination)
+GET http://localhost:3000/api/cars/00000000-0000-0000-0000-000000000000/fillups
