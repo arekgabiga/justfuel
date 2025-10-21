@@ -22,3 +22,19 @@ export const listFillupsQuerySchema = z
   .strict();
 
 export type ListFillupsQueryInput = z.infer<typeof listFillupsQuerySchema>;
+
+// ----------------------------------------------------------------------------
+// Route params validation
+// ----------------------------------------------------------------------------
+
+/**
+ * Zod schema for validating fillupId path parameter
+ * Used in GET /api/cars/{carId}/fillups/{fillupId}
+ */
+export const fillupIdParamSchema = z
+  .object({
+    fillupId: z.string().uuid(),
+  })
+  .strict();
+
+export type FillupIdParamInput = z.infer<typeof fillupIdParamSchema>;

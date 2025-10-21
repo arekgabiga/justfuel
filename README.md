@@ -225,6 +225,85 @@ Error responses:
 - `404 Not Found` - Car not found or doesn't belong to user
 - `500 Internal Server Error` - Server error
 
+#### GET /api/cars/{carId}/fillups
+
+Returns a paginated list of fillups for a specific car, sorted by date or odometer.
+
+Path params:
+
+- `carId`: UUID
+
+Query params:
+
+- `limit`: number (optional, default: 20, max: 100) - Number of results per page
+- `cursor`: string (optional) - Pagination cursor for fetching next page
+- `sort`: `date | odometer` (optional, default: `date`) - Field to sort by
+- `order`: `asc | desc` (optional, default: `desc`) - Sort order
+
+Response (200 OK):
+
+```json
+{
+  "fillups": [
+    {
+      "id": "uuid",
+      "car_id": "uuid",
+      "date": "2025-10-17T12:00:00Z",
+      "fuel_amount": 45.5,
+      "total_price": 227.5,
+      "odometer": 55000,
+      "distance_traveled": 500,
+      "fuel_consumption": 9.1,
+      "price_per_liter": 5.0
+    }
+  ],
+  "pagination": {
+    "next_cursor": "base64_encoded_cursor",
+    "has_more": true,
+    "total_count": 42
+  }
+}
+```
+
+Error responses:
+
+- `400 Bad Request` - Invalid carId format or query parameters
+- `401 Unauthorized` - Missing or invalid authentication token
+- `404 Not Found` - Car not found or doesn't belong to user
+- `500 Internal Server Error` - Server error
+
+#### GET /api/cars/{carId}/fillups/{fillupId}
+
+Returns detailed information about a specific fillup for a car.
+
+Path params:
+
+- `carId`: UUID
+- `fillupId`: UUID
+
+Response (200 OK):
+
+```json
+{
+  "id": "uuid",
+  "car_id": "uuid",
+  "date": "2025-10-17T12:00:00Z",
+  "fuel_amount": 45.5,
+  "total_price": 227.5,
+  "odometer": 55000,
+  "distance_traveled": 500,
+  "fuel_consumption": 9.1,
+  "price_per_liter": 5.0
+}
+```
+
+Error responses:
+
+- `400 Bad Request` - Invalid UUID format for carId or fillupId
+- `401 Unauthorized` - Missing or invalid authentication token
+- `404 Not Found` - Fillup not found, doesn't belong to car, or car doesn't belong to user
+- `500 Internal Server Error` - Server error
+
 ## Available Scripts
 
 In the project directory, run:

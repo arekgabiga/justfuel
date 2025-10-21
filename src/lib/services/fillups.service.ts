@@ -210,3 +210,65 @@ export async function listFillupsByCar(
     },
   };
 }
+
+/**
+ * Gets a single fillup by ID for a specific car
+ *
+ * Security:
+ * - RLS policies automatically verify that the fillup belongs to the user's car
+ * - Returns null if fillup doesn't exist or doesn't belong to user
+ *
+ * Performance:
+ * - Uses primary key index on fillups.id for fast lookup
+ * - Uses idx_fillups_on_car_id index for car_id filtering
+ * - Single query combining both conditions
+ *
+ * @param supabase - Supabase client instance
+ * @param userId - Authenticated user ID (for RLS verification)
+ * @param carId - ID of the car the fillup should belong to
+ * @param fillupId - ID of the fillup to retrieve
+ * @returns FillupDTO if found, null if not found or doesn't belong to user's car
+ * @throws Error when query fails
+ */
+export async function getFillupById(
+  supabase: AppSupabaseClient,
+  userId: string,
+  carId: string,
+  fillupId: string
+): Promise<FillupDTO | null> {
+  // Query fillup with both car_id and id filters
+  // RLS will automatically ensure the car belongs to the user
+  const { data: fillup, error } = await supabase
+    .from("fillups")
+    .select(
+      "id, car_id, date, fuel_amount, total_price, odometer, distance_traveled, fuel_consumption, price_per_liter"
+    )
+    .eq("car_id", carId)
+    .eq("id", fillupId)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(`Failed to fetch fillup: ${error.message}`);
+  }
+
+  // If no fillup found, it either doesn't exist, doesn't belong to this car,
+  // or the car doesn't belong to the user (enforced by RLS)
+  if (!fillup) {
+    return null;
+  }
+
+  // Map to FillupDTO
+  const fillupDTO: FillupDTO = {
+    id: fillup.id,
+    car_id: fillup.car_id,
+    date: fillup.date,
+    fuel_amount: fillup.fuel_amount,
+    total_price: fillup.total_price,
+    odometer: fillup.odometer,
+    distance_traveled: fillup.distance_traveled,
+    fuel_consumption: fillup.fuel_consumption,
+    price_per_liter: fillup.price_per_liter,
+  };
+
+  return fillupDTO;
+}
