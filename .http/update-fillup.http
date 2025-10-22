@@ -1,0 +1,33 @@
+### Update fillup with odometer reading
+PATCH http://localhost:3000/api/cars/00000000-0000-0000-0000-000000000000/fillups/00000000-0000-0000-0000-000000000001
+Content-Type: application/json
+
+{
+  "date": "2025-01-15T10:30:00Z",
+  "fuel_amount": 46.0,
+  "total_price": 230.0,
+  "odometer": 55100
+}
+
+###
+
+### Update fillup with distance traveled
+PATCH http://localhost:3000/api/cars/00000000-0000-0000-0000-000000000000/fillups/00000000-0000-0000-0000-000000000001
+Content-Type: application/json
+
+{
+  "fuel_amount": 42.5,
+  "total_price": 212.5,
+  "distance": 500
+}
+
+###
+
+### Partial update - only fuel amount and price
+PATCH http://localhost:3000/api/cars/00000000-0000-0000-0000-000000000000/fillups/00000000-0000-0000-0000-000000000001
+Content-Type: application/json
+
+{
+  "fuel_amount": 44.0,
+  "total_price": 220.0
+}

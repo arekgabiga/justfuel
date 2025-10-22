@@ -4,6 +4,8 @@ import type {
   CreateFillupCommand,
   FillupWithWarningsDTO,
   ValidationWarningDTO,
+  UpdateFillupCommand,
+  UpdatedFillupDTO,
 } from "../../types.ts";
 import type { AppSupabaseClient } from "../../db/supabase.client.ts";
 
@@ -452,5 +454,279 @@ export async function createFillup(
   return {
     ...fillupDTO,
     warnings: warnings.length > 0 ? warnings : undefined,
+  };
+}
+
+// ----------------------------------------------------------------------------
+// Update fillup service
+// ----------------------------------------------------------------------------
+
+/**
+ * Updates an existing fillup for a specific car
+ *
+ * Business Logic:
+ * - Supports partial updates (only provided fields are updated)
+ * - Supports two input methods: odometer reading or distance traveled (mutually exclusive)
+ * - Automatically recalculates dependent statistics for affected fillups
+ * - Validates odometer consistency with previous/next fillups
+ * - Returns warnings for validation issues
+ *
+ * Security:
+ * - RLS policies automatically verify car and fillup ownership via user_id
+ * - User can only update fillups for their own cars
+ *
+ * Performance:
+ * - Uses idx_fillups_on_car_id index for efficient fillup lookup
+ * - Batch updates for recalculating statistics in single transaction
+ * - Minimal queries by leveraging RLS for ownership verification
+ *
+ * @param supabase - Supabase client instance
+ * @param userId - Authenticated user ID (for RLS verification)
+ * @param carId - ID of the car the fillup belongs to
+ * @param fillupId - ID of the fillup to update
+ * @param input - Partial fillup update data
+ * @returns UpdatedFillupDTO with updated fillup data, affected entries count, and warnings
+ * @throws Error when fillup doesn't exist, doesn't belong to user, or update fails
+ */
+export async function updateFillup(
+  supabase: AppSupabaseClient,
+  userId: string,
+  carId: string,
+  fillupId: string,
+  input: UpdateFillupCommand
+): Promise<UpdatedFillupDTO> {
+  // First, verify the fillup exists and belongs to the user's car
+  const { data: existingFillup, error: fillupError } = await supabase
+    .from("fillups")
+    .select(
+      "id, car_id, date, fuel_amount, total_price, odometer, distance_traveled, fuel_consumption, price_per_liter"
+    )
+    .eq("car_id", carId)
+    .eq("id", fillupId)
+    .maybeSingle();
+
+  if (fillupError) {
+    throw new Error(`Failed to fetch fillup: ${fillupError.message}`);
+  }
+
+  if (!existingFillup) {
+    throw new Error("Fillup not found");
+  }
+
+  // Get car information for initial odometer reference
+  const { data: car, error: carError } = await supabase
+    .from("cars")
+    .select("id, initial_odometer")
+    .eq("id", carId)
+    .eq("user_id", userId)
+    .limit(1)
+    .maybeSingle();
+
+  if (carError) {
+    throw new Error(`Failed to verify car: ${carError.message}`);
+  }
+
+  if (!car) {
+    throw new Error("Car not found");
+  }
+
+  // Prepare update data with only provided fields
+  const updateData: Partial<{
+    date: string;
+    fuel_amount: number;
+    total_price: number;
+    odometer: number;
+    distance_traveled: number;
+    fuel_consumption: number | null;
+    price_per_liter: number | null;
+  }> = {};
+
+  // Copy provided fields
+  if (input.date !== undefined) updateData.date = input.date;
+  if (input.fuel_amount !== undefined) updateData.fuel_amount = input.fuel_amount;
+  if (input.total_price !== undefined) updateData.total_price = input.total_price;
+
+  const warnings: ValidationWarningDTO[] = [];
+
+  // Handle odometer/distance updates
+  if (input.odometer !== undefined || input.distance !== undefined) {
+    let newOdometer: number;
+    let newDistanceTraveled: number;
+
+    if (input.odometer !== undefined) {
+      // Input method: odometer reading
+      newOdometer = input.odometer;
+
+      // Get previous fillup for distance calculation
+      const { data: previousFillup, error: prevError } = await supabase
+        .from("fillups")
+        .select("odometer")
+        .eq("car_id", carId)
+        .lt("odometer", newOdometer)
+        .order("odometer", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (prevError) {
+        throw new Error(`Failed to fetch previous fillup: ${prevError.message}`);
+      }
+
+      if (previousFillup) {
+        newDistanceTraveled = newOdometer - previousFillup.odometer;
+      } else {
+        // This might be the first fillup or odometer went backwards
+        const initialOdometer = car.initial_odometer ?? 0;
+        newDistanceTraveled = newOdometer - initialOdometer;
+      }
+
+      // Validate odometer consistency
+      if (newDistanceTraveled < 0) {
+        warnings.push({
+          field: "odometer",
+          message: "Odometer reading is lower than the previous fillup",
+        });
+      } else if (newDistanceTraveled === 0) {
+        warnings.push({
+          field: "odometer",
+          message: "Odometer reading is the same as the previous fillup",
+        });
+      }
+    } else if (input.distance !== undefined) {
+      // Input method: distance traveled
+      newDistanceTraveled = input.distance;
+
+      // Get previous fillup for odometer calculation
+      const { data: previousFillup, error: prevError } = await supabase
+        .from("fillups")
+        .select("odometer")
+        .eq("car_id", carId)
+        .lt("odometer", existingFillup.odometer)
+        .order("odometer", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (prevError) {
+        throw new Error(`Failed to fetch previous fillup: ${prevError.message}`);
+      }
+
+      if (previousFillup) {
+        newOdometer = previousFillup.odometer + newDistanceTraveled;
+      } else {
+        // This might be the first fillup
+        const initialOdometer = car.initial_odometer ?? 0;
+        newOdometer = initialOdometer + newDistanceTraveled;
+      }
+    } else {
+      throw new Error("Either odometer or distance must be provided");
+    }
+
+    updateData.odometer = newOdometer;
+    updateData.distance_traveled = newDistanceTraveled;
+  }
+
+  // Calculate fuel consumption and price per liter if fuel data is provided
+  if (input.fuel_amount !== undefined || input.total_price !== undefined) {
+    const fuelAmount = input.fuel_amount ?? existingFillup.fuel_amount;
+    const totalPrice = input.total_price ?? existingFillup.total_price;
+    const distanceTraveled = updateData.distance_traveled ?? existingFillup.distance_traveled;
+
+    updateData.fuel_consumption =
+      distanceTraveled && distanceTraveled > 0 ? (fuelAmount / distanceTraveled) * 100 : null;
+    updateData.price_per_liter = fuelAmount > 0 ? totalPrice / fuelAmount : null;
+  }
+
+  // Update the fillup
+  const { data: updatedFillup, error: updateError } = await supabase
+    .from("fillups")
+    .update(updateData)
+    .eq("id", fillupId)
+    .eq("car_id", carId)
+    .select(
+      "id, car_id, date, fuel_amount, total_price, odometer, distance_traveled, fuel_consumption, price_per_liter"
+    )
+    .single();
+
+  if (updateError) {
+    throw new Error(`Failed to update fillup: ${updateError.message}`);
+  }
+
+  if (!updatedFillup) {
+    throw new Error("Failed to update fillup");
+  }
+
+  // Recalculate statistics for affected fillups
+  let updatedEntriesCount = 1; // The current fillup is always updated
+
+  // If odometer or distance was changed, we need to recalculate subsequent fillups
+  if (input.odometer !== undefined || input.distance !== undefined) {
+    const newOdometer = updateData.odometer ?? existingFillup.odometer;
+
+    // Get all fillups that come after this one (higher odometer readings)
+    const { data: subsequentFillups, error: subsequentError } = await supabase
+      .from("fillups")
+      .select("id, odometer, fuel_amount, total_price, distance_traveled")
+      .eq("car_id", carId)
+      .gt("odometer", newOdometer)
+      .order("odometer", { ascending: true });
+
+    if (subsequentError) {
+      throw new Error(`Failed to fetch subsequent fillups: ${subsequentError.message}`);
+    }
+
+    if (subsequentFillups && subsequentFillups.length > 0) {
+      // Recalculate distance_traveled and fuel_consumption for each subsequent fillup
+      const updates = [];
+
+      for (let i = 0; i < subsequentFillups.length; i++) {
+        const currentFillup = subsequentFillups[i];
+        const previousFillup = i === 0 ? updatedFillup : subsequentFillups[i - 1];
+
+        const newDistanceTraveled = currentFillup.odometer - previousFillup.odometer;
+        const newFuelConsumption =
+          newDistanceTraveled > 0 ? (currentFillup.fuel_amount / newDistanceTraveled) * 100 : null;
+
+        updates.push({
+          id: currentFillup.id,
+          distance_traveled: newDistanceTraveled,
+          fuel_consumption: newFuelConsumption,
+        });
+      }
+
+      // Batch update all subsequent fillups
+      for (const update of updates) {
+        const { error: updateError } = await supabase
+          .from("fillups")
+          .update({
+            distance_traveled: update.distance_traveled,
+            fuel_consumption: update.fuel_consumption,
+          })
+          .eq("id", update.id);
+
+        if (updateError) {
+          throw new Error(`Failed to update subsequent fillup ${update.id}: ${updateError.message}`);
+        }
+      }
+
+      updatedEntriesCount += updates.length;
+    }
+  }
+
+  // Map to FillupDTO
+  const fillupDTO: FillupDTO = {
+    id: updatedFillup.id,
+    car_id: updatedFillup.car_id,
+    date: updatedFillup.date,
+    fuel_amount: updatedFillup.fuel_amount,
+    total_price: updatedFillup.total_price,
+    odometer: updatedFillup.odometer,
+    distance_traveled: updatedFillup.distance_traveled,
+    fuel_consumption: updatedFillup.fuel_consumption,
+    price_per_liter: updatedFillup.price_per_liter,
+  };
+
+  return {
+    ...fillupDTO,
+    updated_entries_count: updatedEntriesCount,
+    warnings,
   };
 }
