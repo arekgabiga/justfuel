@@ -2,6 +2,7 @@ import type {
   CarWithStatisticsDTO,
   CarStatisticsView,
   CarDetailsDTO,
+  CarStatisticsDTO,
   CreateCarCommand,
   UpdateCarCommand,
   DeleteCarCommand,
@@ -408,4 +409,88 @@ export async function deleteCar(
   return {
     message: "Car and all associated fillups deleted successfully",
   };
+}
+
+// ----------------------------------------------------------------------------
+// Car statistics service
+// ----------------------------------------------------------------------------
+
+/**
+ * Gets detailed statistics for a specific car including latest fillup data
+ *
+ * Optimized implementation using a single JOIN query to reduce database round-trips:
+ * - Verifies car ownership (RLS)
+ * - Fetches aggregated statistics from car_statistics view
+ * - Gets latest fillup metadata for current_odometer and latest_fillup_date
+ *
+ * @param supabase - Supabase client instance
+ * @param carId - ID of the car to get statistics for
+ * @param options - Optional userId for explicit filtering (RLS fallback)
+ * @returns CarStatisticsDTO with aggregated statistics and latest fillup info, or null if car not found
+ * @throws Error when database query fails
+ */
+export async function getCarStatistics(
+  supabase: AppSupabaseClient,
+  carId: string,
+  options?: { userId?: string }
+): Promise<CarStatisticsDTO | null> {
+  // Optimized: Single query to get car verification, statistics, and latest fillup
+  // This reduces database round-trips from 3 to 1
+  let query = supabase
+    .from("cars")
+    .select(
+      `id,
+      user_id,
+      car_statistics!inner(
+        car_id,
+        total_fuel_cost,
+        total_fuel_amount,
+        total_distance,
+        average_consumption,
+        average_price_per_liter,
+        fillup_count
+      ),
+      fillups!left(
+        date,
+        odometer
+      )`
+    )
+    .eq("id", carId)
+    .order("date", { referencedTable: "fillups", ascending: false })
+    .limit(1, { referencedTable: "fillups" });
+
+  if (options?.userId) {
+    query = query.eq("user_id", options.userId);
+  }
+
+  const { data, error } = await query.limit(1).maybeSingle();
+
+  if (error) {
+    throw new Error(`Failed to fetch car statistics: ${error.message}`);
+  }
+
+  if (!data) {
+    return null;
+  }
+
+  // Extract statistics from the joined car_statistics view
+  const stats = Array.isArray(data.car_statistics) && data.car_statistics.length > 0 ? data.car_statistics[0] : null;
+
+  // Extract latest fillup from the joined fillups (if any exist)
+  const latestFillup = Array.isArray(data.fillups) && data.fillups.length > 0 ? data.fillups[0] : null;
+
+  // Build the result with fallback values for missing statistics
+  const result: CarStatisticsDTO = {
+    car_id: carId,
+    total_fuel_cost: stats?.total_fuel_cost ?? 0,
+    total_fuel_amount: stats?.total_fuel_amount ?? 0,
+    total_distance: stats?.total_distance ?? 0,
+    average_consumption: stats?.average_consumption ?? 0,
+    average_price_per_liter: stats?.average_price_per_liter ?? 0,
+    fillup_count: stats?.fillup_count ?? 0,
+    latest_fillup_date: latestFillup?.date ?? null,
+    current_odometer: latestFillup?.odometer ?? null,
+  };
+
+  return result;
 }

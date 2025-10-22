@@ -1,0 +1,5 @@
+### Test GET /api/cars/{carId}/statistics endpoint
+
+# Test with valid car ID (replace with actual UUID from your database)
+GET http://localhost:3000/api/cars/00000000-0000-0000-0000-000000000000/statistics
+x-request-id: test-statistics-003
