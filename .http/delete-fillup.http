@@ -1,0 +1,4 @@
+### Delete a specific fillup for a car
+DELETE http://localhost:3000/api/cars/00000000-0000-0000-0000-000000000000/fillups/00000000-0000-0000-0000-000000000001
+# Authorization: Bearer {{token}}
+Accept: application/json

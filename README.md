@@ -365,6 +365,76 @@ Error responses:
 - `404 Not Found` - Car not found or doesn't belong to user
 - `500 Internal Server Error` - Server error
 
+#### PATCH /api/cars/{carId}/fillups/{fillupId}
+
+Updates an existing fillup for a specific car. Supports partial updates and two input methods: odometer reading or distance traveled (mutually exclusive).
+
+Path params:
+
+- `carId`: UUID
+- `fillupId`: UUID
+
+Request body (all fields optional):
+
+```json
+{
+  "date": "2025-01-15T10:30:00Z",
+  "fuel_amount": 45.5,
+  "total_price": 227.5,
+  "odometer": 55000
+}
+```
+
+Response (200 OK):
+
+```json
+{
+  "id": "uuid",
+  "car_id": "uuid",
+  "date": "2025-01-15T10:30:00Z",
+  "fuel_amount": 45.5,
+  "total_price": 227.5,
+  "odometer": 55000,
+  "distance_traveled": 500,
+  "fuel_consumption": 9.1,
+  "price_per_liter": 5.0,
+  "updated_entries_count": 2,
+  "warnings": []
+}
+```
+
+Error responses:
+
+- `400 Bad Request` - Invalid request body, carId/fillupId format, or validation errors
+- `401 Unauthorized` - Missing or invalid authentication token
+- `404 Not Found` - Fillup not found, doesn't belong to car, or car doesn't belong to user
+- `500 Internal Server Error` - Server error
+
+#### DELETE /api/cars/{carId}/fillups/{fillupId}
+
+Deletes a specific fillup for a specific car. Automatically recalculates statistics for subsequent fillups to maintain data consistency.
+
+Path params:
+
+- `carId`: UUID
+- `fillupId`: UUID
+
+Response (200 OK):
+
+```json
+{
+  "message": "Fillup deleted successfully",
+  "updated_entries_count": 2
+}
+```
+
+Error responses:
+
+- `400 Bad Request` - Invalid carId or fillupId format
+- `401 Unauthorized` - Missing or invalid authentication token
+- `404 Not Found` - Fillup or car not found, or doesn't belong to user
+- `500 Internal Server Error` - An unexpected error occurred while deleting fillup
+
 ## Available Scripts
 
 In the project directory, run:
