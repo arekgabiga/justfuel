@@ -304,6 +304,67 @@ Error responses:
 - `404 Not Found` - Fillup not found, doesn't belong to car, or car doesn't belong to user
 - `500 Internal Server Error` - Server error
 
+#### POST /api/cars/{carId}/fillups
+
+Creates a new fillup for a specific car. Supports two input methods: odometer reading or distance traveled (mutually exclusive).
+
+Path params:
+
+- `carId`: UUID
+
+Request body (one of the two variants):
+
+**Variant 1 - With odometer reading:**
+
+```json
+{
+  "date": "2025-01-15T10:30:00Z",
+  "fuel_amount": 45.5,
+  "total_price": 227.5,
+  "odometer": 55000
+}
+```
+
+**Variant 2 - With distance traveled:**
+
+```json
+{
+  "date": "2025-01-15T10:30:00Z",
+  "fuel_amount": 45.5,
+  "total_price": 227.5,
+  "distance": 500
+}
+```
+
+Response (201 Created):
+
+```json
+{
+  "id": "uuid",
+  "car_id": "uuid",
+  "date": "2025-01-15T10:30:00Z",
+  "fuel_amount": 45.5,
+  "total_price": 227.5,
+  "odometer": 55000,
+  "distance_traveled": 500,
+  "fuel_consumption": 9.1,
+  "price_per_liter": 5.0,
+  "warnings": [
+    {
+      "field": "odometer",
+      "message": "Odometer reading is lower than the previous fillup"
+    }
+  ]
+}
+```
+
+Error responses:
+
+- `400 Bad Request` - Invalid request body, carId format, or validation errors (e.g., negative values, both odometer and distance provided)
+- `401 Unauthorized` - Missing or invalid authentication token
+- `404 Not Found` - Car not found or doesn't belong to user
+- `500 Internal Server Error` - Server error
+
 ## Available Scripts
 
 In the project directory, run:

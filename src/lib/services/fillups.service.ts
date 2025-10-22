@@ -1,4 +1,10 @@
-import type { FillupDTO, PaginatedFillupsResponseDTO } from "../../types.ts";
+import type {
+  FillupDTO,
+  PaginatedFillupsResponseDTO,
+  CreateFillupCommand,
+  FillupWithWarningsDTO,
+  ValidationWarningDTO,
+} from "../../types.ts";
 import type { AppSupabaseClient } from "../../db/supabase.client.ts";
 
 export interface ListFillupsParams {
@@ -271,4 +277,180 @@ export async function getFillupById(
   };
 
   return fillupDTO;
+}
+
+// ----------------------------------------------------------------------------
+// Create fillup service
+// ----------------------------------------------------------------------------
+
+/**
+ * Result of fillup validation containing warnings
+ */
+export interface CreateFillupValidationResult {
+  warnings: ValidationWarningDTO[];
+}
+
+/**
+ * Creates a new fillup for a specific car
+ *
+ * Business Logic:
+ * - Supports two input methods: odometer reading or distance traveled (mutually exclusive)
+ * - Automatically calculates missing field (distance from odometer or vice versa)
+ * - Validates odometer consistency with previous fillups
+ * - Calculates fuel consumption and price per liter
+ * - Returns warnings for validation issues (e.g., odometer going backwards)
+ *
+ * Security:
+ * - RLS policies automatically verify car ownership via user_id
+ * - User can only create fillups for their own cars
+ *
+ * Performance:
+ * - Uses idx_fillups_on_car_id index for efficient previous fillup lookup
+ * - Single query to get previous fillup for validation
+ * - Single insert operation for new fillup
+ *
+ * @param supabase - Supabase client instance
+ * @param userId - Authenticated user ID (for RLS verification)
+ * @param carId - ID of the car to create fillup for
+ * @param input - Fillup creation data (date, fuel_amount, total_price, odometer OR distance)
+ * @returns FillupWithWarningsDTO with created fillup data and validation warnings
+ * @throws Error when car doesn't exist, doesn't belong to user, or creation fails
+ */
+export async function createFillup(
+  supabase: AppSupabaseClient,
+  userId: string,
+  carId: string,
+  input: CreateFillupCommand
+): Promise<FillupWithWarningsDTO> {
+  // First, verify the car exists and belongs to the user
+  const { data: car, error: carError } = await supabase
+    .from("cars")
+    .select("id, initial_odometer")
+    .eq("id", carId)
+    .eq("user_id", userId)
+    .limit(1)
+    .maybeSingle();
+
+  if (carError) {
+    throw new Error(`Failed to verify car: ${carError.message}`);
+  }
+
+  if (!car) {
+    throw new Error("Car not found or does not belong to user");
+  }
+
+  // Get the most recent fillup for this car to validate odometer consistency
+  const { data: previousFillup, error: previousError } = await supabase
+    .from("fillups")
+    .select("odometer, date")
+    .eq("car_id", carId)
+    .order("odometer", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (previousError) {
+    throw new Error(`Failed to fetch previous fillup: ${previousError.message}`);
+  }
+
+  // Calculate odometer and distance based on input method
+  let odometer: number;
+  let distance_traveled: number;
+  const warnings: ValidationWarningDTO[] = [];
+
+  if ("odometer" in input && input.odometer !== undefined) {
+    // Input method: odometer reading
+    odometer = input.odometer;
+
+    if (previousFillup) {
+      distance_traveled = odometer - previousFillup.odometer;
+
+      // Validate odometer consistency
+      if (distance_traveled < 0) {
+        warnings.push({
+          field: "odometer",
+          message: "Odometer reading is lower than the previous fillup",
+        });
+      } else if (distance_traveled === 0) {
+        warnings.push({
+          field: "odometer",
+          message: "Odometer reading is the same as the previous fillup",
+        });
+      }
+    } else {
+      // First fillup - calculate distance from initial odometer
+      const initialOdometer = car.initial_odometer ?? 0;
+      distance_traveled = odometer - initialOdometer;
+
+      if (distance_traveled < 0) {
+        warnings.push({
+          field: "odometer",
+          message: "Odometer reading is lower than the car's initial odometer",
+        });
+      }
+    }
+  } else if ("distance" in input && input.distance !== undefined) {
+    // Input method: distance traveled
+    distance_traveled = input.distance;
+
+    if (previousFillup) {
+      odometer = previousFillup.odometer + distance_traveled;
+    } else {
+      // First fillup - calculate odometer from initial odometer
+      const initialOdometer = car.initial_odometer ?? 0;
+      odometer = initialOdometer + distance_traveled;
+    }
+  } else {
+    throw new Error("Either odometer or distance must be provided");
+  }
+
+  // Calculate fuel consumption and price per liter
+  const fuel_consumption = distance_traveled > 0 ? (input.fuel_amount / distance_traveled) * 100 : null;
+  const price_per_liter = input.fuel_amount > 0 ? input.total_price / input.fuel_amount : null;
+
+  // Prepare fillup data for insertion
+  const fillupData = {
+    car_id: carId,
+    date: input.date,
+    fuel_amount: input.fuel_amount,
+    total_price: input.total_price,
+    odometer,
+    distance_traveled,
+    fuel_consumption,
+    price_per_liter,
+  };
+
+  // Insert the new fillup
+  const { data: newFillup, error: insertError } = await supabase
+    .from("fillups")
+    .insert(fillupData)
+    .select(
+      "id, car_id, date, fuel_amount, total_price, odometer, distance_traveled, fuel_consumption, price_per_liter"
+    )
+    .single();
+
+  if (insertError) {
+    throw new Error(`Failed to create fillup: ${insertError.message}`);
+  }
+
+  if (!newFillup) {
+    throw new Error("Failed to create fillup");
+  }
+
+  // Map to FillupDTO and add warnings
+  const fillupDTO: FillupDTO = {
+    id: newFillup.id,
+    car_id: newFillup.car_id,
+    date: newFillup.date,
+    fuel_amount: newFillup.fuel_amount,
+    total_price: newFillup.total_price,
+    odometer: newFillup.odometer,
+    distance_traveled: newFillup.distance_traveled,
+    fuel_consumption: newFillup.fuel_consumption,
+    price_per_liter: newFillup.price_per_liter,
+  };
+
+  return {
+    ...fillupDTO,
+    warnings: warnings.length > 0 ? warnings : undefined,
+  };
 }

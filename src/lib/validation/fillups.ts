@@ -38,3 +38,29 @@ export const fillupIdParamSchema = z
   .strict();
 
 export type FillupIdParamInput = z.infer<typeof fillupIdParamSchema>;
+
+// ----------------------------------------------------------------------------
+// Request body validation
+// ----------------------------------------------------------------------------
+
+/**
+ * Zod schema for validating POST /api/cars/{carId}/fillups request body
+ * Supports two mutually exclusive input methods:
+ * 1. With odometer reading (system calculates distance)
+ * 2. With distance traveled (system calculates odometer)
+ */
+export const createFillupRequestSchema = z
+  .object({
+    date: z.string().datetime({ message: "Date must be a valid ISO 8601 timestamp" }),
+    fuel_amount: z.number().positive({ message: "Fuel amount must be positive" }),
+    total_price: z.number().positive({ message: "Total price must be positive" }),
+    odometer: z.number().int().min(0, { message: "Odometer must be a non-negative integer" }).optional(),
+    distance: z.number().positive({ message: "Distance must be positive" }).optional(),
+  })
+  .strict()
+  .refine((data) => (data.odometer !== undefined) !== (data.distance !== undefined), {
+    message: "Either odometer or distance must be provided, but not both",
+    path: ["odometer", "distance"],
+  });
+
+export type CreateFillupRequestInput = z.infer<typeof createFillupRequestSchema>;

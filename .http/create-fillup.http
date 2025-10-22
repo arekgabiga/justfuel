@@ -1,0 +1,23 @@
+### Create a new fillup with odometer reading
+POST http://localhost:3000/api/cars/00000000-0000-0000-0000-000000000000/fillups
+Content-Type: application/json
+
+{
+  "date": "2025-01-15T10:30:00Z",
+  "fuel_amount": 45.5,
+  "total_price": 227.5,
+  "odometer": 55000
+}
+
+###
+
+### Create a new fillup with distance traveled
+POST http://localhost:3000/api/cars/0cedaf42-2389-48a2-bc55-2a7a22f75e44/fillups
+Content-Type: application/json
+
+{
+  "date": "2025-01-20T14:15:00Z",
+  "fuel_amount": 38.2,
+  "total_price": 191.0,
+  "distance": 450
+}
