@@ -1,0 +1,20 @@
+### Test GET /api/cars/{carId}/charts endpoint
+
+# Test consumption chart data (replace with actual UUID from your database)
+GET http://localhost:3000/api/cars/00000000-0000-0000-0000-000000000000/charts?type=consumption&limit=20
+# Authorization: Bearer your-jwt-token-here
+x-request-id: test-charts-consumption-001
+
+###
+
+# Test price per liter chart data
+GET http://localhost:3000/api/cars/00000000-0000-0000-0000-000000000000/charts?type=price_per_liter&limit=10
+# Authorization: Bearer your-jwt-token-here
+x-request-id: test-charts-price-002
+
+###
+
+# Test distance chart data with date range
+GET http://localhost:3000/api/cars/00000000-0000-0000-0000-000000000000/charts?type=distance&start_date=2024-01-01T00:00:00Z&end_date=2024-12-31T23:59:59Z&limit=50
+Authorization: Bearer your-jwt-token-here
+x-request-id: test-charts-distance-003
