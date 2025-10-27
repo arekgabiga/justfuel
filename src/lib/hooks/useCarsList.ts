@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import type { CarWithStatisticsDTO, ListCarsQueryParams } from "../../types";
+import type { CarWithStatisticsDTO } from "../../types";
 
 interface CarsListState {
   loading: boolean;
@@ -23,14 +23,41 @@ export const useCarsList = () => {
 
     try {
       // Get auth token from localStorage or cookies
-      const token =
+      let token =
         localStorage.getItem("auth_token") ||
         document.cookie
           .split("; ")
           .find((row) => row.startsWith("auth_token="))
           ?.split("=")[1];
 
+      // For development/testing: allow mock token
+      if (!token && typeof window !== "undefined") {
+        // Check for development mode
+        const devToken = localStorage.getItem("dev_token");
+        if (devToken) {
+          token = devToken;
+        }
+      }
+
       if (!token) {
+        // Redirect to login when no token is present
+        if (typeof window !== "undefined") {
+          // Try to redirect to login page, or just prevent the error for now
+          const hasLoginPage = false; // Check if login page exists
+          if (!hasLoginPage) {
+            // For development: show error instead of redirect
+            setState((prev) => ({
+              ...prev,
+              loading: false,
+              error: new Error(
+                "Wymagana autoryzacja. Dodaj token autoryzacji do localStorage (auth_token) lub zaloguj się."
+              ),
+            }));
+            return;
+          }
+          window.location.href = "/login";
+          return;
+        }
         throw new Error("Brak tokenu autoryzacji");
       }
 
@@ -77,7 +104,11 @@ export const useCarsList = () => {
       }
 
       if (!Array.isArray(data.data)) {
-        console.warn("Oczekiwano tablicy samochodów, otrzymano:", typeof data.data);
+        // Log warning only in development
+        if (process.env.NODE_ENV === "development") {
+          // eslint-disable-next-line no-console
+          console.warn("Oczekiwano tablicy samochodów, otrzymano:", typeof data.data);
+        }
         setState((prev) => ({
           ...prev,
           loading: false,
@@ -88,7 +119,7 @@ export const useCarsList = () => {
       }
 
       // Validate car data
-      const validCars = data.data.filter((car: any) => {
+      const validCars = data.data.filter((car: CarWithStatisticsDTO) => {
         return (
           car &&
           typeof car.id === "string" &&
@@ -99,7 +130,11 @@ export const useCarsList = () => {
       });
 
       if (validCars.length !== data.data.length) {
-        console.warn(`Filtrowano ${data.data.length - validCars.length} nieprawidłowych samochodów`);
+        // Log warning only in development
+        if (process.env.NODE_ENV === "development") {
+          // eslint-disable-next-line no-console
+          console.warn(`Filtrowano ${data.data.length - validCars.length} nieprawidłowych samochodów`);
+        }
       }
 
       setState((prev) => ({
@@ -109,7 +144,11 @@ export const useCarsList = () => {
         error: null,
       }));
     } catch (error) {
-      console.error("Error fetching cars:", error);
+      // Log error only in development
+      if (process.env.NODE_ENV === "development") {
+        // eslint-disable-next-line no-console
+        console.error("Error fetching cars:", error);
+      }
 
       let errorMessage = "Nieznany błąd";
 
@@ -181,19 +220,22 @@ export const useCarsList = () => {
   useEffect(() => {
     // Add timeout to prevent hanging requests
     const timeoutId = setTimeout(() => {
-      if (state.loading) {
-        setState((prev) => ({
-          ...prev,
-          loading: false,
-          error: new Error("Przekroczono limit czasu połączenia. Sprawdź połączenie internetowe."),
-        }));
-      }
+      setState((prev) => {
+        if (prev.loading) {
+          return {
+            ...prev,
+            loading: false,
+            error: new Error("Przekroczono limit czasu połączenia. Sprawdź połączenie internetowe."),
+          };
+        }
+        return prev;
+      });
     }, 10000); // 10 second timeout
 
     fetchCars(state.sortBy, state.sortOrder);
 
     return () => clearTimeout(timeoutId);
-  }, []);
+  }, [fetchCars, state.sortBy, state.sortOrder]);
 
   return {
     ...state,
