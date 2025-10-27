@@ -1,19 +1,14 @@
 ---
-import Layout from "../layouts/Layout.astro";
+import Layout from "../../layouts/Layout.astro";
+import NewCarFormView from "../../components/cars/NewCarFormView.tsx";
 
 // Meta data
-const title = "Dodaj Samochód - JustFuel";
-const description = "Dodaj nowy samochód do śledzenia zużycia paliwa";
+const title = "Dodaj Nowy Samochód - JustFuel";
+const description = "Dodaj nowy samochód do swojego konta i zacznij śledzić zużycie paliwa";
 ---
 
 <Layout title={title} description={description}>
   <main class="container mx-auto px-4 py-8">
-    <div id="add-car-content">
-      <!-- Add car form will be loaded here by React component -->
-    </div>
+    <NewCarFormView client:load />
   </main>
 </Layout>
-
-<script>
-  console.log("Add car page loaded");
-</script>
