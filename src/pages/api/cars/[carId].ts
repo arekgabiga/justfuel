@@ -42,12 +42,18 @@ export const GET: APIRoute = async (context) => {
       const token = authHeader!.slice(7);
       const { data, error } = await supabase.auth.getUser(token);
       if (error || !data?.user?.id) {
-        const body: ErrorResponseDTO = {
-          error: { code: "UNAUTHORIZED", message: "Invalid token" },
-        };
-        return new Response(JSON.stringify(body), { status: 401 });
+        // Token is invalid - use fallback if enabled
+        if (devAuthFallbackEnabled) {
+          userId = DEFAULT_USER_ID;
+        } else {
+          const body: ErrorResponseDTO = {
+            error: { code: "UNAUTHORIZED", message: "Invalid token" },
+          };
+          return new Response(JSON.stringify(body), { status: 401 });
+        }
+      } else {
+        userId = data.user.id;
       }
-      userId = data.user.id;
     } else if (devAuthFallbackEnabled) {
       userId = DEFAULT_USER_ID;
     }
