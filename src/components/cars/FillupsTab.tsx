@@ -1,6 +1,7 @@
 import React from "react";
 import type { FillupDTO, PaginationDTO, CarDetailsDTO } from "../../types";
 import { FillupsListView } from "./FillupsListView";
+import { AddFillupButton } from "./AddFillupButton";
 
 interface FillupsTabProps {
   car: CarDetailsDTO;
@@ -10,6 +11,7 @@ interface FillupsTabProps {
   error: Error | null;
   onLoadMore: () => void;
   onFillupClick: (fillupId: string) => void;
+  onAddFillup: () => void;
 }
 
 export const FillupsTab: React.FC<FillupsTabProps> = ({
@@ -20,17 +22,27 @@ export const FillupsTab: React.FC<FillupsTabProps> = ({
   error,
   onLoadMore,
   onFillupClick,
+  onAddFillup,
 }) => {
   return (
-    <FillupsListView
-      fillups={fillups}
-      pagination={pagination}
-      averageConsumption={car.statistics.average_consumption}
-      loading={loading}
-      error={error}
-      onLoadMore={onLoadMore}
-      onFillupClick={onFillupClick}
-    />
+    <>
+      {/* Add Fillup Button */}
+      <div className="mb-6 flex justify-end">
+        <AddFillupButton onClick={onAddFillup} />
+      </div>
+
+      {/* Fillups List */}
+      <FillupsListView
+        fillups={fillups}
+        pagination={pagination}
+        averageConsumption={car.statistics.average_consumption}
+        loading={loading}
+        error={error}
+        onLoadMore={onLoadMore}
+        onFillupClick={onFillupClick}
+        onAddFillup={onAddFillup}
+      />
+    </>
   );
 };
 

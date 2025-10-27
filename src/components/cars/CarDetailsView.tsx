@@ -41,6 +41,7 @@ export const CarDetailsView: React.FC<CarDetailsViewProps> = ({ carId }) => {
     fetchChartData,
     loadMoreFillups,
     fetchCarDetails,
+    handleAddFillup,
   } = useCarDetails(carId);
 
   const handleFillupClick = (fillupId: string) => {
@@ -101,6 +102,7 @@ export const CarDetailsView: React.FC<CarDetailsViewProps> = ({ carId }) => {
           error={fillupsError}
           onLoadMore={loadMoreFillups}
           onFillupClick={handleFillupClick}
+          onAddFillup={handleAddFillup}
         />
       )}
 

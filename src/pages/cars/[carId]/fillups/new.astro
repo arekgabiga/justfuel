@@ -1,0 +1,46 @@
+---
+import Layout from "../../../../layouts/Layout.astro";
+import NewFillupView from "../../../../components/cars/NewFillupView.tsx";
+import type { CarDetailsDTO } from "../../../../types";
+
+// Extract carId from URL params
+const { carId } = Astro.params;
+
+// Validate carId
+if (!carId) {
+  return Astro.redirect("/cars");
+}
+
+// Fetch car details to get mileage_input_preference
+let car: CarDetailsDTO | null = null;
+let mileagePreference: "odometer" | "distance" = "odometer";
+
+try {
+  // Get auth token from cookie or header
+  const token = Astro.cookies.get("auth_token")?.value;
+
+  const response = await fetch(`${Astro.url.origin}/api/cars/${carId}`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+
+  if (response.ok) {
+    car = await response.json();
+    if (car && car.mileage_input_preference) {
+      mileagePreference = car.mileage_input_preference as "odometer" | "distance";
+    }
+  }
+} catch (error) {
+  console.error("Error fetching car details:", error);
+  // Continue with default "odometer" if fetch fails
+}
+
+// Meta data
+const title = "Dodaj Nowe Tankowanie - JustFuel";
+const description = "Dodaj nowe tankowanie do swojego samochodu";
+---
+
+<Layout title={title} description={description}>
+  <main class="container mx-auto px-4 py-8">
+    <NewFillupView carId={carId} initialInputMode={mileagePreference} client:load />
+  </main>
+</Layout>

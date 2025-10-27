@@ -371,12 +371,12 @@ export async function createFillup(
       if (distance_traveled < 0) {
         warnings.push({
           field: "odometer",
-          message: "Odometer reading is lower than the previous fillup",
+          message: "Stan licznika jest mniejszy niż w poprzednim tankowaniu",
         });
       } else if (distance_traveled === 0) {
         warnings.push({
           field: "odometer",
-          message: "Odometer reading is the same as the previous fillup",
+          message: "Stan licznika jest taki sam jak w poprzednim tankowaniu",
         });
       }
     } else {
@@ -387,7 +387,7 @@ export async function createFillup(
       if (distance_traveled < 0) {
         warnings.push({
           field: "odometer",
-          message: "Odometer reading is lower than the car's initial odometer",
+          message: "Stan licznika jest mniejszy niż początkowy stan licznika samochodu",
         });
       }
     }
@@ -584,12 +584,12 @@ export async function updateFillup(
       if (newDistanceTraveled < 0) {
         warnings.push({
           field: "odometer",
-          message: "Odometer reading is lower than the previous fillup",
+          message: "Stan licznika jest mniejszy niż w poprzednim tankowaniu",
         });
       } else if (newDistanceTraveled === 0) {
         warnings.push({
           field: "odometer",
-          message: "Odometer reading is the same as the previous fillup",
+          message: "Stan licznika jest taki sam jak w poprzednim tankowaniu",
         });
       }
     } else if (input.distance !== undefined) {

@@ -433,6 +433,13 @@ export const useCarDetails = (carId: string) => {
     setState((prev) => ({ ...prev, deleteDialogOpen: false }));
   }, []);
 
+  // Handle add fillup button click
+  const handleAddFillup = useCallback(() => {
+    if (typeof window !== "undefined") {
+      window.location.href = `/cars/${carId}/fillups/new`;
+    }
+  }, [carId]);
+
   // Load more fillups
   const loadMoreFillups = useCallback(() => {
     if (!state.fillupsLoading && state.pagination.has_more && state.pagination.next_cursor) {
@@ -475,5 +482,6 @@ export const useCarDetails = (carId: string) => {
     openDeleteDialog,
     closeDeleteDialog,
     loadMoreFillups,
+    handleAddFillup,
   };
 };
