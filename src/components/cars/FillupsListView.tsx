@@ -3,6 +3,7 @@ import type { FillupDTO, PaginationDTO } from "../../types";
 import { FillupCard } from "./FillupCard";
 import { LoadingState } from "./LoadingState";
 import { ErrorState } from "./ErrorState";
+import { EmptyFillupsState } from "./EmptyFillupsState";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 
@@ -14,6 +15,8 @@ interface FillupsListViewProps {
   error: Error | null;
   onLoadMore: () => void;
   onFillupClick: (fillupId: string) => void;
+  onRetry?: () => void;
+  onAddFillup?: () => void;
 }
 
 export const FillupsListView: React.FC<FillupsListViewProps> = ({
@@ -24,6 +27,8 @@ export const FillupsListView: React.FC<FillupsListViewProps> = ({
   error,
   onLoadMore,
   onFillupClick,
+  onRetry,
+  onAddFillup,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const observerTargetRef = useRef<HTMLDivElement>(null);
@@ -53,7 +58,7 @@ export const FillupsListView: React.FC<FillupsListViewProps> = ({
 
   if (error) {
     return (
-      <ErrorState error={error} onRetry={() => onFillupClick} />
+      <ErrorState error={error} onRetry={onRetry || (() => {})} />
     );
   }
 
@@ -62,19 +67,7 @@ export const FillupsListView: React.FC<FillupsListViewProps> = ({
   }
 
   if (fillups.length === 0) {
-    return (
-      <div className="text-center py-12">
-        <div className="mx-auto w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4">
-          <span className="text-3xl">⛽</span>
-        </div>
-        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-          Brak tankowań
-        </h3>
-        <p className="text-gray-600 dark:text-gray-400">
-          Dodaj pierwsze tankowanie dla tego samochodu.
-        </p>
-      </div>
-    );
+    return <EmptyFillupsState onAddFillup={onAddFillup} />;
   }
 
   return (
