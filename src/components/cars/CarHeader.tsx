@@ -12,13 +12,19 @@ interface CarHeaderProps {
 }
 
 export const CarHeader: React.FC<CarHeaderProps> = ({ car, onEdit, onDelete }) => {
+  const handleEditClick = () => {
+    if (typeof window !== "undefined") {
+      window.location.href = `/cars/${car.id}/edit`;
+    }
+  };
+
   return (
     <div className="mb-8">
       <div className="flex items-start justify-between mb-4">
         <CarNameDisplay name={car.name} />
         <div className="flex items-center gap-2">
           <Button
-            onClick={onEdit}
+            onClick={handleEditClick}
             variant="outline"
             size="sm"
             className="flex items-center gap-2"

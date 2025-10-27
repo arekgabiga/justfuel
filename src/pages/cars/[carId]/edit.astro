@@ -1,0 +1,19 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+import EditCarView from "../../../components/cars/EditCarView";
+
+const title = "Edytuj Samochód - JustFuel";
+const description = "Edytuj dane samochodu";
+
+const carId = Astro.params.carId;
+
+if (!carId) {
+  return Astro.redirect("/cars");
+}
+---
+
+<Layout title={title} description={description}>
+  <main class="container mx-auto px-4 py-8">
+    <EditCarView client:load carId={carId} />
+  </main>
+</Layout>
