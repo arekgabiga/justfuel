@@ -20,11 +20,33 @@ export const GET: APIRoute = async (context) => {
   const authHeader = context.request.headers.get("authorization");
   const devAuthFallbackEnabled = import.meta.env.DEV_AUTH_FALLBACK === "true";
   const hasBearer = !!authHeader && authHeader.toLowerCase().startsWith("bearer ");
-  if (!hasBearer && !devAuthFallbackEnabled) {
-    const body: ErrorResponseDTO = {
-      error: { code: "UNAUTHORIZED", message: "Missing or invalid Authorization header" },
-    };
-    return new Response(JSON.stringify(body), { status: 401 });
+
+  // Determine user ID for the request
+  let userId: string | undefined;
+  if (hasBearer) {
+    const token = authHeader!.slice(7);
+    const { data, error } = await supabase.auth.getUser(token);
+    if (error || !data?.user?.id) {
+      // If token validation fails but dev auth fallback is enabled, use default user
+      if (devAuthFallbackEnabled) {
+        userId = DEFAULT_USER_ID;
+      } else {
+        const body: ErrorResponseDTO = {
+          error: { code: "UNAUTHORIZED", message: "Missing or invalid Authorization header" },
+        };
+        return new Response(JSON.stringify(body), { status: 401 });
+      }
+    } else {
+      userId = data.user.id;
+    }
+  } else {
+    if (!devAuthFallbackEnabled) {
+      const body: ErrorResponseDTO = {
+        error: { code: "UNAUTHORIZED", message: "Missing or invalid Authorization header" },
+      };
+      return new Response(JSON.stringify(body), { status: 401 });
+    }
+    userId = DEFAULT_USER_ID;
   }
 
   const url = new URL(context.request.url);
@@ -39,11 +61,7 @@ export const GET: APIRoute = async (context) => {
   }
 
   try {
-    const cars = await listUserCarsWithStats(
-      supabase,
-      parsed.data,
-      !hasBearer && devAuthFallbackEnabled ? { userId: DEFAULT_USER_ID } : undefined
-    );
+    const cars = await listUserCarsWithStats(supabase, parsed.data, userId ? { userId } : undefined);
     const body: ListResponseDTO<Awaited<ReturnType<typeof listUserCarsWithStats>>[number]> = {
       data: cars,
     };
@@ -85,12 +103,6 @@ export const POST: APIRoute = async (context) => {
   const authHeader = context.request.headers.get("authorization");
   const devAuthFallbackEnabled = import.meta.env.DEV_AUTH_FALLBACK === "true";
   const hasBearer = !!authHeader && authHeader.toLowerCase().startsWith("bearer ");
-  if (!hasBearer && !devAuthFallbackEnabled) {
-    const body: ErrorResponseDTO = {
-      error: { code: "UNAUTHORIZED", message: "Missing or invalid Authorization header" },
-    };
-    return new Response(JSON.stringify(body), { status: 401 });
-  }
 
   // Extract user ID from token or use dev fallback
   let userId: string | undefined;
@@ -98,13 +110,25 @@ export const POST: APIRoute = async (context) => {
     const token = authHeader!.slice(7);
     const { data, error } = await supabase.auth.getUser(token);
     if (error || !data?.user?.id) {
+      // If token validation fails but dev auth fallback is enabled, use default user
+      if (devAuthFallbackEnabled) {
+        userId = DEFAULT_USER_ID;
+      } else {
+        const body: ErrorResponseDTO = {
+          error: { code: "UNAUTHORIZED", message: "Invalid token" },
+        };
+        return new Response(JSON.stringify(body), { status: 401 });
+      }
+    } else {
+      userId = data.user.id;
+    }
+  } else {
+    if (!devAuthFallbackEnabled) {
       const body: ErrorResponseDTO = {
-        error: { code: "UNAUTHORIZED", message: "Invalid token" },
+        error: { code: "UNAUTHORIZED", message: "Missing or invalid Authorization header" },
       };
       return new Response(JSON.stringify(body), { status: 401 });
     }
-    userId = data.user.id;
-  } else {
     userId = DEFAULT_USER_ID;
   }
 
