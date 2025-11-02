@@ -1,10 +1,12 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useEditCarForm } from "@/lib/hooks/useEditCarForm";
-import { Home } from "lucide-react";
+import { DeleteCarDialog } from "./DeleteCarDialog";
+import { Home, Trash2 } from "lucide-react";
+import type { DeleteCarCommand } from "../../types";
 
 interface EditCarViewProps {
   carId: string;
@@ -23,6 +25,13 @@ const EditCarView: React.FC<EditCarViewProps> = ({ carId }) => {
     handleFieldBlur,
     handleSubmit,
     handleCancel,
+    // Delete car functionality
+    deleteDialogOpen,
+    isDeleting,
+    deleteError,
+    handleDeleteClick,
+    handleDeleteCancel,
+    handleDeleteConfirm,
   } = useEditCarForm({ carId });
 
   const handleHomeClick = () => {
@@ -72,6 +81,7 @@ const EditCarView: React.FC<EditCarViewProps> = ({ carId }) => {
 
   const hasErrors = Object.keys(formErrors).length > 0;
   const isSubmitDisabled = isSubmitting || (hasErrors && touchedFields.size > 0);
+  const isDeleteDisabled = isSubmitting || isDeleting;
 
   return (
     <div className="space-y-6 max-w-2xl">
@@ -162,7 +172,7 @@ const EditCarView: React.FC<EditCarViewProps> = ({ carId }) => {
             }
             aria-required="true"
             autoComplete="off"
-            disabled={isSubmitting}
+            disabled={isSubmitting || isDeleting}
             className={touchedFields.has("name") && formErrors.name ? "border-destructive" : ""}
             required
           />
@@ -189,7 +199,7 @@ const EditCarView: React.FC<EditCarViewProps> = ({ carId }) => {
             onValueChange={(value) => {
               handleFieldChange("mileageInputPreference", value);
             }}
-            disabled={isSubmitting}
+            disabled={isSubmitting || isDeleting}
           >
             <SelectTrigger
               id="mileageInputPreference"
@@ -247,7 +257,7 @@ const EditCarView: React.FC<EditCarViewProps> = ({ carId }) => {
         <div className="flex flex-col sm:flex-row gap-4 pt-6" role="group" aria-label="Akcje formularza">
           <Button
             type="submit"
-            disabled={isSubmitDisabled}
+            disabled={isSubmitDisabled || isDeleting}
             size="lg"
             className="flex-1 sm:flex-none min-w-[120px]"
             aria-busy={isSubmitting}
@@ -264,15 +274,46 @@ const EditCarView: React.FC<EditCarViewProps> = ({ carId }) => {
             type="button"
             variant="outline"
             onClick={handleCancel}
-            disabled={isSubmitting}
+            disabled={isSubmitting || isDeleting}
             size="lg"
             className="flex-1 sm:flex-none min-w-[120px]"
             aria-label="Anuluj i wróć do szczegółów samochodu"
           >
             Anuluj
           </Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleDeleteClick}
+            disabled={isDeleteDisabled}
+            size="lg"
+            className="flex-1 sm:flex-none min-w-[140px] text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 border-red-600 dark:border-red-400 hover:bg-red-50 dark:hover:bg-red-950"
+            aria-label="Usuń samochód i wszystkie powiązane tankowania"
+          >
+            <Trash2 className="h-4 w-4 mr-2" aria-hidden="true" />
+            Usuń samochód
+          </Button>
         </div>
       </form>
+
+      {/* Delete Car Dialog */}
+      {originalCarData && (
+        <DeleteCarDialog
+          car={originalCarData}
+          isOpen={deleteDialogOpen}
+          onDelete={async (data: DeleteCarCommand) => {
+            try {
+              await handleDeleteConfirm(data);
+              // On success, handleDeleteConfirm redirects to /cars
+              // No need to handle success here
+            } catch (err) {
+              // Rethrow error to be handled by DeleteCarDialog
+              throw err;
+            }
+          }}
+          onCancel={handleDeleteCancel}
+        />
+      )}
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from "react";
-import type { UpdateCarCommand, CarDetailsDTO, ErrorResponseDTO } from "../../types";
+import type { UpdateCarCommand, CarDetailsDTO, ErrorResponseDTO, DeleteCarCommand } from "../../types";
 
 const REQUEST_TIMEOUT = 10000; // 10 seconds
 
@@ -35,6 +35,11 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [touchedFields, setTouchedFields] = useState<Set<keyof EditCarFormState>>(new Set());
   const nameInputRef = useRef<HTMLInputElement>(null);
+
+  // Delete car dialog state
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   // Load car data on mount
   useEffect(() => {
@@ -512,6 +517,162 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
     }
   }, [carId]);
 
+  // Handle delete click - opens delete dialog
+  const handleDeleteClick = useCallback(() => {
+    setDeleteDialogOpen(true);
+    setDeleteError(null);
+  }, []);
+
+  // Handle delete cancel - closes delete dialog
+  const handleDeleteCancel = useCallback(() => {
+    setDeleteDialogOpen(false);
+    setDeleteError(null);
+  }, []);
+
+  // Handle delete confirm - performs car deletion
+  const handleDeleteConfirm = useCallback(
+    async (data: DeleteCarCommand) => {
+      setIsDeleting(true);
+      setDeleteError(null);
+
+      let abortController: (() => void) | null = null;
+
+      try {
+        // Get auth token - try multiple sources
+        const authToken = localStorage.getItem("auth_token");
+        const cookieToken = document.cookie
+          .split("; ")
+          .find((row) => row.startsWith("auth_token="))
+          ?.split("=")[1];
+        const devToken = localStorage.getItem("dev_token");
+
+        const token = authToken || cookieToken || devToken;
+
+        // Build headers - only include Authorization if we have a valid token
+        const headers: Record<string, string> = {
+          "Content-Type": "application/json",
+        };
+
+        if (token) {
+          headers.Authorization = `Bearer ${token}`;
+        }
+
+        console.log("[useEditCarForm] Sending DELETE request to:", `/api/cars/${carId}`);
+        console.log("[useEditCarForm] Request body:", data);
+
+        // API call with timeout
+        const fetchRequest = abortableFetch(`/api/cars/${carId}`, {
+          method: "DELETE",
+          headers,
+          body: JSON.stringify(data),
+        });
+
+        abortController = fetchRequest.abort;
+
+        const response = await fetchRequest.ready;
+
+        console.log("[useEditCarForm] DELETE API response:", response.status, response.statusText);
+
+        if (!response.ok) {
+          let errorData: ErrorResponseDTO | undefined;
+
+          try {
+            errorData = await response.json();
+          } catch {
+            errorData = {
+              error: { code: "INTERNAL_ERROR", message: "Nieznany błąd" },
+            };
+          }
+
+          // Handle different error codes
+          let errorMessage: string;
+          if (response.status === 400) {
+            // Validation errors - incorrect confirmation name
+            errorMessage =
+              errorData?.error.message || "Nazwa potwierdzenia nie pasuje do nazwy samochodu";
+            setDeleteError(errorMessage);
+          } else if (response.status === 401) {
+            // Unauthorized
+            if (!token) {
+              errorMessage =
+                "Brak autoryzacji. Ustaw token w localStorage (/dev/set-token) lub włącz DEV_AUTH_FALLBACK=true";
+              setDeleteError(errorMessage);
+            } else {
+              errorMessage = "Wymagana autoryzacja. Przekierowywanie...";
+              setDeleteError(errorMessage);
+              if (typeof window !== "undefined") {
+                setTimeout(() => {
+                  window.location.href = "/login";
+                }, 2000);
+              }
+            }
+          } else if (response.status === 404) {
+            // Not found
+            errorMessage = "Samochód nie został znaleziony";
+            setDeleteError(errorMessage);
+            if (typeof window !== "undefined") {
+              setTimeout(() => {
+                window.location.href = "/cars";
+              }, 3000);
+            }
+          } else if (response.status === 500) {
+            // Server error
+            errorMessage = "Wystąpił błąd serwera. Spróbuj ponownie później";
+            setDeleteError(errorMessage);
+          } else {
+            // Other errors
+            errorMessage = getErrorMessage(response.status, errorData);
+            setDeleteError(errorMessage);
+          }
+
+          setIsDeleting(false);
+          throw new Error(errorMessage);
+        }
+
+        // Success - redirect to cars list
+        try {
+          await response.json(); // Consume response body
+          
+          if (typeof window !== "undefined") {
+            window.location.href = "/cars";
+          }
+        } catch (parseError) {
+          console.error("[useEditCarForm] Error parsing response:", parseError);
+          // Even if parsing fails, redirect if status was OK
+          if (typeof window !== "undefined") {
+            window.location.href = "/cars";
+          }
+        }
+      } catch (error) {
+        // Handle different error types
+        console.error("[useEditCarForm] Error deleting car:", error);
+
+        let errorMessage = "Wystąpił błąd serwera. Spróbuj ponownie później.";
+
+        if (error instanceof Error) {
+          // Check for AbortError (timeout)
+          if (error.name === "AbortError" || error.message.includes("aborted")) {
+            errorMessage = "Przekroczono limit czasu połączenia. Spróbuj ponownie.";
+          } else if (error.message.includes("Failed to fetch") || error.message.includes("NetworkError")) {
+            errorMessage = "Nie udało się połączyć z serwerem. Sprawdź połączenie internetowe.";
+          } else if (error.message.includes("timeout")) {
+            errorMessage = "Przekroczono limit czasu połączenia. Spróbuj ponownie.";
+          }
+        }
+
+        setDeleteError(errorMessage);
+        setIsDeleting(false);
+        throw new Error(errorMessage);
+      } finally {
+        // Clean up abort controller
+        if (abortController) {
+          abortController();
+        }
+      }
+    },
+    [carId, abortableFetch, getErrorMessage]
+  );
+
   return {
     formState,
     formErrors,
@@ -525,5 +686,12 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
     handleSubmit,
     handleCancel,
     validateField,
+    // Delete car functionality
+    deleteDialogOpen,
+    isDeleting,
+    deleteError,
+    handleDeleteClick,
+    handleDeleteCancel,
+    handleDeleteConfirm,
   };
 };
