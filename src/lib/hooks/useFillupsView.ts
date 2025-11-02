@@ -299,14 +299,14 @@ export const useFillupsView = (carId: string) => {
   /**
    * Handler for fillup card click
    *
-   * Navigates to fillup edit page: /cars/{carId}/fillups/{fillupId}
+   * Navigates to fillup edit page: /cars/{carId}/fillups/{fillupId}/edit
    *
    * @param fillupId - UUID of the fillup to edit
    */
   const handleFillupClick = useCallback(
     (fillupId: string) => {
       if (typeof window !== "undefined") {
-        window.location.href = `/cars/${carId}/fillups/${fillupId}`;
+        window.location.href = `/cars/${carId}/fillups/${fillupId}/edit`;
       }
     },
     [carId]

@@ -45,9 +45,9 @@ export const CarDetailsView: React.FC<CarDetailsViewProps> = ({ carId }) => {
   } = useCarDetails(carId);
 
   const handleFillupClick = (fillupId: string) => {
-    // Navigate to fillup details page (to be implemented)
+    // Navigate to fillup edit page
     if (typeof window !== "undefined") {
-      window.location.href = `/cars/${carId}/fillups/${fillupId}`;
+      window.location.href = `/cars/${carId}/fillups/${fillupId}/edit`;
     }
   };
 

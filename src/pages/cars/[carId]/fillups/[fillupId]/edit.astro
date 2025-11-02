@@ -1,0 +1,25 @@
+---
+import Layout from "../../../../../layouts/Layout.astro";
+import EditFillupView from "../../../../../components/cars/EditFillupView.tsx";
+
+const title = "Edytuj Tankowanie - JustFuel";
+const description = "Edytuj dane tankowania";
+
+const { carId, fillupId } = Astro.params;
+
+if (!carId || !fillupId) {
+  return Astro.redirect("/cars");
+}
+
+// Validate UUID format
+const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+if (!uuidRegex.test(carId) || !uuidRegex.test(fillupId)) {
+  return Astro.redirect("/cars");
+}
+---
+
+<Layout title={title} description={description}>
+  <main class="container mx-auto px-4 py-8">
+    <EditFillupView carId={carId} fillupId={fillupId} client:load />
+  </main>
+</Layout>

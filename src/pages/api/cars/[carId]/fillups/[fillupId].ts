@@ -66,18 +66,24 @@ export const GET: APIRoute = async (context) => {
       const token = authHeader.slice(7);
       const { data, error } = await supabase.auth.getUser(token);
       if (error || !data?.user?.id) {
-        const errorResponse: ErrorResponseDTO = {
-          error: {
-            code: "UNAUTHORIZED",
-            message: "Invalid token",
-          },
-        };
-        return new Response(JSON.stringify(errorResponse), {
-          status: 401,
-          headers: { "Content-Type": "application/json" },
-        });
+        // If token validation fails but dev auth fallback is enabled, use default user
+        if (devAuthFallbackEnabled) {
+          userId = DEFAULT_USER_ID;
+        } else {
+          const errorResponse: ErrorResponseDTO = {
+            error: {
+              code: "UNAUTHORIZED",
+              message: "Invalid token",
+            },
+          };
+          return new Response(JSON.stringify(errorResponse), {
+            status: 401,
+            headers: { "Content-Type": "application/json" },
+          });
+        }
+      } else {
+        userId = data.user.id;
       }
-      userId = data.user.id;
     } else {
       // Use dev fallback user
       userId = DEFAULT_USER_ID;
@@ -251,18 +257,24 @@ export const PATCH: APIRoute = async (context) => {
       const token = authHeader.slice(7);
       const { data, error } = await supabase.auth.getUser(token);
       if (error || !data?.user?.id) {
-        const errorResponse: ErrorResponseDTO = {
-          error: {
-            code: "UNAUTHORIZED",
-            message: "Invalid token",
-          },
-        };
-        return new Response(JSON.stringify(errorResponse), {
-          status: 401,
-          headers: { "Content-Type": "application/json" },
-        });
+        // If token validation fails but dev auth fallback is enabled, use default user
+        if (devAuthFallbackEnabled) {
+          userId = DEFAULT_USER_ID;
+        } else {
+          const errorResponse: ErrorResponseDTO = {
+            error: {
+              code: "UNAUTHORIZED",
+              message: "Invalid token",
+            },
+          };
+          return new Response(JSON.stringify(errorResponse), {
+            status: 401,
+            headers: { "Content-Type": "application/json" },
+          });
+        }
+      } else {
+        userId = data.user.id;
       }
-      userId = data.user.id;
     } else {
       // Use dev fallback user
       userId = DEFAULT_USER_ID;
@@ -498,18 +510,24 @@ export const DELETE: APIRoute = async (context) => {
       const token = authHeader.slice(7);
       const { data, error } = await supabase.auth.getUser(token);
       if (error || !data?.user?.id) {
-        const errorResponse: ErrorResponseDTO = {
-          error: {
-            code: "UNAUTHORIZED",
-            message: "Invalid token",
-          },
-        };
-        return new Response(JSON.stringify(errorResponse), {
-          status: 401,
-          headers: { "Content-Type": "application/json" },
-        });
+        // If token validation fails but dev auth fallback is enabled, use default user
+        if (devAuthFallbackEnabled) {
+          userId = DEFAULT_USER_ID;
+        } else {
+          const errorResponse: ErrorResponseDTO = {
+            error: {
+              code: "UNAUTHORIZED",
+              message: "Invalid token",
+            },
+          };
+          return new Response(JSON.stringify(errorResponse), {
+            status: 401,
+            headers: { "Content-Type": "application/json" },
+          });
+        }
+      } else {
+        userId = data.user.id;
       }
-      userId = data.user.id;
     } else {
       // Use dev fallback user
       userId = DEFAULT_USER_ID;
