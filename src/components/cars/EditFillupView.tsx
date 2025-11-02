@@ -4,8 +4,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useEditFillupForm } from "@/lib/hooks/useEditFillupForm";
-import { Home, AlertTriangle } from "lucide-react";
+import { Home, AlertTriangle, Trash2 } from "lucide-react";
 import type { ValidationWarningDTO } from "@/types";
+import { DeleteFillupDialog } from "./DeleteFillupDialog";
 
 interface EditFillupViewProps {
   carId: string;
@@ -29,6 +30,12 @@ const EditFillupView: React.FC<EditFillupViewProps> = ({ carId, fillupId }) => {
     handleSubmit,
     handleCancel,
     handleSkipCountdown,
+    isDeleteDialogOpen,
+    isDeleting,
+    deleteError,
+    handleDeleteClick,
+    handleDeleteConfirm,
+    handleDeleteCancel,
   } = useEditFillupForm({ carId, fillupId });
 
   const handleHomeClick = () => {
@@ -475,15 +482,37 @@ const EditFillupView: React.FC<EditFillupViewProps> = ({ carId, fillupId }) => {
             type="button"
             variant="outline"
             onClick={handleCancel}
-            disabled={isSubmitting}
+            disabled={isSubmitting || isDeleting}
             size="lg"
             className="flex-1 sm:flex-none min-w-[120px]"
             aria-label="Anuluj i wróć do listy tankowań"
           >
             Anuluj
           </Button>
+          <Button
+            type="button"
+            variant="destructive"
+            onClick={handleDeleteClick}
+            disabled={isSubmitting || isDeleting}
+            size="lg"
+            className="flex-1 sm:flex-none min-w-[140px]"
+            aria-label="Usuń tankowanie"
+          >
+            <Trash2 className="h-4 w-4 mr-2" aria-hidden="true" />
+            Usuń tankowanie
+          </Button>
         </div>
       </form>
+
+      {/* Delete confirmation dialog */}
+      <DeleteFillupDialog
+        isOpen={isDeleteDialogOpen}
+        onConfirm={handleDeleteConfirm}
+        onCancel={handleDeleteCancel}
+        isDeleting={isDeleting}
+        fillupDate={originalFillupData?.date}
+        error={deleteError}
+      />
     </div>
   );
 };

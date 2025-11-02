@@ -5,6 +5,7 @@ import type {
   UpdatedFillupDTO,
   ErrorResponseDTO,
   ValidationWarningDTO,
+  DeleteResponseDTO,
 } from "../../types";
 
 const REQUEST_TIMEOUT = 10000; // 10 seconds
@@ -56,6 +57,11 @@ export const useEditFillupForm = ({ carId, fillupId }: UseEditFillupFormProps) =
   const [warnings, setWarnings] = useState<ValidationWarningDTO[]>([]);
   const [redirectIn, setRedirectIn] = useState<number | null>(null);
   const dateInputRef = useRef<HTMLInputElement>(null);
+
+  // Delete dialog state
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   // Load fillup data on mount
   useEffect(() => {
@@ -749,6 +755,121 @@ export const useEditFillupForm = ({ carId, fillupId }: UseEditFillupFormProps) =
     }
   }, [carId]);
 
+  // Handle delete click - open dialog
+  const handleDeleteClick = useCallback(() => {
+    setIsDeleteDialogOpen(true);
+    setDeleteError(null);
+  }, []);
+
+  // Handle delete cancel - close dialog
+  const handleDeleteCancel = useCallback(() => {
+    setIsDeleteDialogOpen(false);
+    setDeleteError(null);
+  }, []);
+
+  // Handle delete confirm - execute DELETE request
+  const handleDeleteConfirm = useCallback(async () => {
+    setIsDeleting(true);
+    setDeleteError(null);
+
+    const abortController = new AbortController();
+    const timeoutId = setTimeout(() => abortController.abort(), REQUEST_TIMEOUT);
+
+    try {
+      const authToken = localStorage.getItem("auth_token");
+      const cookieToken = document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("auth_token="))
+        ?.split("=")[1];
+      const devToken = localStorage.getItem("dev_token");
+
+      const token = authToken || cookieToken || devToken;
+
+      // Build headers - only include Authorization if we have a valid token
+      const headers: Record<string, string> = {};
+
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+
+      const response = await fetch(`/api/cars/${carId}/fillups/${fillupId}`, {
+        method: "DELETE",
+        headers,
+        signal: abortController.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          // Unauthorized - redirect to login
+          if (typeof window !== "undefined") {
+            window.location.href = "/login";
+          }
+          return;
+        }
+
+        if (response.status === 404) {
+          // Not found - redirect to fillups list
+          if (typeof window !== "undefined") {
+            window.location.href = `/cars/${carId}/fillups`;
+          }
+          return;
+        }
+
+        let errorData: ErrorResponseDTO | undefined;
+        try {
+          errorData = await response.json();
+        } catch {
+          errorData = {
+            error: { code: "INTERNAL_ERROR", message: "Nieznany błąd" },
+          };
+        }
+
+        const errorMessage = getErrorMessage(response.status, errorData);
+        setDeleteError(errorMessage);
+        setIsDeleting(false);
+        return;
+      }
+
+      // Success - parse response and redirect
+      try {
+        (await response.json()) as DeleteResponseDTO;
+
+        // Close dialog and redirect to fillups list
+        setIsDeleteDialogOpen(false);
+        setIsDeleting(false);
+
+        if (typeof window !== "undefined") {
+          window.location.href = `/cars/${carId}/fillups`;
+        }
+      } catch (parseError) {
+        console.error("Error parsing delete response:", parseError);
+        setDeleteError("Nie udało się przetworzyć odpowiedzi serwera");
+        setIsDeleting(false);
+      }
+    } catch (error) {
+      console.error("Error deleting fillup:", error);
+
+      let errorMessage = "Wystąpił błąd serwera. Spróbuj ponownie później.";
+
+      if (error instanceof Error) {
+        if (error.name === "AbortError" || error.message.includes("aborted")) {
+          errorMessage = "Przekroczono limit czasu połączenia. Spróbuj ponownie.";
+        } else if (error.message.includes("Failed to fetch") || error.message.includes("NetworkError")) {
+          errorMessage = "Nie udało się połączyć z serwerem. Sprawdź połączenie internetowe.";
+        } else if (error.message.includes("timeout")) {
+          errorMessage = "Przekroczono limit czasu połączenia. Spróbuj ponownie.";
+        }
+      }
+
+      setDeleteError(errorMessage);
+      setIsDeleting(false);
+    } finally {
+      clearTimeout(timeoutId);
+    }
+  }, [carId, fillupId, getErrorMessage]);
+
   return {
     formState,
     formErrors,
@@ -766,5 +887,12 @@ export const useEditFillupForm = ({ carId, fillupId }: UseEditFillupFormProps) =
     handleCancel,
     handleSkipCountdown,
     validateField,
+    // Delete functionality
+    isDeleteDialogOpen,
+    isDeleting,
+    deleteError,
+    handleDeleteClick,
+    handleDeleteConfirm,
+    handleDeleteCancel,
   };
 };
