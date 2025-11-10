@@ -1,7 +1,6 @@
 import React from "react";
 import type { CarDetailsDTO } from "../../types";
 import { CarNameDisplay } from "./CarNameDisplay";
-import { MileagePreferenceDisplay } from "./MileagePreferenceDisplay";
 import { Button } from "@/components/ui/button";
 import { Edit2, Trash2, ArrowLeft } from "lucide-react";
 
@@ -71,7 +70,6 @@ export const CarHeader: React.FC<CarHeaderProps> = ({
         </div>
         )}
       </div>
-      {car && <MileagePreferenceDisplay preference={car.mileage_input_preference} />}
     </div>
   );
 };

@@ -269,6 +269,15 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
       setFormState((prev) => ({ ...prev, [field]: value }));
       setTouchedFields((prev) => new Set(prev).add(field));
 
+      // Clear submit error when user makes changes
+      if (formErrors.submit) {
+        setFormErrors((prev) => {
+          const newErrors = { ...prev };
+          delete newErrors.submit;
+          return newErrors;
+        });
+      }
+
       // Clear field error when user starts typing
       if (formErrors[field]) {
         setFormErrors((prev) => {

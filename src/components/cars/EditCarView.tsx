@@ -73,8 +73,23 @@ const EditCarView: React.FC<EditCarViewProps> = ({ carId }) => {
     );
   }
 
-  const hasErrors = Object.keys(formErrors).length > 0;
-  const isSubmitDisabled = isSubmitting || (hasErrors && touchedFields.size > 0);
+  // Check if there are field validation errors (excluding submit error)
+  const hasFieldValidationErrors = Object.keys(formErrors).some(
+    (key) => key !== "submit" && formErrors[key as keyof typeof formErrors]
+  );
+
+  // Check if there are changes in the form
+  const hasChanges = originalCarData
+    ? formState.name.trim() !== originalCarData.name ||
+      formState.mileageInputPreference !== originalCarData.mileage_input_preference
+    : false;
+
+  // Button is disabled only when:
+  // 1. Submitting is in progress
+  // 2. There are field validation errors AND fields were touched
+  // 3. There are no changes in the form
+  const isSubmitDisabled =
+    isSubmitting || (hasFieldValidationErrors && touchedFields.size > 0) || !hasChanges;
   const isDeleteDisabled = isSubmitting || isDeleting;
 
   return (

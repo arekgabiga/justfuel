@@ -71,7 +71,7 @@ export const FillupsListView: React.FC<FillupsListViewProps> = ({
   }
 
   return (
-    <div ref={containerRef} className="space-y-4">
+    <div ref={containerRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {fillups.map((fillup) => (
         <FillupCard
           key={fillup.id}
@@ -83,7 +83,7 @@ export const FillupsListView: React.FC<FillupsListViewProps> = ({
 
       {/* Infinite scroll trigger */}
       {pagination.has_more && (
-        <div ref={observerTargetRef} className="py-4 flex justify-center">
+        <div ref={observerTargetRef} className="col-span-full py-4 flex justify-center">
           {loading && (
             <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
               <Loader2 className="h-5 w-5 animate-spin" />
@@ -95,7 +95,7 @@ export const FillupsListView: React.FC<FillupsListViewProps> = ({
 
       {/* Loading indicator at bottom */}
       {!pagination.has_more && fillups.length > 0 && (
-        <div className="text-center text-sm text-gray-500 dark:text-gray-400 py-4">
+        <div className="col-span-full text-center text-sm text-gray-500 dark:text-gray-400 py-4">
           Wyświetlono wszystkie tankowania ({pagination.total_count})
         </div>
       )}
