@@ -251,6 +251,9 @@ export const useCarDetails = (carId: string) => {
     async (type: ChartType) => {
       setState((prev) => ({ ...prev, chartLoading: true, chartError: null }));
 
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 seconds timeout
+
       try {
         const token = getAuthToken();
 
@@ -269,11 +272,18 @@ export const useCarDetails = (carId: string) => {
 
         const response = await fetch(`/api/cars/${carId}/charts?${params}`, {
           headers,
+          signal: controller.signal,
         });
+
+        clearTimeout(timeoutId);
 
         if (!response.ok) {
           if (response.status === 401) {
-            // Don't redirect - show error instead
+            setState((prev) => ({
+              ...prev,
+              chartLoading: false,
+              chartError: new Error("Wymagana autoryzacja. Zaloguj się ponownie."),
+            }));
             return;
           }
 
@@ -281,7 +291,19 @@ export const useCarDetails = (carId: string) => {
             setState((prev) => ({
               ...prev,
               chartLoading: false,
-              chartError: new Error("Samochód nie został znaleziony"),
+              chartError: new Error("Samochód nie został znaleziony."),
+            }));
+            return;
+          }
+
+          if (response.status >= 500 && response.status < 600) {
+            const errorData: ErrorResponseDTO = await response.json();
+            setState((prev) => ({
+              ...prev,
+              chartLoading: false,
+              chartError: new Error(
+                errorData.error.message || "Wystąpił błąd serwera. Spróbuj ponownie później."
+              ),
             }));
             return;
           }
@@ -299,10 +321,14 @@ export const useCarDetails = (carId: string) => {
           chartError: null,
         }));
       } catch (error) {
+        clearTimeout(timeoutId);
+
         let errorMessage = "Nieznany błąd";
         if (error instanceof Error) {
-          if (error.message.includes("Failed to fetch") || error.message.includes("NetworkError")) {
-            errorMessage = "Nie udało się pobrać danych wykresu. Sprawdź połączenie internetowe.";
+          if (error.name === "AbortError" || error.message.includes("aborted")) {
+            errorMessage = "Przekroczono limit czasu połączenia. Spróbuj ponownie.";
+          } else if (error.message.includes("Failed to fetch") || error.message.includes("NetworkError")) {
+            errorMessage = "Nie udało się połączyć z serwerem. Sprawdź połączenie internetowe.";
           } else {
             errorMessage = error.message;
           }

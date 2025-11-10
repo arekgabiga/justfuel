@@ -55,6 +55,10 @@ export const CarDetailsView: React.FC<CarDetailsViewProps> = ({ carId }) => {
     fetchCarDetails();
   };
 
+  const handleChartRetry = () => {
+    fetchChartData(activeChartTab);
+  };
+
   const handleChartTypeChange = (type: React.SetStateAction<"consumption" | "price_per_liter" | "distance">) => {
     switchChartTab(type);
   };
@@ -113,6 +117,7 @@ export const CarDetailsView: React.FC<CarDetailsViewProps> = ({ carId }) => {
           loading={chartLoading}
           error={chartError}
           onChartTypeChange={handleChartTypeChange}
+          onRetry={handleChartRetry}
         />
       )}
 
