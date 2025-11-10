@@ -1,11 +1,12 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useNewFillupForm } from "@/lib/hooks/useNewFillupForm";
-import { Home, AlertTriangle } from "lucide-react";
-import type { ValidationWarningDTO } from "@/types";
+import { AlertTriangle } from "lucide-react";
+import type { ValidationWarningDTO, CarDetailsDTO } from "@/types";
+import { Breadcrumbs } from "./Breadcrumbs";
 
 interface NewFillupViewProps {
   carId: string;
@@ -13,6 +14,9 @@ interface NewFillupViewProps {
 }
 
 const NewFillupView: React.FC<NewFillupViewProps> = ({ carId, initialInputMode = "odometer" }) => {
+  const [carName, setCarName] = useState<string>("Samochód");
+  const [isLoadingCar, setIsLoadingCar] = useState(true);
+
   const {
     formState,
     formErrors,
@@ -29,11 +33,39 @@ const NewFillupView: React.FC<NewFillupViewProps> = ({ carId, initialInputMode =
     handleSkipCountdown,
   } = useNewFillupForm({ carId, initialInputMode });
 
-  const handleHomeClick = () => {
-    if (typeof window !== "undefined") {
-      window.location.href = "/";
-    }
-  };
+  // Fetch car name
+  useEffect(() => {
+    const fetchCarName = async () => {
+      try {
+        const authToken = localStorage.getItem("auth_token");
+        const cookieToken = document.cookie
+          .split("; ")
+          .find((row) => row.startsWith("auth_token="))
+          ?.split("=")[1];
+        const devToken = localStorage.getItem("dev_token");
+        const token = authToken || cookieToken || devToken;
+
+        const headers: Record<string, string> = {
+          "Content-Type": "application/json",
+        };
+        if (token) {
+          headers.Authorization = `Bearer ${token}`;
+        }
+
+        const response = await fetch(`/api/cars/${carId}`, { headers });
+        if (response.ok) {
+          const carData: CarDetailsDTO = await response.json();
+          setCarName(carData.name);
+        }
+      } catch (error) {
+        console.error("Error fetching car name:", error);
+      } finally {
+        setIsLoadingCar(false);
+      }
+    };
+
+    fetchCarName();
+  }, [carId]);
 
   useEffect(() => {
     // Auto-focus date input on mount
@@ -43,83 +75,16 @@ const NewFillupView: React.FC<NewFillupViewProps> = ({ carId, initialInputMode =
   const hasErrors = Object.keys(formErrors).length > 0;
   const isSubmitDisabled = isSubmitting || (hasErrors && touchedFields.size > 0);
 
-  const handleKeyDown = (e: React.KeyboardEvent, action: () => void) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      action();
-    }
-  };
-
   return (
     <div className="space-y-6 max-w-2xl">
-      {/* Breadcrumbs with proper ARIA */}
-      <nav
-        aria-label="Breadcrumb navigation"
-        className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400"
-      >
-        <ol className="flex items-center space-x-2">
-          <li>
-            <button
-              onClick={handleHomeClick}
-              onKeyDown={(e) => handleKeyDown(e, handleHomeClick)}
-              className="flex items-center gap-1 hover:text-gray-900 dark:hover:text-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded"
-              aria-label="Przejdź do strony głównej"
-            >
-              <Home className="h-4 w-4" aria-hidden="true" />
-              <span>Strona główna</span>
-            </button>
-          </li>
-          <li aria-hidden="true">
-            <span>/</span>
-          </li>
-          <li>
-            <button
-              onClick={() => {
-                if (typeof window !== "undefined") window.location.href = "/cars";
-              }}
-              onKeyDown={(e) => handleKeyDown(e, () => (window.location.href = "/cars"))}
-              className="hover:text-gray-900 dark:hover:text-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded px-1"
-              aria-label="Przejdź do listy samochodów"
-            >
-              Samochody
-            </button>
-          </li>
-          <li aria-hidden="true">
-            <span>/</span>
-          </li>
-          <li>
-            <button
-              onClick={handleCancel}
-              onKeyDown={(e) => handleKeyDown(e, handleCancel)}
-              className="hover:text-gray-900 dark:hover:text-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded px-1"
-              aria-label="Przejdź do samochodu"
-            >
-              Samochód
-            </button>
-          </li>
-          <li aria-hidden="true">
-            <span>/</span>
-          </li>
-          <li>
-            <button
-              onClick={() => {
-                if (typeof window !== "undefined") window.location.href = `/cars/${carId}/fillups`;
-              }}
-              onKeyDown={(e) => handleKeyDown(e, () => (window.location.href = `/cars/${carId}/fillups`))}
-              className="hover:text-gray-900 dark:hover:text-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded px-1"
-              aria-label="Przejdź do listy tankowań"
-            >
-              Tankowania
-            </button>
-          </li>
-          <li aria-hidden="true">
-            <span>/</span>
-          </li>
-          <li aria-current="page" className="text-gray-900 dark:text-gray-100">
-            Nowe tankowanie
-          </li>
-        </ol>
-      </nav>
+      {/* Breadcrumbs */}
+      {!isLoadingCar && (
+        <Breadcrumbs 
+          carName={carName} 
+          carId={carId} 
+          showNewFillup={true} 
+        />
+      )}
 
       {/* Header */}
       <header>
@@ -355,7 +320,7 @@ const NewFillupView: React.FC<NewFillupViewProps> = ({ carId, initialInputMode =
               name="distance"
               type="number"
               min="0"
-              step="1"
+              step="0.01"
               value={formState.distance}
               onChange={(e) => handleFieldChange("distance", e.target.value)}
               onBlur={() => handleFieldBlur("distance")}

@@ -71,10 +71,6 @@ export const FillupCard: React.FC<FillupCardProps> = ({ fillup, averageConsumpti
             {formatNumber(fillup.price_per_liter)} zł
           </div>
         </div>
-        <div>
-          <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Licznik</div>
-          <div className="font-medium text-gray-900 dark:text-gray-100">{fillup.odometer} km</div>
-        </div>
       </div>
     </div>
   );

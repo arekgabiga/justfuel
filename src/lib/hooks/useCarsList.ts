@@ -14,8 +14,8 @@ export const useCarsList = () => {
     loading: true,
     error: null,
     cars: [],
-    sortBy: "created_at",
-    sortOrder: "desc",
+    sortBy: "name",
+    sortOrder: "asc",
   });
 
   const fetchCars = useCallback(async (sortBy: string, sortOrder: string) => {
@@ -170,27 +170,7 @@ export const useCarsList = () => {
     }
   }, []);
 
-  const handleSortChange = useCallback(
-    (sortBy: string, sortOrder: string) => {
-      // Validate sort parameters
-      const validSortBy = sortBy === "name" || sortBy === "created_at" ? sortBy : "created_at";
-      const validSortOrder = sortOrder === "asc" || sortOrder === "desc" ? sortOrder : "desc";
-
-      // Only update if parameters actually changed
-      if (validSortBy === state.sortBy && validSortOrder === state.sortOrder) {
-        return;
-      }
-
-      setState((prev) => ({
-        ...prev,
-        sortBy: validSortBy as "name" | "created_at",
-        sortOrder: validSortOrder as "asc" | "desc",
-      }));
-
-      fetchCars(validSortBy, validSortOrder);
-    },
-    [fetchCars, state.sortBy, state.sortOrder]
-  );
+  // handleSortChange removed - sorting is now fixed to name/asc
 
   const handleRetry = useCallback(() => {
     // Add exponential backoff for retry attempts
@@ -240,7 +220,6 @@ export const useCarsList = () => {
   return {
     ...state,
     fetchCars,
-    handleSortChange,
     handleRetry,
     handleCarClick,
     handleAddCar,

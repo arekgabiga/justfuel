@@ -301,9 +301,7 @@ export const useCarDetails = (carId: string) => {
             setState((prev) => ({
               ...prev,
               chartLoading: false,
-              chartError: new Error(
-                errorData.error.message || "Wystąpił błąd serwera. Spróbuj ponownie później."
-              ),
+              chartError: new Error(errorData.error.message || "Wystąpił błąd serwera. Spróbuj ponownie później."),
             }));
             return;
           }
@@ -472,6 +470,17 @@ export const useCarDetails = (carId: string) => {
       fetchFillups(state.pagination.next_cursor);
     }
   }, [state.fillupsLoading, state.pagination.has_more, state.pagination.next_cursor, fetchFillups]);
+
+  // Read tab parameter from URL on mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const urlParams = new URLSearchParams(window.location.search);
+      const tab = urlParams.get("tab");
+      if (tab === "fillups" || tab === "charts") {
+        setState((prev) => ({ ...prev, activeMainTab: tab }));
+      }
+    }
+  }, []);
 
   // Initial load - only when carId changes
   useEffect(() => {

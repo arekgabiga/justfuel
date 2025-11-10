@@ -85,13 +85,20 @@ export const useEditFillupForm = ({ carId, fillupId }: UseEditFillupFormProps) =
           headers.Authorization = `Bearer ${token}`;
         }
 
-        const response = await fetch(`/api/cars/${carId}/fillups/${fillupId}`, {
-          method: "GET",
-          headers,
-        });
+        // Fetch car and fillup data in parallel
+        const [carResponse, fillupResponse] = await Promise.all([
+          fetch(`/api/cars/${carId}`, {
+            method: "GET",
+            headers,
+          }),
+          fetch(`/api/cars/${carId}/fillups/${fillupId}`, {
+            method: "GET",
+            headers,
+          }),
+        ]);
 
-        if (!response.ok) {
-          if (response.status === 401) {
+        if (!fillupResponse.ok) {
+          if (fillupResponse.status === 401) {
             console.error("[useEditFillupForm] Unauthorized - NOT redirecting (showing error instead)");
             // Don't redirect, show error instead
             setFormErrors({
@@ -99,27 +106,39 @@ export const useEditFillupForm = ({ carId, fillupId }: UseEditFillupFormProps) =
             });
             setIsLoading(false);
             return;
-          } else if (response.status === 404) {
+          } else if (fillupResponse.status === 404) {
             setFormErrors({ submit: "Tankowanie nie zostało znalezione. Przekierowywanie..." });
             if (typeof window !== "undefined") {
               setTimeout(() => {
-                window.location.href = `/cars/${carId}/fillups`;
+                window.location.href = `/cars/${carId}?tab=fillups`;
               }, 3000);
             }
             setIsLoading(false);
             return;
           }
 
-          const errorData: ErrorResponseDTO = await response.json();
+          const errorData: ErrorResponseDTO = await fillupResponse.json();
           setFormErrors({ submit: errorData.error.message });
           setIsLoading(false);
           return;
         }
 
-        const fillupData: FillupDTO = await response.json();
+        const fillupData: FillupDTO = await fillupResponse.json();
 
-        // Default to odometer mode (physical value in database)
-        const inputMode = "odometer";
+        // Get car data to use mileage_input_preference
+        let inputMode: "odometer" | "distance" = "odometer"; // Default fallback
+        if (carResponse.ok) {
+          try {
+            const carData = await carResponse.json();
+            // Use mileage_input_preference from car configuration
+            if (carData.mileage_input_preference === "odometer" || carData.mileage_input_preference === "distance") {
+              inputMode = carData.mileage_input_preference;
+            }
+          } catch (carError) {
+            console.error("[useEditFillupForm] Error parsing car data:", carError);
+            // Continue with default odometer mode if car fetch fails
+          }
+        }
 
         // Populate both values, user can switch between modes
         const odometerValue = fillupData.odometer?.toString() || "";
@@ -263,11 +282,12 @@ export const useEditFillupForm = ({ carId, fillupId }: UseEditFillupFormProps) =
       return "Dystans jest wymagany";
     }
 
-    if (!/^-?\d+$/.test(distance.trim())) {
-      return "Dystans musi być liczbą całkowitą";
+    // Check if it's a valid number (including decimals)
+    if (!/^-?\d*\.?\d+$/.test(distance.trim())) {
+      return "Dystans musi być liczbą";
     }
 
-    const num = parseInt(distance, 10);
+    const num = parseFloat(distance);
     if (isNaN(num)) {
       return "Dystans musi być liczbą";
     }
@@ -435,7 +455,7 @@ export const useEditFillupForm = ({ carId, fillupId }: UseEditFillupFormProps) =
       const currentOdometer = parseInt(formState.odometer, 10);
       inputFieldChanged = currentOdometer !== (originalFillupData.odometer || 0);
     } else if (formState.inputMode === "distance") {
-      const currentDistance = parseInt(formState.distance, 10);
+      const currentDistance = parseFloat(formState.distance);
       inputFieldChanged = currentDistance !== (originalFillupData.distance_traveled || 0);
     }
 
@@ -563,7 +583,7 @@ export const useEditFillupForm = ({ carId, fillupId }: UseEditFillupFormProps) =
             hasAnyChanges = true;
           }
         } else if (formState.inputMode === "distance") {
-          const distanceValue = parseInt(formState.distance, 10);
+          const distanceValue = parseFloat(formState.distance);
           const originalDistance = originalFillupData!.distance_traveled || 0;
           if (distanceValue !== originalDistance) {
             requestBody.distance = distanceValue;
@@ -664,7 +684,7 @@ export const useEditFillupForm = ({ carId, fillupId }: UseEditFillupFormProps) =
             setFormErrors({ submit: "Tankowanie nie zostało znalezione. Przekierowywanie..." });
             if (typeof window !== "undefined") {
               setTimeout(() => {
-                window.location.href = `/cars/${carId}/fillups`;
+                window.location.href = `/cars/${carId}?tab=fillups`;
               }, 3000);
             }
             setIsSubmitting(false);
@@ -698,7 +718,7 @@ export const useEditFillupForm = ({ carId, fillupId }: UseEditFillupFormProps) =
                 setRedirectIn((prev) => {
                   if (prev === null || prev <= 1) {
                     clearInterval(countdown);
-                    window.location.href = `/cars/${carId}/fillups`;
+                    window.location.href = `/cars/${carId}?tab=fillups`;
                     return null;
                   }
                   return prev - 1;
@@ -706,7 +726,7 @@ export const useEditFillupForm = ({ carId, fillupId }: UseEditFillupFormProps) =
               }, 1000);
             } else {
               setTimeout(() => {
-                window.location.href = `/cars/${carId}/fillups`;
+                window.location.href = `/cars/${carId}?tab=fillups`;
               }, 300);
             }
           }
@@ -744,14 +764,14 @@ export const useEditFillupForm = ({ carId, fillupId }: UseEditFillupFormProps) =
   // Handle cancel
   const handleCancel = useCallback(() => {
     if (typeof window !== "undefined") {
-      window.location.href = `/cars/${carId}/fillups`;
+      window.location.href = `/cars/${carId}?tab=fillups`;
     }
   }, [carId]);
 
   // Handle skip countdown
   const handleSkipCountdown = useCallback(() => {
     if (typeof window !== "undefined") {
-      window.location.href = `/cars/${carId}/fillups`;
+      window.location.href = `/cars/${carId}?tab=fillups`;
     }
   }, [carId]);
 
@@ -812,7 +832,7 @@ export const useEditFillupForm = ({ carId, fillupId }: UseEditFillupFormProps) =
         if (response.status === 404) {
           // Not found - redirect to fillups list
           if (typeof window !== "undefined") {
-            window.location.href = `/cars/${carId}/fillups`;
+            window.location.href = `/cars/${carId}?tab=fillups`;
           }
           return;
         }
@@ -841,7 +861,7 @@ export const useEditFillupForm = ({ carId, fillupId }: UseEditFillupFormProps) =
         setIsDeleting(false);
 
         if (typeof window !== "undefined") {
-          window.location.href = `/cars/${carId}/fillups`;
+          window.location.href = `/cars/${carId}?tab=fillups`;
         }
       } catch (parseError) {
         console.error("Error parsing delete response:", parseError);

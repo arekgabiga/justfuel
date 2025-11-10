@@ -160,12 +160,12 @@ export const useNewFillupForm = ({ carId, initialInputMode = "odometer" }: UseNe
       return "Dystans jest wymagany";
     }
 
-    // Check if it's a valid integer
-    if (!/^-?\d+$/.test(distance.trim())) {
-      return "Dystans musi być liczbą całkowitą";
+    // Check if it's a valid number (including decimals)
+    if (!/^-?\d*\.?\d+$/.test(distance.trim())) {
+      return "Dystans musi być liczbą";
     }
 
-    const num = parseInt(distance, 10);
+    const num = parseFloat(distance);
     if (isNaN(num)) {
       return "Dystans musi być liczbą";
     }
@@ -437,7 +437,7 @@ export const useNewFillupForm = ({ carId, initialInputMode = "odometer" }: UseNe
         if (formState.inputMode === "odometer") {
           (requestBody as any).odometer = parseInt(formState.odometer, 10);
         } else {
-          (requestBody as any).distance = parseInt(formState.distance, 10);
+          (requestBody as any).distance = parseFloat(formState.distance);
         }
 
         // API call with timeout
@@ -550,7 +550,7 @@ export const useNewFillupForm = ({ carId, initialInputMode = "odometer" }: UseNe
                 setRedirectIn((prev) => {
                   if (prev === null || prev <= 1) {
                     clearInterval(countdown);
-                    window.location.href = `/cars/${carId}/fillups`;
+                    window.location.href = `/cars/${carId}?tab=fillups`;
                     return null;
                   }
                   return prev - 1;
@@ -559,7 +559,7 @@ export const useNewFillupForm = ({ carId, initialInputMode = "odometer" }: UseNe
             } else {
               // No warnings, quick redirect
               setTimeout(() => {
-                window.location.href = `/cars/${carId}/fillups`;
+                window.location.href = `/cars/${carId}?tab=fillups`;
               }, 300);
             }
           }
@@ -600,14 +600,14 @@ export const useNewFillupForm = ({ carId, initialInputMode = "odometer" }: UseNe
   // Handle cancel
   const handleCancel = useCallback(() => {
     if (typeof window !== "undefined") {
-      window.location.href = `/cars/${carId}/fillups`;
+      window.location.href = `/cars/${carId}?tab=fillups`;
     }
   }, [carId]);
 
   // Handle immediate redirect (skip countdown)
   const handleSkipCountdown = useCallback(() => {
     if (typeof window !== "undefined") {
-      window.location.href = `/cars/${carId}/fillups`;
+      window.location.href = `/cars/${carId}?tab=fillups`;
     }
   }, [carId]);
 

@@ -1,8 +1,14 @@
 ---
-import Welcome from "../components/Welcome.astro";
 import Layout from "../layouts/Layout.astro";
+import CarsListView from "../components/cars/CarsListView.tsx";
+
+// Meta data
+const title = "Lista Samochodów - JustFuel";
+const description = "Zarządzaj swoimi samochodami i śledź zużycie paliwa";
 ---
 
-<Layout>
-  <Welcome />
+<Layout title={title} description={description}>
+  <main class="container mx-auto px-4 py-8">
+    <CarsListView client:load />
+  </main>
 </Layout>

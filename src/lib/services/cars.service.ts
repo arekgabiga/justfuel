@@ -30,8 +30,8 @@ export async function listUserCarsWithStats(
   params: ListCarsParams,
   options?: { userId?: string }
 ): Promise<CarWithStatisticsDTO[]> {
-  const sort = params.sort ?? "created_at";
-  const order = params.order ?? "desc";
+  const sort = params.sort ?? "name";
+  const order = params.order ?? "asc";
 
   const sortColumn = SORT_COLUMN_WHITELIST[sort];
   const orderCfg = ORDER_WHITELIST[order];

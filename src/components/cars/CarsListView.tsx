@@ -7,7 +7,7 @@ import { LoadingState } from "./LoadingState";
 import { ErrorState } from "./ErrorState";
 
 const CarsListView: React.FC = () => {
-  const { loading, error, cars, sortBy, sortOrder, handleCarClick, handleAddCar, handleRetry, handleSortChange } =
+  const { loading, error, cars, handleCarClick, handleAddCar, handleRetry } =
     useCarsList();
 
   // Show loading state
@@ -24,7 +24,7 @@ const CarsListView: React.FC = () => {
   if (cars.length === 0) {
     return (
       <>
-        <CarsListHeader onAddCar={handleAddCar} sortBy={sortBy} sortOrder={sortOrder} onSortChange={handleSortChange} />
+        <CarsListHeader onAddCar={handleAddCar} />
         <EmptyState onAddCar={handleAddCar} />
       </>
     );
@@ -33,7 +33,7 @@ const CarsListView: React.FC = () => {
   // Show cars grid
   return (
     <>
-      <CarsListHeader onAddCar={handleAddCar} sortBy={sortBy} sortOrder={sortOrder} onSortChange={handleSortChange} />
+      <CarsListHeader onAddCar={handleAddCar} />
       <CarsGrid cars={cars} onCarClick={handleCarClick} />
     </>
   );

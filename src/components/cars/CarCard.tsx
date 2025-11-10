@@ -2,7 +2,6 @@ import React from 'react';
 import type { CarWithStatisticsDTO } from '../../types';
 import { CarName } from './CarName';
 import { CarStatistics } from './CarStatistics';
-import { CarActions } from './CarActions';
 
 interface CarCardProps {
   car: CarWithStatisticsDTO;
@@ -31,7 +30,6 @@ export const CarCard: React.FC<CarCardProps> = ({ car, onClick }) => {
       <div className="p-6">
         <CarName name={car.name} />
         <CarStatistics statistics={car.statistics} />
-        <CarActions carId={car.id} />
       </div>
     </div>
   );

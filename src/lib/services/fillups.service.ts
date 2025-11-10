@@ -347,7 +347,7 @@ export async function createFillup(
     .from("fillups")
     .select("odometer, date")
     .eq("car_id", carId)
-    .order("odometer", { ascending: false })
+    .order("date", { ascending: false })
     .limit(1)
     .maybeSingle();
 
@@ -559,12 +559,16 @@ export async function updateFillup(
       newOdometer = input.odometer;
 
       // Get previous fillup for distance calculation
+      // Use date for finding previous fillup in time, not odometer
+      // Exclude the current fillup from the query
+      const fillupDate = input.date ?? existingFillup.date;
       const { data: previousFillup, error: prevError } = await supabase
         .from("fillups")
-        .select("odometer")
+        .select("odometer, date")
         .eq("car_id", carId)
-        .lt("odometer", newOdometer)
-        .order("odometer", { ascending: false })
+        .neq("id", fillupId)
+        .lt("date", fillupDate)
+        .order("date", { ascending: false })
         .limit(1)
         .maybeSingle();
 
@@ -597,12 +601,16 @@ export async function updateFillup(
       newDistanceTraveled = input.distance;
 
       // Get previous fillup for odometer calculation
+      // Use date for finding previous fillup in time, not odometer
+      // Exclude the current fillup from the query
+      const fillupDate = input.date ?? existingFillup.date;
       const { data: previousFillup, error: prevError } = await supabase
         .from("fillups")
-        .select("odometer")
+        .select("odometer, date")
         .eq("car_id", carId)
-        .lt("odometer", existingFillup.odometer)
-        .order("odometer", { ascending: false })
+        .neq("id", fillupId)
+        .lt("date", fillupDate)
+        .order("date", { ascending: false })
         .limit(1)
         .maybeSingle();
 
@@ -625,16 +633,14 @@ export async function updateFillup(
     updateData.distance_traveled = newDistanceTraveled;
   }
 
-  // Calculate fuel consumption and price per liter if fuel data is provided
-  if (input.fuel_amount !== undefined || input.total_price !== undefined) {
-    const fuelAmount = input.fuel_amount ?? existingFillup.fuel_amount;
-    const totalPrice = input.total_price ?? existingFillup.total_price;
-    const distanceTraveled = updateData.distance_traveled ?? existingFillup.distance_traveled;
+  // Calculate fuel consumption and price per liter for the updated fillup
+  // Always recalculate if any relevant field changed (fuel_amount, total_price, or distance_traveled)
+  const fuelAmount = input.fuel_amount ?? existingFillup.fuel_amount;
+  const totalPrice = input.total_price ?? existingFillup.total_price;
+  const distanceTraveled = updateData.distance_traveled ?? existingFillup.distance_traveled;
 
-    updateData.fuel_consumption =
-      distanceTraveled && distanceTraveled > 0 ? (fuelAmount / distanceTraveled) * 100 : null;
-    updateData.price_per_liter = fuelAmount > 0 ? totalPrice / fuelAmount : null;
-  }
+  updateData.fuel_consumption = distanceTraveled && distanceTraveled > 0 ? (fuelAmount / distanceTraveled) * 100 : null;
+  updateData.price_per_liter = fuelAmount > 0 ? totalPrice / fuelAmount : null;
 
   // Update the fillup
   const { data: updatedFillup, error: updateError } = await supabase
@@ -655,62 +661,8 @@ export async function updateFillup(
     throw new Error("Failed to update fillup");
   }
 
-  // Recalculate statistics for affected fillups
-  let updatedEntriesCount = 1; // The current fillup is always updated
-
-  // If odometer or distance was changed, we need to recalculate subsequent fillups
-  if (input.odometer !== undefined || input.distance !== undefined) {
-    const newOdometer = updateData.odometer ?? existingFillup.odometer;
-
-    // Get all fillups that come after this one (higher odometer readings)
-    const { data: subsequentFillups, error: subsequentError } = await supabase
-      .from("fillups")
-      .select("id, odometer, fuel_amount, total_price, distance_traveled")
-      .eq("car_id", carId)
-      .gt("odometer", newOdometer)
-      .order("odometer", { ascending: true });
-
-    if (subsequentError) {
-      throw new Error(`Failed to fetch subsequent fillups: ${subsequentError.message}`);
-    }
-
-    if (subsequentFillups && subsequentFillups.length > 0) {
-      // Recalculate distance_traveled and fuel_consumption for each subsequent fillup
-      const updates = [];
-
-      for (let i = 0; i < subsequentFillups.length; i++) {
-        const currentFillup = subsequentFillups[i];
-        const previousFillup = i === 0 ? updatedFillup : subsequentFillups[i - 1];
-
-        const newDistanceTraveled = currentFillup.odometer - previousFillup.odometer;
-        const newFuelConsumption =
-          newDistanceTraveled > 0 ? (currentFillup.fuel_amount / newDistanceTraveled) * 100 : null;
-
-        updates.push({
-          id: currentFillup.id,
-          distance_traveled: newDistanceTraveled,
-          fuel_consumption: newFuelConsumption,
-        });
-      }
-
-      // Batch update all subsequent fillups
-      for (const update of updates) {
-        const { error: updateError } = await supabase
-          .from("fillups")
-          .update({
-            distance_traveled: update.distance_traveled,
-            fuel_consumption: update.fuel_consumption,
-          })
-          .eq("id", update.id);
-
-        if (updateError) {
-          throw new Error(`Failed to update subsequent fillup ${update.id}: ${updateError.message}`);
-        }
-      }
-
-      updatedEntriesCount += updates.length;
-    }
-  }
+  // Only the current fillup is updated - no recalculation of other fillups
+  const updatedEntriesCount = 1;
 
   // Map to FillupDTO
   const fillupDTO: FillupDTO = {
@@ -770,7 +722,7 @@ export async function deleteFillup(
   // First, verify the fillup exists and belongs to the user's car
   const { data: existingFillup, error: fillupError } = await supabase
     .from("fillups")
-    .select("id, car_id, odometer")
+    .select("id, car_id, odometer, date")
     .eq("car_id", carId)
     .eq("id", fillupId)
     .maybeSingle();
@@ -800,15 +752,15 @@ export async function deleteFillup(
     throw new Error("Car not found");
   }
 
-  // Get all fillups that come after this one (higher odometer readings)
+  // Get all fillups that come after this one (later dates)
   // These will need their statistics recalculated
-  // Uses idx_fillups_on_car_id_odometer_id index for efficient query
+  // Use date for finding subsequent fillups in time, not odometer
   const { data: subsequentFillups, error: subsequentError } = await supabase
     .from("fillups")
-    .select("id, odometer, fuel_amount, total_price, distance_traveled")
+    .select("id, odometer, fuel_amount, total_price, distance_traveled, date")
     .eq("car_id", carId)
-    .gt("odometer", existingFillup.odometer)
-    .order("odometer", { ascending: true });
+    .gt("date", existingFillup.date)
+    .order("date", { ascending: true });
 
   if (subsequentError) {
     throw new Error(`Failed to fetch subsequent fillups: ${subsequentError.message}`);
@@ -826,12 +778,13 @@ export async function deleteFillup(
 
   if (subsequentFillups && subsequentFillups.length > 0) {
     // Get the fillup that comes before the deleted one (for distance calculation)
+    // Use date for finding previous fillup in time, not odometer
     const { data: previousFillup, error: prevError } = await supabase
       .from("fillups")
-      .select("odometer")
+      .select("odometer, date")
       .eq("car_id", carId)
-      .lt("odometer", existingFillup.odometer)
-      .order("odometer", { ascending: false })
+      .lt("date", existingFillup.date)
+      .order("date", { ascending: false })
       .limit(1)
       .maybeSingle();
 
