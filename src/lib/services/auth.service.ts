@@ -1,32 +1,32 @@
-import type { User, Session } from '@supabase/supabase-js';
-import type { AppSupabaseClient } from '../../db/supabase.client.ts';
+import type { User, Session } from "@supabase/supabase-js";
+import type { AppSupabaseClient } from "../../db/supabase.client.ts";
 
 // Custom error classes for better error handling
 export class InvalidCredentialsError extends Error {
-  constructor(message: string = 'Nieprawidłowy adres e-mail lub hasło') {
+  constructor(message = "Nieprawidłowy adres e-mail lub hasło") {
     super(message);
-    this.name = 'InvalidCredentialsError';
+    this.name = "InvalidCredentialsError";
   }
 }
 
 export class EmailAlreadyExistsError extends Error {
-  constructor(message: string = 'Konto z tym adresem e-mail już istnieje') {
+  constructor(message = "Konto z tym adresem e-mail już istnieje") {
     super(message);
-    this.name = 'EmailAlreadyExistsError';
+    this.name = "EmailAlreadyExistsError";
   }
 }
 
 export class InvalidTokenError extends Error {
-  constructor(message: string = 'Token resetowania jest nieprawidłowy lub wygasł') {
+  constructor(message = "Token resetowania jest nieprawidłowy lub wygasł") {
     super(message);
-    this.name = 'InvalidTokenError';
+    this.name = "InvalidTokenError";
   }
 }
 
 export class SupabaseAuthError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = 'SupabaseAuthError';
+    this.name = "SupabaseAuthError";
   }
 }
 
@@ -38,9 +38,9 @@ function mapSupabaseError(error: { message: string; status?: number }): Error {
 
   // Invalid credentials
   if (
-    message.includes('invalid login credentials') ||
-    message.includes('invalid_credentials') ||
-    message.includes('email not confirmed') ||
+    message.includes("invalid login credentials") ||
+    message.includes("invalid_credentials") ||
+    message.includes("email not confirmed") ||
     error.status === 400
   ) {
     return new InvalidCredentialsError();
@@ -48,24 +48,20 @@ function mapSupabaseError(error: { message: string; status?: number }): Error {
 
   // Email already exists
   if (
-    message.includes('user already registered') ||
-    message.includes('email already exists') ||
-    message.includes('already registered')
+    message.includes("user already registered") ||
+    message.includes("email already exists") ||
+    message.includes("already registered")
   ) {
     return new EmailAlreadyExistsError();
   }
 
   // Invalid token
-  if (
-    message.includes('invalid token') ||
-    message.includes('token expired') ||
-    message.includes('token_not_found')
-  ) {
+  if (message.includes("invalid token") || message.includes("token expired") || message.includes("token_not_found")) {
     return new InvalidTokenError();
   }
 
   // Generic Supabase error
-  return new SupabaseAuthError(error.message || 'Wystąpił błąd podczas autentykacji');
+  return new SupabaseAuthError(error.message || "Wystąpił błąd podczas autentykacji");
 }
 
 /**
@@ -74,7 +70,7 @@ function mapSupabaseError(error: { message: string; status?: number }): Error {
 export async function loginUser(
   supabase: AppSupabaseClient,
   email: string,
-  password: string,
+  password: string
 ): Promise<{ user: User; session: Session }> {
   const { data, error } = await supabase.auth.signInWithPassword({
     email: email.trim(),
@@ -86,7 +82,7 @@ export async function loginUser(
   }
 
   if (!data.user || !data.session) {
-    throw new SupabaseAuthError('Nie udało się zalogować. Spróbuj ponownie.');
+    throw new SupabaseAuthError("Nie udało się zalogować. Spróbuj ponownie.");
   }
 
   return {
@@ -98,23 +94,39 @@ export async function loginUser(
 /**
  * Registers a new user
  * Returns session as null if email confirmation is required
+ * @param emailRedirectTo - URL to redirect to after email confirmation (optional)
  */
 export async function registerUser(
   supabase: AppSupabaseClient,
   email: string,
   password: string,
+  emailRedirectTo?: string
 ): Promise<{ user: User; session: Session | null }> {
-  const { data, error } = await supabase.auth.signUp({
+  const signUpOptions: {
+    email: string;
+    password: string;
+    options?: { emailRedirectTo?: string };
+  } = {
     email: email.trim(),
     password,
-  });
+  };
+
+  // Add email redirect URL if provided
+  // This ensures the confirmation email contains the correct redirect link
+  if (emailRedirectTo) {
+    signUpOptions.options = {
+      emailRedirectTo,
+    };
+  }
+
+  const { data, error } = await supabase.auth.signUp(signUpOptions);
 
   if (error) {
     throw mapSupabaseError(error);
   }
 
   if (!data.user) {
-    throw new SupabaseAuthError('Nie udało się zarejestrować. Spróbuj ponownie.');
+    throw new SupabaseAuthError("Nie udało się zarejestrować. Spróbuj ponownie.");
   }
 
   // If session is null, it means email confirmation is required
@@ -151,4 +163,3 @@ export async function getCurrentUser(supabase: AppSupabaseClient): Promise<User 
 
   return user;
 }
-

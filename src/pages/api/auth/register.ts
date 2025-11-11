@@ -39,8 +39,20 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       headers: request.headers,
     });
 
-    // Attempt registration
-    const result = await registerUser(supabase, email, password);
+    // Construct the email confirmation redirect URL
+    // Use the request URL to get the origin (works for both dev and production)
+    // Replace 127.0.0.1 with localhost for better compatibility
+    const url = new URL(request.url);
+    let origin = url.origin;
+    // Replace 127.0.0.1 with localhost in development
+    if (origin.includes('127.0.0.1')) {
+      origin = origin.replace('127.0.0.1', 'localhost');
+    }
+    const emailRedirectTo = `${origin}/auth/confirm`;
+
+    // Attempt registration with email redirect URL
+    // This ensures the confirmation email contains the correct link
+    const result = await registerUser(supabase, email, password, emailRedirectTo);
 
     // If email confirmation is required, session might be null
     // Return success with user info and indicate if email confirmation is needed
