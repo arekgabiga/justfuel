@@ -96,13 +96,14 @@ export async function loginUser(
 }
 
 /**
- * Registers a new user and automatically logs them in
+ * Registers a new user
+ * Returns session as null if email confirmation is required
  */
 export async function registerUser(
   supabase: AppSupabaseClient,
   email: string,
   password: string,
-): Promise<{ user: User; session: Session }> {
+): Promise<{ user: User; session: Session | null }> {
   const { data, error } = await supabase.auth.signUp({
     email: email.trim(),
     password,
@@ -116,15 +117,11 @@ export async function registerUser(
     throw new SupabaseAuthError('Nie udało się zarejestrować. Spróbuj ponownie.');
   }
 
-  // If session is not automatically created, sign in after signup
-  if (!data.session) {
-    const loginResult = await loginUser(supabase, email, password);
-    return loginResult;
-  }
-
+  // If session is null, it means email confirmation is required
+  // Don't try to auto-login in this case, as the user needs to confirm their email first
   return {
     user: data.user,
-    session: data.session,
+    session: data.session ?? null,
   };
 }
 

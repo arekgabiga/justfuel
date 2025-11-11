@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { AuthError } from './AuthError';
+import { AuthSuccess } from './AuthSuccess';
 import { useRegisterForm } from '@/lib/hooks/useRegisterForm';
 
 const RegisterForm: React.FC = () => {
@@ -11,12 +12,51 @@ const RegisterForm: React.FC = () => {
     formErrors,
     isSubmitting,
     touchedFields,
+    success,
     handleEmailChange,
     handlePasswordChange,
     handleConfirmPasswordChange,
     handleFieldBlur,
     handleSubmit,
   } = useRegisterForm();
+
+  // Show success message if registration was successful
+  if (success) {
+    return (
+      <div className="w-full">
+        <h1 className="text-2xl font-bold mb-2 text-foreground">Rejestracja</h1>
+        <p className="text-sm text-muted-foreground mb-6">
+          Utwórz konto, aby rozpocząć zarządzanie samochodami
+        </p>
+
+        <AuthSuccess message={success.message} />
+
+        {success.requiresEmailConfirmation && (
+          <div className="mt-4 p-4 rounded-md bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/40">
+            <p className="text-sm text-blue-800 dark:text-blue-200">
+              <strong>Sprawdź swoją skrzynkę e-mail</strong>
+            </p>
+            <p className="text-sm text-blue-700 dark:text-blue-300 mt-2">
+              Wysłaliśmy link potwierdzający na adres <strong>{formState.email}</strong>. 
+              Kliknij w link w wiadomości, aby aktywować konto i móc się zalogować.
+            </p>
+            <p className="text-sm text-blue-700 dark:text-blue-300 mt-2">
+              Jeśli nie widzisz wiadomości, sprawdź folder spam.
+            </p>
+          </div>
+        )}
+
+        <div className="mt-6 text-center">
+          <a
+            href="/auth/login"
+            className="text-primary hover:underline font-medium text-sm"
+          >
+            Przejdź do logowania
+          </a>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full">

@@ -1,12 +1,18 @@
 ---
-import AuthLayout from '../../layouts/AuthLayout.astro';
-import RegisterForm from '../../components/auth/RegisterForm.tsx';
+import AuthLayout from "../../layouts/AuthLayout.astro";
+import RegisterForm from "../../components/auth/RegisterForm.tsx";
 
 const title = "Rejestracja - JustFuel";
 const description = "Utwórz nowe konto w JustFuel";
+
+// Check if user is already logged in
+if (Astro.locals.isAuthenticated && Astro.locals.user) {
+  // Get redirect parameter or default to home
+  const redirectUrl = Astro.url.searchParams.get("redirect") || "/";
+  return Astro.redirect(redirectUrl);
+}
 ---
 
 <AuthLayout title={title} description={description}>
   <RegisterForm client:load />
 </AuthLayout>
-

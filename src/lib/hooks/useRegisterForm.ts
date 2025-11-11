@@ -13,6 +13,11 @@ interface RegisterFormErrors {
   general?: string;
 }
 
+interface RegisterFormSuccess {
+  message: string;
+  requiresEmailConfirmation: boolean;
+}
+
 export const useRegisterForm = () => {
   const [formState, setFormState] = useState<RegisterFormState>({
     email: "",
@@ -23,6 +28,7 @@ export const useRegisterForm = () => {
   const [formErrors, setFormErrors] = useState<RegisterFormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [touchedFields, setTouchedFields] = useState<Set<keyof RegisterFormState>>(new Set());
+  const [success, setSuccess] = useState<RegisterFormSuccess | null>(null);
 
   const validateEmail = useCallback((email: string): string | undefined => {
     if (!email.trim()) {
@@ -68,17 +74,19 @@ export const useRegisterForm = () => {
         error = validateConfirmPassword(value, formState.password);
       }
 
-      const newErrors = { ...formErrors };
       if (error) {
-        newErrors[field] = error;
+        setFormErrors((prev) => ({ ...prev, [field]: error }));
       } else {
-        delete newErrors[field];
+        setFormErrors((prev) => {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { [field]: removed, ...rest } = prev;
+          return rest;
+        });
       }
-      setFormErrors(newErrors);
 
       return !error;
     },
-    [formState, formErrors, validateEmail, validatePassword, validateConfirmPassword]
+    [formState, validateEmail, validatePassword, validateConfirmPassword]
   );
 
   const validateAllFields = useCallback((): boolean => {
@@ -179,32 +187,48 @@ export const useRegisterForm = () => {
 
       setIsSubmitting(true);
       setFormErrors({});
+      setSuccess(null);
 
       try {
-        // TODO: Replace with actual API call when backend is implemented
-        // const response = await fetch('/api/auth/register', {
-        //   method: 'POST',
-        //   headers: {
-        //     'Content-Type': 'application/json',
-        //   },
-        //   body: JSON.stringify({
-        //     email: formState.email.trim(),
-        //     password: formState.password,
-        //   }),
-        // });
+        const response = await fetch("/api/auth/register", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: formState.email.trim(),
+            password: formState.password,
+          }),
+        });
 
-        // Placeholder for now - will be implemented with backend
-        console.log("Register attempt:", { email: formState.email.trim() });
+        const data = await response.json();
 
-        // Simulate API delay
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        if (!response.ok) {
+          // Handle API errors
+          const errorMessage = data.error?.message || "Wystąpił błąd podczas rejestracji. Spróbuj ponownie.";
 
-        // For now, just show an error that backend is not implemented
-        setFormErrors({
-          general: "Backend nie jest jeszcze zaimplementowany. Ta funkcjonalność będzie dostępna po implementacji API.",
+          if (data.error?.code === "EMAIL_ALREADY_EXISTS") {
+            setFormErrors({
+              email: "Konto z tym adresem e-mail już istnieje",
+              general: "Konto z tym adresem e-mail już istnieje",
+            });
+          } else {
+            setFormErrors({
+              general: errorMessage,
+            });
+          }
+          setIsSubmitting(false);
+          return;
+        }
+
+        // Success - show success message
+        setSuccess({
+          message: data.message || "Rejestracja zakończona powodzeniem",
+          requiresEmailConfirmation: data.requiresEmailConfirmation ?? true,
         });
         setIsSubmitting(false);
       } catch (error) {
+        // eslint-disable-next-line no-console
         console.error("Error during registration:", error);
         setFormErrors({
           general: "Wystąpił błąd podczas rejestracji. Spróbuj ponownie.",
@@ -220,6 +244,7 @@ export const useRegisterForm = () => {
     formErrors,
     isSubmitting,
     touchedFields,
+    success,
     handleEmailChange,
     handlePasswordChange,
     handleConfirmPasswordChange,
