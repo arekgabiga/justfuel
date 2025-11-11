@@ -4,69 +4,45 @@ import type { APIRoute } from "astro";
 import type { ListResponseDTO, ErrorResponseDTO, CarDetailsDTO } from "../../types.ts";
 import { listUserCarsWithStats, createCar, ConflictError } from "../../lib/services/cars.service.ts";
 import { listCarsQuerySchema, createCarCommandSchema } from "../../lib/validation/cars.ts";
-import { DEFAULT_USER_ID } from "../../db/supabase.client.ts";
+import { requireAuth } from "../../lib/utils/auth.ts";
 
 export const GET: APIRoute = async (context) => {
   const requestId = context.request.headers.get("x-request-id") ?? undefined;
 
-  const supabase = context.locals.supabase;
-  if (!supabase) {
-    const body: ErrorResponseDTO = {
-      error: { code: "INTERNAL_ERROR", message: "Supabase client not available" },
-    };
-    return new Response(JSON.stringify(body), { status: 500 });
-  }
-
-  const authHeader = context.request.headers.get("authorization");
-  const devAuthFallbackEnabled = import.meta.env.DEV_AUTH_FALLBACK === "true";
-  const hasBearer = !!authHeader && authHeader.toLowerCase().startsWith("bearer ");
-
-  // Determine user ID for the request
-  let userId: string | undefined;
-  if (hasBearer) {
-    const token = authHeader!.slice(7);
-    const { data, error } = await supabase.auth.getUser(token);
-    if (error || !data?.user?.id) {
-      // If token validation fails but dev auth fallback is enabled, use default user
-      if (devAuthFallbackEnabled) {
-        userId = DEFAULT_USER_ID;
-      } else {
-        const body: ErrorResponseDTO = {
-          error: { code: "UNAUTHORIZED", message: "Missing or invalid Authorization header" },
-        };
-        return new Response(JSON.stringify(body), { status: 401 });
-      }
-    } else {
-      userId = data.user.id;
-    }
-  } else {
-    if (!devAuthFallbackEnabled) {
-      const body: ErrorResponseDTO = {
-        error: { code: "UNAUTHORIZED", message: "Missing or invalid Authorization header" },
-      };
-      return new Response(JSON.stringify(body), { status: 401 });
-    }
-    userId = DEFAULT_USER_ID;
-  }
-
-  const url = new URL(context.request.url);
-  const rawParams = Object.fromEntries(url.searchParams.entries());
-
-  const parsed = listCarsQuerySchema.safeParse(rawParams);
-  if (!parsed.success) {
-    const body: ErrorResponseDTO = {
-      error: { code: "BAD_REQUEST", message: "Invalid query parameters", details: { issues: parsed.error.message } },
-    };
-    return new Response(JSON.stringify(body), { status: 400 });
-  }
-
   try {
-    const cars = await listUserCarsWithStats(supabase, parsed.data, userId ? { userId } : undefined);
+    // Require authentication
+    const user = await requireAuth(context);
+    const userId = user.id;
+
+    const supabase = context.locals.supabase;
+    if (!supabase) {
+      const body: ErrorResponseDTO = {
+        error: { code: "INTERNAL_ERROR", message: "Supabase client not available" },
+      };
+      return new Response(JSON.stringify(body), { status: 500 });
+    }
+
+    const url = new URL(context.request.url);
+    const rawParams = Object.fromEntries(url.searchParams.entries());
+
+    const parsed = listCarsQuerySchema.safeParse(rawParams);
+    if (!parsed.success) {
+      const body: ErrorResponseDTO = {
+        error: { code: "BAD_REQUEST", message: "Invalid query parameters", details: { issues: parsed.error.message } },
+      };
+      return new Response(JSON.stringify(body), { status: 400 });
+    }
+
+    const cars = await listUserCarsWithStats(supabase, parsed.data, { userId });
     const body: ListResponseDTO<Awaited<ReturnType<typeof listUserCarsWithStats>>[number]> = {
       data: cars,
     };
     return new Response(JSON.stringify(body), { status: 200 });
   } catch (error) {
+    // Handle auth errors (thrown by requireAuth)
+    if (error instanceof Response) {
+      return error;
+    }
     console.error(`[GET /api/cars] requestId=${requestId ?? "-"}`, error);
     const body: ErrorResponseDTO = {
       error: { code: "INTERNAL_ERROR", message: "Unexpected server error" },
@@ -90,63 +66,38 @@ export const GET: APIRoute = async (context) => {
 export const POST: APIRoute = async (context) => {
   const requestId = context.request.headers.get("x-request-id") ?? undefined;
 
-  // Ensure Supabase client is available
-  const supabase = context.locals.supabase;
-  if (!supabase) {
-    const body: ErrorResponseDTO = {
-      error: { code: "INTERNAL_ERROR", message: "Supabase client not available" },
-    };
-    return new Response(JSON.stringify(body), { status: 500 });
-  }
-
-  // Validate authentication (Bearer token or dev fallback)
-  const authHeader = context.request.headers.get("authorization");
-  const devAuthFallbackEnabled = import.meta.env.DEV_AUTH_FALLBACK === "true";
-  const hasBearer = !!authHeader && authHeader.toLowerCase().startsWith("bearer ");
-
-  // Extract user ID from token or use dev fallback
-  let userId: string | undefined;
-  if (hasBearer) {
-    const token = authHeader!.slice(7);
-    const { data, error } = await supabase.auth.getUser(token);
-    if (error || !data?.user?.id) {
-      // If token validation fails but dev auth fallback is enabled, use default user
-      if (devAuthFallbackEnabled) {
-        userId = DEFAULT_USER_ID;
-      } else {
-        const body: ErrorResponseDTO = {
-          error: { code: "UNAUTHORIZED", message: "Invalid token" },
-        };
-        return new Response(JSON.stringify(body), { status: 401 });
-      }
-    } else {
-      userId = data.user.id;
-    }
-  } else {
-    if (!devAuthFallbackEnabled) {
-      const body: ErrorResponseDTO = {
-        error: { code: "UNAUTHORIZED", message: "Missing or invalid Authorization header" },
-      };
-      return new Response(JSON.stringify(body), { status: 401 });
-    }
-    userId = DEFAULT_USER_ID;
-  }
-
-  // Parse and validate request body
-  const rawBody = await context.request.json().catch(() => undefined);
-  const parsed = createCarCommandSchema.safeParse(rawBody);
-  if (!parsed.success) {
-    const body: ErrorResponseDTO = {
-      error: { code: "BAD_REQUEST", message: "Invalid body", details: { issues: parsed.error.message } },
-    };
-    return new Response(JSON.stringify(body), { status: 400 });
-  }
-
   try {
+    // Require authentication
+    const user = await requireAuth(context);
+    const userId = user.id;
+
+    // Ensure Supabase client is available
+    const supabase = context.locals.supabase;
+    if (!supabase) {
+      const body: ErrorResponseDTO = {
+        error: { code: "INTERNAL_ERROR", message: "Supabase client not available" },
+      };
+      return new Response(JSON.stringify(body), { status: 500 });
+    }
+
+    // Parse and validate request body
+    const rawBody = await context.request.json().catch(() => undefined);
+    const parsed = createCarCommandSchema.safeParse(rawBody);
+    if (!parsed.success) {
+      const body: ErrorResponseDTO = {
+        error: { code: "BAD_REQUEST", message: "Invalid body", details: { issues: parsed.error.message } },
+      };
+      return new Response(JSON.stringify(body), { status: 400 });
+    }
+
     // Create car and return 201 with car details
-    const created: CarDetailsDTO = await createCar(supabase, userId!, parsed.data);
+    const created: CarDetailsDTO = await createCar(supabase, userId, parsed.data);
     return new Response(JSON.stringify(created), { status: 201 });
   } catch (err) {
+    // Handle auth errors (thrown by requireAuth)
+    if (err instanceof Response) {
+      return err;
+    }
     // Handle specific error types
     if (err instanceof ConflictError) {
       const body: ErrorResponseDTO = {

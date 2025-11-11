@@ -11,7 +11,13 @@ interface LoginFormErrors {
   general?: string;
 }
 
-export const useLoginForm = () => {
+interface UseLoginFormOptions {
+  redirectUrl?: string;
+}
+
+export const useLoginForm = (options?: UseLoginFormOptions) => {
+  const { redirectUrl = '/' } = options || {};
+
   const [formState, setFormState] = useState<LoginFormState>({
     email: '',
     password: '',
@@ -128,29 +134,39 @@ export const useLoginForm = () => {
       setFormErrors({});
 
       try {
-        // TODO: Replace with actual API call when backend is implemented
-        // const response = await fetch('/api/auth/login', {
-        //   method: 'POST',
-        //   headers: {
-        //     'Content-Type': 'application/json',
-        //   },
-        //   body: JSON.stringify({
-        //     email: formState.email.trim(),
-        //     password: formState.password,
-        //   }),
-        // });
-
-        // Placeholder for now - will be implemented with backend
-        console.log('Login attempt:', { email: formState.email.trim() });
-        
-        // Simulate API delay
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-
-        // For now, just show an error that backend is not implemented
-        setFormErrors({
-          general: 'Backend nie jest jeszcze zaimplementowany. Ta funkcjonalność będzie dostępna po implementacji API.',
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: formState.email.trim(),
+            password: formState.password,
+          }),
         });
-        setIsSubmitting(false);
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          // Handle API errors
+          const errorMessage =
+            data.error?.message || 'Wystąpił błąd podczas logowania. Spróbuj ponownie.';
+
+          if (data.error?.code === 'INVALID_CREDENTIALS') {
+            setFormErrors({
+              general: 'Nieprawidłowy adres e-mail lub hasło',
+            });
+          } else {
+            setFormErrors({
+              general: errorMessage,
+            });
+          }
+          setIsSubmitting(false);
+          return;
+        }
+
+        // Success - redirect to the specified URL or home
+        window.location.href = redirectUrl;
       } catch (error) {
         console.error('Error during login:', error);
         setFormErrors({
@@ -159,7 +175,7 @@ export const useLoginForm = () => {
         setIsSubmitting(false);
       }
     },
-    [formState, validateAllFields]
+    [formState, validateAllFields, redirectUrl]
   );
 
   return {

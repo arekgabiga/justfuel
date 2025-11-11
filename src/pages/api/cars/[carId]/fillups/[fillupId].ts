@@ -4,7 +4,7 @@ import type { APIRoute } from "astro";
 import { fillupIdParamSchema, updateFillupRequestSchema } from "../../../../../lib/validation/fillups.ts";
 import { carIdParamSchema } from "../../../../../lib/validation/cars.ts";
 import { updateFillup, getFillupById, deleteFillup } from "../../../../../lib/services/fillups.service.ts";
-import { DEFAULT_USER_ID } from "../../../../../db/supabase.client.ts";
+import { requireAuth } from "../../../../../lib/utils/auth.ts";
 import type { ErrorResponseDTO } from "../../../../../types.ts";
 
 /**
@@ -27,7 +27,10 @@ export const GET: APIRoute = async (context) => {
   const requestId = context.request.headers.get("x-request-id") ?? undefined;
 
   try {
-    // 1. Extract supabase client and check authentication
+    // Require authentication
+    const user = await requireAuth(context);
+    const userId = user.id;
+
     const supabase = context.locals.supabase;
     if (!supabase) {
       const errorResponse: ErrorResponseDTO = {
@@ -40,53 +43,6 @@ export const GET: APIRoute = async (context) => {
         status: 500,
         headers: { "Content-Type": "application/json" },
       });
-    }
-
-    // Check for Bearer token or dev fallback
-    const authHeader = context.request.headers.get("authorization");
-    const hasBearer = !!authHeader && authHeader.toLowerCase().startsWith("bearer ");
-    const devAuthFallbackEnabled = import.meta.env.DEV_AUTH_FALLBACK === "true";
-
-    if (!hasBearer && !devAuthFallbackEnabled) {
-      const errorResponse: ErrorResponseDTO = {
-        error: {
-          code: "UNAUTHORIZED",
-          message: "Missing or invalid Authorization header",
-        },
-      };
-      return new Response(JSON.stringify(errorResponse), {
-        status: 401,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
-
-    // Extract and validate user ID
-    let userId: string | undefined;
-    if (hasBearer) {
-      const token = authHeader.slice(7);
-      const { data, error } = await supabase.auth.getUser(token);
-      if (error || !data?.user?.id) {
-        // If token validation fails but dev auth fallback is enabled, use default user
-        if (devAuthFallbackEnabled) {
-          userId = DEFAULT_USER_ID;
-        } else {
-          const errorResponse: ErrorResponseDTO = {
-            error: {
-              code: "UNAUTHORIZED",
-              message: "Invalid token",
-            },
-          };
-          return new Response(JSON.stringify(errorResponse), {
-            status: 401,
-            headers: { "Content-Type": "application/json" },
-          });
-        }
-      } else {
-        userId = data.user.id;
-      }
-    } else {
-      // Use dev fallback user
-      userId = DEFAULT_USER_ID;
     }
 
     // 2. Validate path parameters
@@ -154,6 +110,10 @@ export const GET: APIRoute = async (context) => {
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
+    // Handle auth errors (thrown by requireAuth)
+    if (error instanceof Response) {
+      return error;
+    }
     // Handle known errors
     if (error instanceof Error) {
       // Car not found error
@@ -218,7 +178,10 @@ export const PATCH: APIRoute = async (context) => {
   const requestId = context.request.headers.get("x-request-id") ?? undefined;
 
   try {
-    // 1. Extract supabase client and check authentication
+    // Require authentication
+    const user = await requireAuth(context);
+    const userId = user.id;
+
     const supabase = context.locals.supabase;
     if (!supabase) {
       const errorResponse: ErrorResponseDTO = {
@@ -231,53 +194,6 @@ export const PATCH: APIRoute = async (context) => {
         status: 500,
         headers: { "Content-Type": "application/json" },
       });
-    }
-
-    // Check for Bearer token or dev fallback
-    const authHeader = context.request.headers.get("authorization");
-    const hasBearer = !!authHeader && authHeader.toLowerCase().startsWith("bearer ");
-    const devAuthFallbackEnabled = import.meta.env.DEV_AUTH_FALLBACK === "true";
-
-    if (!hasBearer && !devAuthFallbackEnabled) {
-      const errorResponse: ErrorResponseDTO = {
-        error: {
-          code: "UNAUTHORIZED",
-          message: "Missing or invalid Authorization header",
-        },
-      };
-      return new Response(JSON.stringify(errorResponse), {
-        status: 401,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
-
-    // Extract and validate user ID
-    let userId: string | undefined;
-    if (hasBearer) {
-      const token = authHeader.slice(7);
-      const { data, error } = await supabase.auth.getUser(token);
-      if (error || !data?.user?.id) {
-        // If token validation fails but dev auth fallback is enabled, use default user
-        if (devAuthFallbackEnabled) {
-          userId = DEFAULT_USER_ID;
-        } else {
-          const errorResponse: ErrorResponseDTO = {
-            error: {
-              code: "UNAUTHORIZED",
-              message: "Invalid token",
-            },
-          };
-          return new Response(JSON.stringify(errorResponse), {
-            status: 401,
-            headers: { "Content-Type": "application/json" },
-          });
-        }
-      } else {
-        userId = data.user.id;
-      }
-    } else {
-      // Use dev fallback user
-      userId = DEFAULT_USER_ID;
     }
 
     // 2. Validate path parameters
@@ -374,6 +290,10 @@ export const PATCH: APIRoute = async (context) => {
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
+    // Handle auth errors (thrown by requireAuth)
+    if (error instanceof Response) {
+      return error;
+    }
     // Handle known errors
     if (error instanceof Error) {
       // Fillup not found error
@@ -471,7 +391,10 @@ export const DELETE: APIRoute = async (context) => {
   const requestId = context.request.headers.get("x-request-id") ?? undefined;
 
   try {
-    // 1. Extract supabase client and check authentication
+    // Require authentication
+    const user = await requireAuth(context);
+    const userId = user.id;
+
     const supabase = context.locals.supabase;
     if (!supabase) {
       const errorResponse: ErrorResponseDTO = {
@@ -484,53 +407,6 @@ export const DELETE: APIRoute = async (context) => {
         status: 500,
         headers: { "Content-Type": "application/json" },
       });
-    }
-
-    // Check for Bearer token or dev fallback
-    const authHeader = context.request.headers.get("authorization");
-    const hasBearer = !!authHeader && authHeader.toLowerCase().startsWith("bearer ");
-    const devAuthFallbackEnabled = import.meta.env.DEV_AUTH_FALLBACK === "true";
-
-    if (!hasBearer && !devAuthFallbackEnabled) {
-      const errorResponse: ErrorResponseDTO = {
-        error: {
-          code: "UNAUTHORIZED",
-          message: "Missing or invalid Authorization header",
-        },
-      };
-      return new Response(JSON.stringify(errorResponse), {
-        status: 401,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
-
-    // Extract and validate user ID
-    let userId: string | undefined;
-    if (hasBearer) {
-      const token = authHeader.slice(7);
-      const { data, error } = await supabase.auth.getUser(token);
-      if (error || !data?.user?.id) {
-        // If token validation fails but dev auth fallback is enabled, use default user
-        if (devAuthFallbackEnabled) {
-          userId = DEFAULT_USER_ID;
-        } else {
-          const errorResponse: ErrorResponseDTO = {
-            error: {
-              code: "UNAUTHORIZED",
-              message: "Invalid token",
-            },
-          };
-          return new Response(JSON.stringify(errorResponse), {
-            status: 401,
-            headers: { "Content-Type": "application/json" },
-          });
-        }
-      } else {
-        userId = data.user.id;
-      }
-    } else {
-      // Use dev fallback user
-      userId = DEFAULT_USER_ID;
     }
 
     // 2. Validate path parameters
@@ -591,6 +467,10 @@ export const DELETE: APIRoute = async (context) => {
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
+    // Handle auth errors (thrown by requireAuth)
+    if (error instanceof Response) {
+      return error;
+    }
     // Handle known errors
     if (error instanceof Error) {
       // Fillup not found error

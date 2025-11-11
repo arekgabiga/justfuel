@@ -5,7 +5,11 @@ import { Label } from '@/components/ui/label';
 import { AuthError } from './AuthError';
 import { useLoginForm } from '@/lib/hooks/useLoginForm';
 
-const LoginForm: React.FC = () => {
+interface LoginFormProps {
+  redirectUrl?: string;
+}
+
+const LoginForm: React.FC<LoginFormProps> = ({ redirectUrl = '/' }) => {
   const {
     formState,
     formErrors,
@@ -15,7 +19,7 @@ const LoginForm: React.FC = () => {
     handlePasswordChange,
     handleFieldBlur,
     handleSubmit,
-  } = useLoginForm();
+  } = useLoginForm({ redirectUrl });
 
   return (
     <div className="w-full">
@@ -86,18 +90,10 @@ const LoginForm: React.FC = () => {
             <p className="text-sm text-muted-foreground">
               Nie masz konta?{' '}
               <a
-                href="/register"
+                href="/auth/register"
                 className="text-primary hover:underline font-medium"
               >
                 Zarejestruj się
-              </a>
-            </p>
-            <p className="text-sm">
-              <a
-                href="/forgot-password"
-                className="text-primary hover:underline"
-              >
-                Zapomniałeś hasła?
               </a>
             </p>
           </div>
