@@ -1,0 +1,12 @@
+---
+import AuthLayout from '../layouts/AuthLayout.astro';
+import RegisterForm from '../components/auth/RegisterForm.tsx';
+
+const title = "Rejestracja - JustFuel";
+const description = "Utwórz nowe konto w JustFuel";
+---
+
+<AuthLayout title={title} description={description}>
+  <RegisterForm client:load />
+</AuthLayout>
+
