@@ -9,6 +9,7 @@ const PUBLIC_PATHS = [
   // Auth API endpoints
   '/api/auth/login',
   '/api/auth/register',
+  '/api/auth/logout',
 ];
 
 function isPublicRoute(pathname: string): boolean {
