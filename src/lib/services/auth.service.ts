@@ -163,3 +163,40 @@ export async function getCurrentUser(supabase: AppSupabaseClient): Promise<User 
 
   return user;
 }
+
+/**
+ * Sends a password reset email to the user
+ * @param email - User's email address
+ * @param redirectTo - URL to redirect to after password reset (should point to reset-password page)
+ */
+export async function resetPasswordForEmail(
+  supabase: AppSupabaseClient,
+  email: string,
+  redirectTo?: string
+): Promise<void> {
+  // Supabase resetPasswordForEmail accepts options as second parameter
+  // redirectTo must be a full URL (not relative path) and must be in additional_redirect_urls
+  const options = redirectTo ? { redirectTo } : undefined;
+
+  const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), options);
+
+  if (error) {
+    throw mapSupabaseError(error);
+  }
+}
+
+/**
+ * Updates user password using a password reset token
+ * This should be called after the user clicks the reset link from their email
+ * @param supabase - Supabase client instance
+ * @param newPassword - New password to set
+ */
+export async function updatePasswordWithToken(supabase: AppSupabaseClient, newPassword: string): Promise<void> {
+  const { error } = await supabase.auth.updateUser({
+    password: newPassword,
+  });
+
+  if (error) {
+    throw mapSupabaseError(error);
+  }
+}

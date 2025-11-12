@@ -5,6 +5,16 @@ import CarsListView from "../components/cars/CarsListView.tsx";
 // Meta data
 const title = "Lista Samochodów - JustFuel";
 const description = "Zarządzaj swoimi samochodami i śledź zużycie paliwa";
+
+// Handle password reset code redirect
+// Supabase sometimes redirects to root with code parameter instead of /auth/reset-password
+if (Astro.url.searchParams.has("code")) {
+  const code = Astro.url.searchParams.get("code");
+  if (code) {
+    // Redirect to reset-password page with the code
+    return Astro.redirect(`/auth/reset-password?code=${code}`);
+  }
+}
 ---
 
 <Layout title={title} description={description}>

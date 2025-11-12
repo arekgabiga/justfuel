@@ -1,19 +1,19 @@
 ---
-import AuthLayout from '../../layouts/AuthLayout.astro';
-import ConfirmEmail from '../../components/auth/ConfirmEmail.tsx';
-import { createSupabaseServerInstance } from '../../db/supabase.client.ts';
+import AuthLayout from "../../layouts/AuthLayout.astro";
+import ConfirmEmail from "../../components/auth/ConfirmEmail.tsx";
+import { createSupabaseServerInstance } from "../../db/supabase.client.ts";
 
 const title = "Potwierdzenie e-maila - JustFuel";
 const description = "Potwierdź swój adres e-mail";
 
 // Handle email confirmation on server side where we have access to cookies
-let confirmationStatus: 'processing' | 'success' | 'error' = 'processing';
-let confirmationMessage = 'Przetwarzanie potwierdzenia...';
-let redirectTo = '/';
+let confirmationStatus: "processing" | "success" | "error" = "processing";
+let confirmationMessage = "Przetwarzanie potwierdzenia...";
+let redirectTo = "/";
 
-if (Astro.url.searchParams.has('code')) {
-  const code = Astro.url.searchParams.get('code');
-  
+if (Astro.url.searchParams.has("code")) {
+  const code = Astro.url.searchParams.get("code");
+
   if (code) {
     try {
       const supabase = createSupabaseServerInstance({
@@ -29,19 +29,17 @@ if (Astro.url.searchParams.has('code')) {
       }
 
       if (data.session) {
-        confirmationStatus = 'success';
-        confirmationMessage = 'E-mail został potwierdzony pomyślnie!';
-        redirectTo = '/';
+        confirmationStatus = "success";
+        confirmationMessage = "E-mail został potwierdzony pomyślnie!";
+        redirectTo = "/";
       } else {
-        throw new Error('Nie udało się potwierdzić e-maila');
+        throw new Error("Nie udało się potwierdzić e-maila");
       }
     } catch (error) {
-      console.error('Email confirmation error:', error);
-      confirmationStatus = 'error';
+      console.error("Email confirmation error:", error);
+      confirmationStatus = "error";
       confirmationMessage =
-        error instanceof Error
-          ? error.message
-          : 'Wystąpił błąd podczas potwierdzania e-maila. Spróbuj ponownie.';
+        error instanceof Error ? error.message : "Wystąpił błąd podczas potwierdzania e-maila. Spróbuj ponownie.";
     }
   }
 } else {
@@ -52,19 +50,21 @@ if (Astro.url.searchParams.has('code')) {
       headers: Astro.request.headers,
     });
 
-    const { data: { session } } = await supabase.auth.getSession();
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
 
     if (session) {
-      confirmationStatus = 'success';
-      confirmationMessage = 'E-mail został potwierdzony pomyślnie!';
-      redirectTo = '/';
+      confirmationStatus = "success";
+      confirmationMessage = "E-mail został potwierdzony pomyślnie!";
+      redirectTo = "/";
     } else {
-      confirmationStatus = 'error';
-      confirmationMessage = 'Link potwierdzający jest nieprawidłowy lub wygasł. Spróbuj zarejestrować się ponownie.';
+      confirmationStatus = "error";
+      confirmationMessage = "Link potwierdzający jest nieprawidłowy lub wygasł. Spróbuj zarejestrować się ponownie.";
     }
   } catch (error) {
-    confirmationStatus = 'error';
-    confirmationMessage = 'Wystąpił błąd podczas sprawdzania sesji.';
+    confirmationStatus = "error";
+    confirmationMessage = "Wystąpił błąd podczas sprawdzania sesji.";
   }
 }
 
@@ -75,13 +75,12 @@ const supabaseKey = import.meta.env.SUPABASE_KEY;
 ---
 
 <AuthLayout title={title} description={description}>
-  <ConfirmEmail 
-    client:load 
-    status={confirmationStatus} 
+  <ConfirmEmail
+    client:load
+    status={confirmationStatus}
     message={confirmationMessage}
     redirectTo={redirectTo}
     supabaseUrl={supabaseUrl}
     supabaseKey={supabaseKey}
   />
 </AuthLayout>
-

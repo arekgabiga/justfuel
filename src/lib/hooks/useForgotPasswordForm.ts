@@ -96,27 +96,28 @@ export const useForgotPasswordForm = () => {
       setIsSuccess(false);
 
       try {
-        // TODO: Replace with actual API call when backend is implemented
-        // const response = await fetch('/api/auth/forgot-password', {
-        //   method: 'POST',
-        //   headers: {
-        //     'Content-Type': 'application/json',
-        //   },
-        //   body: JSON.stringify({
-        //     email: formState.email.trim(),
-        //   }),
-        // });
-
-        // Placeholder for now - will be implemented with backend
-        console.log('Forgot password attempt:', { email: formState.email.trim() });
-        
-        // Simulate API delay
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-
-        // For now, just show an error that backend is not implemented
-        setFormErrors({
-          general: 'Backend nie jest jeszcze zaimplementowany. Ta funkcjonalność będzie dostępna po implementacji API.',
+        const response = await fetch('/api/auth/forgot-password', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: formState.email.trim(),
+          }),
         });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          setFormErrors({
+            general: data.error?.message || 'Wystąpił błąd podczas wysyłania linku resetującego.',
+          });
+          setIsSubmitting(false);
+          return;
+        }
+
+        // Success - show success message
+        setIsSuccess(true);
         setIsSubmitting(false);
       } catch (error) {
         console.error('Error during forgot password:', error);

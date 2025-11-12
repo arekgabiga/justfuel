@@ -1,10 +1,10 @@
-import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { AuthError } from './AuthError';
-import { AuthSuccess } from './AuthSuccess';
-import { useForgotPasswordForm } from '@/lib/hooks/useForgotPasswordForm';
+import React from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { AuthError } from "./AuthError";
+import { AuthSuccess } from "./AuthSuccess";
+import { useForgotPasswordForm } from "@/lib/hooks/useForgotPasswordForm";
 
 const ForgotPasswordForm: React.FC = () => {
   const {
@@ -27,10 +27,7 @@ const ForgotPasswordForm: React.FC = () => {
           className="mb-6"
         />
         <div className="text-center">
-          <a
-            href="/login"
-            className="text-primary hover:underline font-medium"
-          >
+          <a href="/auth/login" className="text-primary hover:underline font-medium">
             Wróć do logowania
           </a>
         </div>
@@ -46,9 +43,7 @@ const ForgotPasswordForm: React.FC = () => {
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-        {formErrors.general && (
-          <AuthError message={formErrors.general} />
-        )}
+        {formErrors.general && <AuthError message={formErrors.general} />}
 
         <div className="space-y-2">
           <Label htmlFor="email">Adres e-mail</Label>
@@ -58,14 +53,14 @@ const ForgotPasswordForm: React.FC = () => {
             name="email"
             value={formState.email}
             onChange={(e) => handleEmailChange(e.target.value)}
-            onBlur={() => handleFieldBlur('email')}
+            onBlur={() => handleFieldBlur("email")}
             placeholder="twoj@email.pl"
             autoComplete="email"
-            aria-invalid={touchedFields.has('email') && !!formErrors.email}
-            aria-describedby={touchedFields.has('email') && formErrors.email ? 'email-error' : undefined}
+            aria-invalid={touchedFields.has("email") && !!formErrors.email}
+            aria-describedby={touchedFields.has("email") && formErrors.email ? "email-error" : undefined}
             required
           />
-          {touchedFields.has('email') && formErrors.email && (
+          {touchedFields.has("email") && formErrors.email && (
             <p id="email-error" className="text-sm text-destructive" role="alert">
               {formErrors.email}
             </p>
@@ -73,19 +68,12 @@ const ForgotPasswordForm: React.FC = () => {
         </div>
 
         <div className="flex flex-col gap-4">
-          <Button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full"
-          >
-            {isSubmitting ? 'Wysyłanie...' : 'Wyślij link resetujący'}
+          <Button type="submit" disabled={isSubmitting} className="w-full">
+            {isSubmitting ? "Wysyłanie..." : "Wyślij link resetujący"}
           </Button>
 
           <div className="text-center">
-            <a
-              href="/login"
-              className="text-sm text-primary hover:underline"
-            >
+            <a href="/auth/login" className="text-sm text-primary hover:underline">
               Wróć do logowania
             </a>
           </div>
@@ -96,4 +84,3 @@ const ForgotPasswordForm: React.FC = () => {
 };
 
 export default ForgotPasswordForm;
-

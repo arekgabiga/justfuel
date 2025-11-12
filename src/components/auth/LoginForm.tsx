@@ -96,6 +96,14 @@ const LoginForm: React.FC<LoginFormProps> = ({ redirectUrl = '/' }) => {
                 Zarejestruj się
               </a>
             </p>
+            <p className="text-sm text-muted-foreground">
+              <a
+                href="/auth/forgot-password"
+                className="text-primary hover:underline font-medium"
+              >
+                Zapomniałeś hasła?
+              </a>
+            </p>
           </div>
         </div>
       </form>

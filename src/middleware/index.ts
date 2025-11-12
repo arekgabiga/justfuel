@@ -1,18 +1,20 @@
-import { defineMiddleware } from 'astro:middleware';
-import { createSupabaseServerInstance } from '../db/supabase.client.ts';
+import { defineMiddleware } from "astro:middleware";
+import { createSupabaseServerInstance } from "../db/supabase.client.ts";
 
 // Public paths - Auth pages and API endpoints
 const PUBLIC_PATHS = [
   // Auth pages
-  '/auth/login',
-  '/auth/register',
-  '/auth/confirm',
-  '/forgot-password',
-  '/reset-password',
+  "/auth/login",
+  "/auth/register",
+  "/auth/confirm",
+  "/auth/forgot-password",
+  "/auth/reset-password",
   // Auth API endpoints
-  '/api/auth/login',
-  '/api/auth/register',
-  '/api/auth/logout',
+  "/api/auth/login",
+  "/api/auth/register",
+  "/api/auth/logout",
+  "/api/auth/forgot-password",
+  "/api/auth/reset-password",
 ];
 
 function isPublicRoute(pathname: string): boolean {
@@ -20,6 +22,15 @@ function isPublicRoute(pathname: string): boolean {
 }
 
 export const onRequest = defineMiddleware(async ({ locals, cookies, url, request, redirect }, next) => {
+  // Handle password reset code redirect
+  // Supabase redirects to root with code parameter, we need to redirect to /auth/reset-password
+  if (url.searchParams.has("code") && url.pathname === "/") {
+    const code = url.searchParams.get("code");
+    if (code) {
+      return redirect(`/auth/reset-password?code=${code}`);
+    }
+  }
+
   // Skip auth check for public paths
   if (isPublicRoute(url.pathname)) {
     return next();
@@ -46,7 +57,7 @@ export const onRequest = defineMiddleware(async ({ locals, cookies, url, request
   } else {
     // User is not authenticated
     locals.isAuthenticated = false;
-    
+
     // Redirect to login for protected routes
     const redirectUrl = `/auth/login?redirect=${encodeURIComponent(url.pathname)}`;
     return redirect(redirectUrl);

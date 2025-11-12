@@ -148,7 +148,7 @@ const RegisterForm: React.FC = () => {
           <p className="text-center text-sm text-muted-foreground">
             Masz już konto?{' '}
             <a
-              href="/login"
+              href="/auth/login"
               className="text-primary hover:underline font-medium"
             >
               Zaloguj się

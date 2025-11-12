@@ -23,11 +23,10 @@ export const useResetPasswordForm = (token: string | null) => {
   const [touchedFields, setTouchedFields] = useState<Set<keyof ResetPasswordFormState>>(new Set());
 
   useEffect(() => {
-    if (!token || token.trim() === '') {
-      setTokenError('Token resetowania jest nieprawidłowy lub wygasł');
-    } else {
-      setTokenError(null);
-    }
+    // Token validation is now handled server-side via session check
+    // The token from URL is used by Supabase client to establish session
+    // We'll check session validity when form is submitted
+    setTokenError(null);
   }, [token]);
 
   const validatePassword = useCallback((password: string): string | undefined => {
@@ -140,11 +139,6 @@ export const useResetPasswordForm = (token: string | null) => {
     async (e: React.FormEvent) => {
       e.preventDefault();
 
-      if (!token || token.trim() === '') {
-        setTokenError('Token resetowania jest nieprawidłowy lub wygasł');
-        return;
-      }
-
       if (!validateAllFields()) {
         return;
       }
@@ -154,29 +148,33 @@ export const useResetPasswordForm = (token: string | null) => {
       setTokenError(null);
 
       try {
-        // TODO: Replace with actual API call when backend is implemented
-        // const response = await fetch('/api/auth/reset-password', {
-        //   method: 'POST',
-        //   headers: {
-        //     'Content-Type': 'application/json',
-        //   },
-        //   body: JSON.stringify({
-        //     token: token,
-        //     password: formState.password,
-        //   }),
-        // });
-
-        // Placeholder for now - will be implemented with backend
-        console.log('Reset password attempt:', { token });
-        
-        // Simulate API delay
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-
-        // For now, just show an error that backend is not implemented
-        setFormErrors({
-          general: 'Backend nie jest jeszcze zaimplementowany. Ta funkcjonalność będzie dostępna po implementacji API.',
+        const response = await fetch('/api/auth/reset-password', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            password: formState.password,
+          }),
         });
-        setIsSubmitting(false);
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          // Check if it's a token error
+          if (data.error?.code === 'INVALID_TOKEN') {
+            setTokenError(data.error.message || 'Token resetowania jest nieprawidłowy lub wygasł');
+          } else {
+            setFormErrors({
+              general: data.error?.message || 'Wystąpił błąd podczas resetowania hasła.',
+            });
+          }
+          setIsSubmitting(false);
+          return;
+        }
+
+        // Success - redirect to login page
+        window.location.href = '/auth/login?reset=success';
       } catch (error) {
         console.error('Error during reset password:', error);
         setFormErrors({
@@ -185,7 +183,7 @@ export const useResetPasswordForm = (token: string | null) => {
         setIsSubmitting(false);
       }
     },
-    [formState, token, validateAllFields]
+    [formState, validateAllFields]
   );
 
   return {
