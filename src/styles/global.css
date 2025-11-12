@@ -4,30 +4,348 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  /* ============================================
+     MATERIAL DESIGN 3 TOKENS
+     ============================================ */
+
+  /* Typography - Font Families (Material Design) */
+  --font-sans: "Roboto", "Roboto Fallback", system-ui, -apple-system, sans-serif;
+  --font-mono: "Roboto Mono", "Cascadia Code", "Consolas", monospace;
+
+  /* Typography - Material Design Type Scale */
+  --font-size-display-large: 3.5625rem;    /* 57px */
+  --font-size-display-medium: 2.8125rem;   /* 45px */
+  --font-size-display-small: 2.25rem;      /* 36px */
+  --font-size-headline-large: 2rem;        /* 32px */
+  --font-size-headline-medium: 1.75rem;     /* 28px */
+  --font-size-headline-small: 1.5rem;      /* 24px */
+  --font-size-title-large: 1.375rem;       /* 22px */
+  --font-size-title-medium: 1rem;          /* 16px */
+  --font-size-title-small: 0.875rem;       /* 14px */
+  --font-size-label-large: 0.875rem;       /* 14px */
+  --font-size-label-medium: 0.75rem;       /* 12px */
+  --font-size-label-small: 0.6875rem;      /* 11px */
+  --font-size-body-large: 1rem;            /* 16px */
+  --font-size-body-medium: 0.875rem;       /* 14px */
+  --font-size-body-small: 0.75rem;         /* 12px */
+
+  /* Typography - Legacy Font Sizes (for compatibility) */
+  --font-size-xs: var(--font-size-label-small);
+  --font-size-sm: var(--font-size-label-medium);
+  --font-size-base: var(--font-size-body-medium);
+  --font-size-md: var(--font-size-body-medium);
+  --font-size-lg: var(--font-size-body-large);
+  --font-size-xl: var(--font-size-title-medium);
+  --font-size-2xl: var(--font-size-title-large);
+  --font-size-3xl: var(--font-size-headline-small);
+  --font-size-4xl: var(--font-size-headline-medium);
+  --font-size-5xl: var(--font-size-headline-large);
+
+  /* Typography - Material Design Line Heights */
+  --line-height-display: 4rem;             /* 64px */
+  --line-height-headline: 2.5rem;          /* 40px */
+  --line-height-title: 1.75rem;            /* 28px */
+  --line-height-label: 1.25rem;            /* 20px */
+  --line-height-body: 1.5rem;              /* 24px */
+
+  /* Typography - Legacy Line Heights (for compatibility) */
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.6;
+  --line-height-loose: 1.8;
+
+  /* Typography - Material Design Font Weights */
+  --font-weight-light: 300;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 700;
+  --font-weight-semibold: 600; /* Legacy compatibility */
+
+  /* Spacing Scale - Material Design (8dp base unit) */
+  --md-spacing-0: 0;
+  --md-spacing-1: 0.25rem;      /* 4dp */
+  --md-spacing-2: 0.5rem;       /* 8dp */
+  --md-spacing-3: 0.75rem;      /* 12dp */
+  --md-spacing-4: 1rem;         /* 16dp */
+  --md-spacing-5: 1.25rem;      /* 20dp */
+  --md-spacing-6: 1.5rem;       /* 24dp */
+  --md-spacing-8: 2rem;         /* 32dp */
+  --md-spacing-12: 3rem;        /* 48dp */
+  --md-spacing-16: 4rem;        /* 64dp */
+  --md-spacing-24: 6rem;        /* 96dp */
+
+  /* Legacy Spacing (for compatibility) */
+  --spacing-0: var(--md-spacing-0);
+  --spacing-1: var(--md-spacing-1);
+  --spacing-2: var(--md-spacing-2);
+  --spacing-3: var(--md-spacing-3);
+  --spacing-4: var(--md-spacing-4);
+  --spacing-5: var(--md-spacing-5);
+  --spacing-6: var(--md-spacing-6);
+  --spacing-7: 1.75rem;    /* 28px - legacy */
+  --spacing-8: var(--md-spacing-8);
+  --spacing-10: 2.5rem;   /* 40px - legacy */
+  --spacing-12: var(--md-spacing-12);
+  --spacing-16: var(--md-spacing-16);
+  --spacing-20: 5rem;     /* 80px - legacy */
+  --spacing-24: var(--md-spacing-24);
+
+  /* Border Radius - Material Design */
+  --md-radius-xs: 0.25rem;      /* 4dp */
+  --md-radius-sm: 0.5rem;       /* 8dp */
+  --md-radius-md: 0.75rem;      /* 12dp */
+  --md-radius-lg: 1rem;         /* 16dp */
+  --md-radius-xl: 1.75rem;      /* 28dp */
+  --md-radius-full: 9999px;
+
+  /* Component-specific radius */
+  --md-radius-button: var(--md-radius-sm);
+  --md-radius-card: var(--md-radius-md);
+  --md-radius-dialog: var(--md-radius-lg);
+  --md-radius-fab: var(--md-radius-xl);
+
+  /* Legacy Border Radius (for compatibility) */
+  --radius-none: 0;
+  --radius-xs: var(--md-radius-xs);
+  --radius-sm: var(--md-radius-sm);
+  --radius-md: var(--md-radius-md);
+  --radius-lg: var(--md-radius-lg);
+  --radius-xl: var(--md-radius-xl);
+  --radius-full: var(--md-radius-full);
+  --radius: var(--md-radius-md);
+
+  /* Border Width */
+  --border-width-none: 0;
+  --border-width-thin: 0.0625rem;  /* 1px */
+  --border-width-medium: 0.125rem;  /* 2px */
+  --border-width-thick: 0.1875rem;  /* 3px */
+  --border-width: var(--border-width-thin);
+
+  /* Elevation - Material Design (0-24dp) */
+  --md-elevation-0: none;
+  --md-elevation-1: 0px 1px 2px 0px oklch(0 0 0 / 0.3),
+                    0px 1px 3px 1px oklch(0 0 0 / 0.15);
+  --md-elevation-2: 0px 1px 2px 0px oklch(0 0 0 / 0.3),
+                    0px 2px 6px 2px oklch(0 0 0 / 0.15);
+  --md-elevation-3: 0px 1px 3px 0px oklch(0 0 0 / 0.3),
+                    0px 4px 8px 3px oklch(0 0 0 / 0.15);
+  --md-elevation-4: 0px 2px 4px 0px oklch(0 0 0 / 0.3),
+                    0px 7px 13px 4px oklch(0 0 0 / 0.15);
+  --md-elevation-5: 0px 3px 5px 0px oklch(0 0 0 / 0.3),
+                    0px 9px 18px 5px oklch(0 0 0 / 0.15);
+  --md-elevation-8: 0px 5px 5px 0px oklch(0 0 0 / 0.3),
+                    0px 8px 10px 0px oklch(0 0 0 / 0.15),
+                    0px 3px 14px 2px oklch(0 0 0 / 0.12);
+  --md-elevation-12: 0px 7px 8px 0px oklch(0 0 0 / 0.3),
+                     0px 5px 22px 4px oklch(0 0 0 / 0.15),
+                     0px 12px 17px 2px oklch(0 0 0 / 0.12);
+  --md-elevation-16: 0px 8px 10px 0px oklch(0 0 0 / 0.3),
+                     0px 3px 14px 2px oklch(0 0 0 / 0.15),
+                     0px 5px 5px 0px oklch(0 0 0 / 0.12);
+  --md-elevation-24: 0px 11px 15px 0px oklch(0 0 0 / 0.3),
+                     0px 4px 6px 0px oklch(0 0 0 / 0.15),
+                     0px 2px 4px 0px oklch(0 0 0 / 0.12);
+
+  /* Legacy Shadows (for compatibility) */
+  --shadow-none: var(--md-elevation-0);
+  --shadow-2: var(--md-elevation-1);
+  --shadow-4: var(--md-elevation-2);
+  --shadow-8: var(--md-elevation-3);
+  --shadow-16: var(--md-elevation-4);
+  --shadow-28: var(--md-elevation-8);
+  --shadow-64: var(--md-elevation-24);
+  
+  /* Shadow aliases for compatibility */
+  --shadow-xs: var(--md-elevation-1);
+  --shadow-sm: var(--md-elevation-2);
+  --shadow-md: var(--md-elevation-4);
+  --shadow-lg: var(--md-elevation-8);
+  --shadow-xl: var(--md-elevation-12);
+
+  /* State Layers - Material Design (opacity overlays) */
+  --md-state-hover: oklch(0 0 0 / 0.08);
+  --md-state-focus: oklch(0 0 0 / 0.12);
+  --md-state-pressed: oklch(0 0 0 / 0.12);
+  --md-state-dragged: oklch(0 0 0 / 0.16);
+  --md-state-disabled: oklch(0 0 0 / 0.38);
+
+  /* Legacy Opacity Tokens (for compatibility) */
+  --opacity-disabled: 0.38;
+  --opacity-hover: 0.92;
+  --opacity-pressed: 0.88;
+  --opacity-selected: 0.08;
+  --opacity-overlay: 0.4;
+  --opacity-focus-ring: 0.12;
+  --opacity-backdrop-light: 0.4;
+  --opacity-backdrop-dark: 0.6;
+
+  /* Motion - Material Design Duration */
+  --md-duration-short1: 50ms;
+  --md-duration-short2: 200ms;
+  --md-duration-short3: 250ms;
+  --md-duration-short4: 300ms;
+  --md-duration-medium1: 250ms;
+  --md-duration-medium2: 300ms;
+  --md-duration-medium3: 350ms;
+  --md-duration-medium4: 400ms;
+  --md-duration-long1: 300ms;
+  --md-duration-long2: 400ms;
+  --md-duration-long3: 450ms;
+  --md-duration-long4: 500ms;
+  --md-duration-extra-long1: 400ms;
+  --md-duration-extra-long2: 500ms;
+  --md-duration-extra-long3: 600ms;
+  --md-duration-extra-long4: 700ms;
+
+  /* Motion - Material Design Easing */
+  --md-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+  --md-easing-standard-accelerate: cubic-bezier(0.3, 0, 1, 1);
+  --md-easing-standard-decelerate: cubic-bezier(0, 0, 0.2, 1);
+  --md-easing-emphasized: cubic-bezier(0.2, 0, 0, 1);
+  --md-easing-emphasized-accelerate: cubic-bezier(0.3, 0, 0.8, 0.15);
+  --md-easing-emphasized-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1);
+
+  /* Legacy Animation Duration (for compatibility) */
+  --duration-ultra-fast: var(--md-duration-short1);
+  --duration-faster: 0.1s;
+  --duration-fast: var(--md-duration-short2);
+  --duration-normal: var(--md-duration-medium1);
+  --duration-slow: var(--md-duration-medium2);
+  --duration-slower: var(--md-duration-medium4);
+  --duration-ultra-slow: var(--md-duration-long2);
+
+  /* Legacy Easing Curves (for compatibility) */
+  --ease-accelerate-max: var(--md-easing-standard-accelerate);
+  --ease-accelerate-mid: var(--md-easing-standard-accelerate);
+  --ease-accelerate-min: var(--md-easing-standard-accelerate);
+  --ease-decelerate-max: var(--md-easing-standard-decelerate);
+  --ease-decelerate-mid: var(--md-easing-standard-decelerate);
+  --ease-decelerate-min: var(--md-easing-standard-decelerate);
+  --ease-standard-max: var(--md-easing-standard);
+  --ease-standard-mid: var(--md-easing-standard);
+  --ease-standard-min: var(--md-easing-standard);
+
+  /* Transition defaults */
+  --transition-fast: var(--md-duration-short2) var(--md-easing-standard);
+  --transition-base: var(--md-duration-medium1) var(--md-easing-standard);
+  --transition-slow: var(--md-duration-medium2) var(--md-easing-standard);
+
+  /* Z-index Scale */
+  --z-base: 0;
+  --z-raised: 1;
+  --z-sticky: 10;
+  --z-overlay: 100;
+  --z-modal: 200;
+  --z-popover: 300;
+  --z-tooltip: 400;
+  --z-toast: 500;
+
+  /* Focus States - Material Design Accessibility (2dp) */
+  --md-focus-outline-width: 0.125rem;      /* 2dp */
+  --md-focus-outline-color: oklch(0.55 0.22 264); /* Material Blue 500 - will be overridden by --md-primary */
+  --md-focus-outline-offset: 0.125rem;     /* 2dp */
+
+  /* Legacy Focus States (for compatibility) */
+  --focus-stroke-width: var(--md-focus-outline-width);
+  --focus-stroke-color: var(--md-focus-outline-color);
+  --focus-outline-width: var(--md-focus-outline-width);
+  --focus-outline-offset: var(--md-focus-outline-offset);
+  --focus-ring-width: 0.1875rem;   /* 3px - legacy */
+
+  /* Contrast Ratios - Material Design (WCAG AAA where possible) */
+  --md-contrast-text: 7;                   /* AAA for normal text */
+  --md-contrast-text-large: 4.5;           /* AAA for large text */
+  --md-contrast-ui: 3;                     /* AA for UI components */
+
+  /* Legacy Contrast Ratios (for compatibility) */
+  --contrast-min-text: var(--md-contrast-text);
+  --contrast-min-large-text: var(--md-contrast-text-large);
+  --contrast-min-ui: var(--md-contrast-ui);
+
+  /* ============================================
+     MATERIAL DESIGN COLOR SYSTEM
+     ============================================ */
+
+  /* Primary Colors - Material Design Blue 500 */
+  --md-primary: oklch(0.55 0.22 264);
+  --md-primary-container: oklch(0.9 0.05 264);
+  --md-on-primary: oklch(0.985 0 0);
+  --md-on-primary-container: oklch(0.25 0.05 264);
+  
+  /* Update focus color to use primary */
+  --md-focus-outline-color: var(--md-primary);
+
+  /* Secondary Colors - Material Design Teal 500 */
+  --md-secondary: oklch(0.6 0.15 180);
+  --md-secondary-container: oklch(0.9 0.05 180);
+  --md-on-secondary: oklch(0.985 0 0);
+  --md-on-secondary-container: oklch(0.25 0.05 180);
+
+  /* Surface Colors - Material Design */
+  --md-surface: oklch(0.99 0 0);
+  --md-surface-variant: oklch(0.95 0.01 0);
+  --md-surface-container: oklch(0.96 0.01 0);
+  --md-surface-container-high: oklch(0.94 0.01 0);
+  --md-surface-container-highest: oklch(0.92 0.01 0);
+  --md-on-surface: oklch(0.15 0 0);
+  --md-on-surface-variant: oklch(0.45 0 0);
+
+  /* Error Colors - Material Design Red 500 */
+  --md-error: oklch(0.55 0.22 25);
+  --md-error-container: oklch(0.95 0.05 25);
+  --md-on-error: oklch(0.985 0 0);
+  --md-on-error-container: oklch(0.25 0.05 25);
+
+  /* Outline Colors */
+  --md-outline: oklch(0.5 0.01 0);
+  --md-outline-variant: oklch(0.85 0.01 0);
+
+  /* ============================================
+     LEGACY COLOR TOKENS (mapped to Material Design)
+     ============================================ */
+  --background: var(--md-surface);
+  --foreground: var(--md-on-surface);
+  --card: var(--md-surface-container);
+  --card-foreground: var(--md-on-surface);
+  --popover: var(--md-surface-container-highest);
+  --popover-foreground: var(--md-on-surface);
+  --primary: var(--md-primary);
+  --primary-foreground: var(--md-on-primary);
+  --secondary: var(--md-secondary);
+  --secondary-foreground: var(--md-on-secondary);
+  --muted: var(--md-surface-variant);
+  --muted-foreground: var(--md-on-surface-variant);
+  --accent: var(--md-secondary);
+  --accent-foreground: var(--md-on-secondary);
+  --destructive: var(--md-error);
+  --border: var(--md-outline-variant);
+  --input: var(--md-surface-container-high);
+  --ring: var(--md-primary);
+  
+  /* Feedback Colors - Success, Warning, Info */
+  --success: oklch(0.65 0.15 145);
+  --success-foreground: oklch(0.985 0 0);
+  --success-bg: oklch(0.65 0.15 145 / 0.1);
+  --warning: oklch(0.75 0.15 85);
+  --warning-foreground: oklch(0.145 0 0);
+  --warning-bg: oklch(0.75 0.15 85 / 0.1);
+  --info: oklch(0.55 0.15 240);
+  --info-foreground: oklch(0.985 0 0);
+  --info-bg: oklch(0.55 0.15 240 / 0.1);
+
+  /* Link Colors */
+  --link: oklch(0.45 0.15 240);
+  --link-hover: oklch(0.4 0.15 240);
+  --link-visited: oklch(0.5 0.1 280);
+
+  /* Chart Colors */
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
+  
+  /* Sidebar Colors */
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
@@ -39,29 +357,134 @@
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
+  /* ============================================
+     MATERIAL DESIGN DARK THEME
+     ============================================ */
+
+  /* Elevation - Dark mode (lighter shadows) */
+  --md-elevation-1: 0px 1px 2px 0px oklch(0 0 0 / 0.3),
+                    0px 1px 3px 1px oklch(0 0 0 / 0.15);
+  --md-elevation-2: 0px 1px 2px 0px oklch(0 0 0 / 0.3),
+                    0px 2px 6px 2px oklch(0 0 0 / 0.15);
+  --md-elevation-3: 0px 1px 3px 0px oklch(0 0 0 / 0.3),
+                    0px 4px 8px 3px oklch(0 0 0 / 0.15);
+  --md-elevation-4: 0px 2px 4px 0px oklch(0 0 0 / 0.3),
+                    0px 7px 13px 4px oklch(0 0 0 / 0.15);
+  --md-elevation-5: 0px 3px 5px 0px oklch(0 0 0 / 0.3),
+                    0px 9px 18px 5px oklch(0 0 0 / 0.15);
+  --md-elevation-8: 0px 5px 5px 0px oklch(0 0 0 / 0.3),
+                    0px 8px 10px 0px oklch(0 0 0 / 0.15),
+                    0px 3px 14px 2px oklch(0 0 0 / 0.12);
+  --md-elevation-12: 0px 7px 8px 0px oklch(0 0 0 / 0.3),
+                     0px 5px 22px 4px oklch(0 0 0 / 0.15),
+                     0px 12px 17px 2px oklch(0 0 0 / 0.12);
+  --md-elevation-16: 0px 8px 10px 0px oklch(0 0 0 / 0.3),
+                     0px 3px 14px 2px oklch(0 0 0 / 0.15),
+                     0px 5px 5px 0px oklch(0 0 0 / 0.12);
+  --md-elevation-24: 0px 11px 15px 0px oklch(0 0 0 / 0.3),
+                     0px 4px 6px 0px oklch(0 0 0 / 0.15),
+                     0px 2px 4px 0px oklch(0 0 0 / 0.12);
+
+  /* Legacy Shadows (for compatibility) */
+  --shadow-2: var(--md-elevation-1);
+  --shadow-4: var(--md-elevation-2);
+  --shadow-8: var(--md-elevation-3);
+  --shadow-16: var(--md-elevation-4);
+  --shadow-28: var(--md-elevation-8);
+  --shadow-64: var(--md-elevation-24);
+  
+  /* Shadow aliases */
+  --shadow-xs: var(--md-elevation-1);
+  --shadow-sm: var(--md-elevation-2);
+  --shadow-md: var(--md-elevation-4);
+  --shadow-lg: var(--md-elevation-8);
+  --shadow-xl: var(--md-elevation-12);
+
+  /* Material Design Dark Theme Colors */
+  --md-surface: oklch(0.12 0 0);
+  --md-surface-variant: oklch(0.23 0 0);
+  --md-surface-container: oklch(0.18 0 0);
+  --md-surface-container-high: oklch(0.22 0 0);
+  --md-surface-container-highest: oklch(0.26 0 0);
+  --md-on-surface: oklch(0.9 0 0);
+  --md-on-surface-variant: oklch(0.75 0 0);
+
+  /* Primary Colors - Dark Theme */
+  --md-primary: oklch(0.7 0.18 264);
+  --md-primary-container: oklch(0.3 0.1 264);
+  --md-on-primary: oklch(0.15 0 0);
+  --md-on-primary-container: oklch(0.9 0.05 264);
+  
+  /* Update focus color to use primary in dark mode */
+  --md-focus-outline-color: var(--md-primary);
+
+  /* Secondary Colors - Dark Theme */
+  --md-secondary: oklch(0.7 0.12 180);
+  --md-secondary-container: oklch(0.3 0.05 180);
+  --md-on-secondary: oklch(0.15 0 0);
+  --md-on-secondary-container: oklch(0.9 0.05 180);
+
+  /* Error Colors - Dark Theme */
+  --md-error: oklch(0.7 0.18 25);
+  --md-error-container: oklch(0.3 0.1 25);
+  --md-on-error: oklch(0.15 0 0);
+  --md-on-error-container: oklch(0.9 0.05 25);
+
+  /* Outline Colors - Dark Theme */
+  --md-outline: oklch(0.6 0.01 0);
+  --md-outline-variant: oklch(0.35 0.01 0);
+
+  /* State Layers - Dark Theme (lighter overlays) */
+  --md-state-hover: oklch(1 0 0 / 0.08);
+  --md-state-focus: oklch(1 0 0 / 0.12);
+  --md-state-pressed: oklch(1 0 0 / 0.12);
+  --md-state-dragged: oklch(1 0 0 / 0.16);
+  --md-state-disabled: oklch(1 0 0 / 0.38);
+
+  /* Legacy color tokens (mapped to Material Design Dark Theme) */
+  --background: var(--md-surface);
+  --foreground: var(--md-on-surface);
+  --card: var(--md-surface-container);
+  --card-foreground: var(--md-on-surface);
+  --popover: var(--md-surface-container-highest);
+  --popover-foreground: var(--md-on-surface);
+  --primary: var(--md-primary);
+  --primary-foreground: var(--md-on-primary);
+  --secondary: var(--md-secondary);
+  --secondary-foreground: var(--md-on-secondary);
+  --muted: var(--md-surface-variant);
+  --muted-foreground: var(--md-on-surface-variant);
+  --accent: var(--md-secondary);
+  --accent-foreground: var(--md-on-secondary);
+  --destructive: var(--md-error);
+  --border: var(--md-outline-variant);
+  --input: var(--md-surface-container-high);
+  --ring: var(--md-primary);
+  
+  /* Feedback Colors - adjusted for dark mode */
+  --success: oklch(0.7 0.15 145);
+  --success-foreground: oklch(0.985 0 0);
+  --success-bg: oklch(0.7 0.15 145 / 0.15);
+  --warning: oklch(0.8 0.15 85);
+  --warning-foreground: oklch(0.145 0 0);
+  --warning-bg: oklch(0.8 0.15 85 / 0.15);
+  --info: oklch(0.6 0.15 240);
+  --info-foreground: oklch(0.985 0 0);
+  --info-bg: oklch(0.6 0.15 240 / 0.15);
+
+  /* Link Colors - adjusted for dark mode */
+  --link: oklch(0.6 0.15 240);
+  --link-hover: oklch(0.65 0.15 240);
+  --link-visited: oklch(0.65 0.1 280);
+
+  /* Chart Colors */
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);
   --chart-4: oklch(0.627 0.265 303.9);
   --chart-5: oklch(0.645 0.246 16.439);
+  
+  /* Sidebar Colors */
   --sidebar: oklch(0.205 0 0);
   --sidebar-foreground: oklch(0.985 0 0);
   --sidebar-primary: oklch(0.488 0.243 264.376);
@@ -73,10 +496,129 @@
 }
 
 @theme inline {
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  /* Typography - Font Families */
+  --font-family-sans: var(--font-sans);
+  --font-family-mono: var(--font-mono);
+
+  /* Typography - Font Sizes (Legacy) */
+  --font-size-xs: var(--font-size-xs);
+  --font-size-sm: var(--font-size-sm);
+  --font-size-base: var(--font-size-base);
+  --font-size-md: var(--font-size-md);
+  --font-size-lg: var(--font-size-lg);
+  --font-size-xl: var(--font-size-xl);
+  --font-size-2xl: var(--font-size-2xl);
+  --font-size-3xl: var(--font-size-3xl);
+  --font-size-4xl: var(--font-size-4xl);
+  --font-size-5xl: var(--font-size-5xl);
+
+  /* Typography - Material Design Type Scale */
+  --font-size-display-large: var(--font-size-display-large);
+  --font-size-display-medium: var(--font-size-display-medium);
+  --font-size-display-small: var(--font-size-display-small);
+  --font-size-headline-large: var(--font-size-headline-large);
+  --font-size-headline-medium: var(--font-size-headline-medium);
+  --font-size-headline-small: var(--font-size-headline-small);
+  --font-size-title-large: var(--font-size-title-large);
+  --font-size-title-medium: var(--font-size-title-medium);
+  --font-size-title-small: var(--font-size-title-small);
+  --font-size-label-large: var(--font-size-label-large);
+  --font-size-label-medium: var(--font-size-label-medium);
+  --font-size-label-small: var(--font-size-label-small);
+  --font-size-body-large: var(--font-size-body-large);
+  --font-size-body-medium: var(--font-size-body-medium);
+  --font-size-body-small: var(--font-size-body-small);
+
+  /* Typography - Line Heights (Legacy) */
+  --line-height-tight: var(--line-height-tight);
+  --line-height-normal: var(--line-height-normal);
+  --line-height-relaxed: var(--line-height-relaxed);
+  --line-height-loose: var(--line-height-loose);
+
+  /* Typography - Material Design Line Heights */
+  --line-height-display: var(--line-height-display);
+  --line-height-headline: var(--line-height-headline);
+  --line-height-title: var(--line-height-title);
+  --line-height-label: var(--line-height-label);
+  --line-height-body: var(--line-height-body);
+
+  /* Typography - Font Weights */
+  --font-weight-light: var(--font-weight-light);
+  --font-weight-regular: var(--font-weight-regular);
+  --font-weight-medium: var(--font-weight-medium);
+  --font-weight-semibold: var(--font-weight-semibold);
+  --font-weight-bold: var(--font-weight-bold);
+
+  /* Spacing Scale */
+  --spacing-0: var(--spacing-0);
+  --spacing-1: var(--spacing-1);
+  --spacing-2: var(--spacing-2);
+  --spacing-3: var(--spacing-3);
+  --spacing-4: var(--spacing-4);
+  --spacing-5: var(--spacing-5);
+  --spacing-6: var(--spacing-6);
+  --spacing-7: var(--spacing-7);
+  --spacing-8: var(--spacing-8);
+  --spacing-10: var(--spacing-10);
+  --spacing-12: var(--spacing-12);
+  --spacing-16: var(--spacing-16);
+  --spacing-20: var(--spacing-20);
+  --spacing-24: var(--spacing-24);
+
+  /* Border Radius */
+  --radius-none: var(--radius-none);
+  --radius-xs: var(--radius-xs);
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+  --radius-full: var(--radius-full);
+  --radius: var(--radius);
+
+  /* Border Width */
+  --border-width-none: var(--border-width-none);
+  --border-width-thin: var(--border-width-thin);
+  --border-width-medium: var(--border-width-medium);
+  --border-width-thick: var(--border-width-thick);
+  --border-width: var(--border-width);
+
+  /* Shadows/Elevation (Legacy) */
+  --shadow-none: var(--shadow-none);
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-xl: var(--shadow-xl);
+  --shadow-2: var(--shadow-2);
+  --shadow-4: var(--shadow-4);
+  --shadow-8: var(--shadow-8);
+  --shadow-16: var(--shadow-16);
+  --shadow-28: var(--shadow-28);
+  --shadow-64: var(--shadow-64);
+
+  /* Material Design Elevation */
+  --md-elevation-0: var(--md-elevation-0);
+  --md-elevation-1: var(--md-elevation-1);
+  --md-elevation-2: var(--md-elevation-2);
+  --md-elevation-3: var(--md-elevation-3);
+  --md-elevation-4: var(--md-elevation-4);
+  --md-elevation-5: var(--md-elevation-5);
+  --md-elevation-8: var(--md-elevation-8);
+  --md-elevation-12: var(--md-elevation-12);
+  --md-elevation-16: var(--md-elevation-16);
+  --md-elevation-24: var(--md-elevation-24);
+
+  /* Z-index */
+  --z-base: var(--z-base);
+  --z-raised: var(--z-raised);
+  --z-sticky: var(--z-sticky);
+  --z-overlay: var(--z-overlay);
+  --z-modal: var(--z-modal);
+  --z-popover: var(--z-popover);
+  --z-tooltip: var(--z-tooltip);
+  --z-toast: var(--z-toast);
+
+  /* Colors - Legacy (mapped to Material Design) */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -95,11 +637,54 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+
+  /* Material Design Colors */
+  --md-color-primary: var(--md-primary);
+  --md-color-primary-container: var(--md-primary-container);
+  --md-color-on-primary: var(--md-on-primary);
+  --md-color-on-primary-container: var(--md-on-primary-container);
+  --md-color-secondary: var(--md-secondary);
+  --md-color-secondary-container: var(--md-secondary-container);
+  --md-color-on-secondary: var(--md-on-secondary);
+  --md-color-on-secondary-container: var(--md-on-secondary-container);
+  --md-color-surface: var(--md-surface);
+  --md-color-surface-variant: var(--md-surface-variant);
+  --md-color-surface-container: var(--md-surface-container);
+  --md-color-surface-container-high: var(--md-surface-container-high);
+  --md-color-surface-container-highest: var(--md-surface-container-highest);
+  --md-color-on-surface: var(--md-on-surface);
+  --md-color-on-surface-variant: var(--md-on-surface-variant);
+  --md-color-error: var(--md-error);
+  --md-color-error-container: var(--md-error-container);
+  --md-color-on-error: var(--md-on-error);
+  --md-color-on-error-container: var(--md-on-error-container);
+  --md-color-outline: var(--md-outline);
+  --md-color-outline-variant: var(--md-outline-variant);
+
+  /* Colors - Feedback */
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-success-bg: var(--success-bg);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-warning-bg: var(--warning-bg);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-info-bg: var(--info-bg);
+
+  /* Colors - Links */
+  --color-link: var(--link);
+  --color-link-hover: var(--link-hover);
+  --color-link-visited: var(--link-visited);
+
+  /* Colors - Charts */
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
+
+  /* Colors - Sidebar */
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -114,20 +699,38 @@
   * {
     @apply border-border outline-ring/50;
   }
+  
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+    font-size: var(--font-size-body-medium);
+    line-height: var(--line-height-body);
+    font-weight: var(--font-weight-regular);
+  }
+
+  /* Respect reduced motion preference */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }
 
 @layer utilities {
+  /* Fade in animation using Material Design motion tokens */
   .animate-fade-in {
-    animation: fadeIn 0.5s ease-in-out;
+    animation: fadeIn var(--md-duration-medium1) var(--md-easing-standard);
   }
   
   @keyframes fadeIn {
     from {
       opacity: 0;
-      transform: translateY(10px);
+      transform: translateY(var(--md-spacing-2));
     }
     to {
       opacity: 1;
@@ -146,5 +749,43 @@
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
     border-width: 0;
+  }
+
+  /* Focus visible utility - Material Design accessibility (2dp) */
+  .focus-visible-fluent {
+    outline: var(--md-focus-outline-width) solid var(--md-focus-outline-color);
+    outline-offset: var(--md-focus-outline-offset);
+  }
+
+  /* Material Design focus utility */
+  .focus-visible-md {
+    outline: var(--md-focus-outline-width) solid var(--md-focus-outline-color);
+    outline-offset: var(--md-focus-outline-offset);
+  }
+
+  /* Transition utilities using Material Design motion tokens */
+  .transition-fast {
+    transition: var(--transition-fast);
+  }
+
+  .transition-base {
+    transition: var(--transition-base);
+  }
+
+  .transition-slow {
+    transition: var(--transition-slow);
+  }
+
+  /* Material Design transition utilities */
+  .transition-md-short {
+    transition: var(--md-duration-short2) var(--md-easing-standard);
+  }
+
+  .transition-md-medium {
+    transition: var(--md-duration-medium1) var(--md-easing-standard);
+  }
+
+  .transition-md-long {
+    transition: var(--md-duration-long2) var(--md-easing-standard);
   }
 }
