@@ -25,6 +25,7 @@ JustFuel is a minimalist web application designed to simplify manual tracking of
 - **Styling**: Tailwind 4 & Shadcn/ui
 - **State & Utilities**: clsx, class-variance-authority, lucide-react, tailwind-merge
 - **Backend**: Supabase (PostgreSQL, Auth, SDK)
+- **Testing**: Vitest (Unit), Playwright (E2E), React Testing Library, MSW
 - **CI/CD**: GitHub Actions
 - **Hosting**: DigitalOcean (Docker)
 

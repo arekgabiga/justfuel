@@ -1,10 +1,10 @@
-import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { AuthError } from './AuthError';
-import { AuthSuccess } from './AuthSuccess';
-import { useRegisterForm } from '@/lib/hooks/useRegisterForm';
+import React from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { AuthError } from "./AuthError";
+import { AuthSuccess } from "./AuthSuccess";
+import { useRegisterForm } from "@/lib/hooks/useRegisterForm";
 
 const RegisterForm: React.FC = () => {
   const {
@@ -25,9 +25,7 @@ const RegisterForm: React.FC = () => {
     return (
       <div className="w-full">
         <h1 className="text-2xl font-bold mb-2 text-foreground">Rejestracja</h1>
-        <p className="text-sm text-muted-foreground mb-6">
-          Utwórz konto, aby rozpocząć zarządzanie samochodami
-        </p>
+        <p className="text-sm text-muted-foreground mb-6">Utwórz konto, aby rozpocząć zarządzanie samochodami</p>
 
         <AuthSuccess message={success.message} />
 
@@ -37,8 +35,8 @@ const RegisterForm: React.FC = () => {
               <strong>Sprawdź swoją skrzynkę e-mail</strong>
             </p>
             <p className="text-sm text-blue-700 dark:text-blue-300 mt-2">
-              Wysłaliśmy link potwierdzający na adres <strong>{formState.email}</strong>. 
-              Kliknij w link w wiadomości, aby aktywować konto i móc się zalogować.
+              Wysłaliśmy link potwierdzający na adres <strong>{formState.email}</strong>. Kliknij w link w wiadomości,
+              aby aktywować konto i móc się zalogować.
             </p>
             <p className="text-sm text-blue-700 dark:text-blue-300 mt-2">
               Jeśli nie widzisz wiadomości, sprawdź folder spam.
@@ -47,10 +45,7 @@ const RegisterForm: React.FC = () => {
         )}
 
         <div className="mt-6 text-center">
-          <a
-            href="/auth/login"
-            className="text-primary hover:underline font-medium text-sm"
-          >
+          <a href="/auth/login" className="text-primary hover:underline font-medium text-sm">
             Przejdź do logowania
           </a>
         </div>
@@ -61,14 +56,10 @@ const RegisterForm: React.FC = () => {
   return (
     <div className="w-full">
       <h1 className="text-2xl font-bold mb-2 text-foreground">Rejestracja</h1>
-      <p className="text-sm text-muted-foreground mb-6">
-        Utwórz konto, aby rozpocząć zarządzanie samochodami
-      </p>
+      <p className="text-sm text-muted-foreground mb-6">Utwórz konto, aby rozpocząć zarządzanie samochodami</p>
 
       <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-        {formErrors.general && (
-          <AuthError message={formErrors.general} />
-        )}
+        {formErrors.general && <AuthError message={formErrors.general} />}
 
         <div className="space-y-2">
           <Label htmlFor="email">Adres e-mail</Label>
@@ -78,14 +69,14 @@ const RegisterForm: React.FC = () => {
             name="email"
             value={formState.email}
             onChange={(e) => handleEmailChange(e.target.value)}
-            onBlur={() => handleFieldBlur('email')}
+            onBlur={() => handleFieldBlur("email")}
             placeholder="twoj@email.pl"
             autoComplete="email"
-            aria-invalid={touchedFields.has('email') && !!formErrors.email}
-            aria-describedby={touchedFields.has('email') && formErrors.email ? 'email-error' : undefined}
+            aria-invalid={touchedFields.has("email") && !!formErrors.email}
+            aria-describedby={touchedFields.has("email") && formErrors.email ? "email-error" : undefined}
             required
           />
-          {touchedFields.has('email') && formErrors.email && (
+          {touchedFields.has("email") && formErrors.email && (
             <p id="email-error" className="text-sm text-destructive" role="alert">
               {formErrors.email}
             </p>
@@ -100,14 +91,14 @@ const RegisterForm: React.FC = () => {
             name="password"
             value={formState.password}
             onChange={(e) => handlePasswordChange(e.target.value)}
-            onBlur={() => handleFieldBlur('password')}
+            onBlur={() => handleFieldBlur("password")}
             placeholder="Minimum 6 znaków"
             autoComplete="new-password"
-            aria-invalid={touchedFields.has('password') && !!formErrors.password}
-            aria-describedby={touchedFields.has('password') && formErrors.password ? 'password-error' : undefined}
+            aria-invalid={touchedFields.has("password") && !!formErrors.password}
+            aria-describedby={touchedFields.has("password") && formErrors.password ? "password-error" : undefined}
             required
           />
-          {touchedFields.has('password') && formErrors.password && (
+          {touchedFields.has("password") && formErrors.password && (
             <p id="password-error" className="text-sm text-destructive" role="alert">
               {formErrors.password}
             </p>
@@ -122,14 +113,16 @@ const RegisterForm: React.FC = () => {
             name="confirmPassword"
             value={formState.confirmPassword}
             onChange={(e) => handleConfirmPasswordChange(e.target.value)}
-            onBlur={() => handleFieldBlur('confirmPassword')}
+            onBlur={() => handleFieldBlur("confirmPassword")}
             placeholder="Powtórz hasło"
             autoComplete="new-password"
-            aria-invalid={touchedFields.has('confirmPassword') && !!formErrors.confirmPassword}
-            aria-describedby={touchedFields.has('confirmPassword') && formErrors.confirmPassword ? 'confirm-password-error' : undefined}
+            aria-invalid={touchedFields.has("confirmPassword") && !!formErrors.confirmPassword}
+            aria-describedby={
+              touchedFields.has("confirmPassword") && formErrors.confirmPassword ? "confirm-password-error" : undefined
+            }
             required
           />
-          {touchedFields.has('confirmPassword') && formErrors.confirmPassword && (
+          {touchedFields.has("confirmPassword") && formErrors.confirmPassword && (
             <p id="confirm-password-error" className="text-sm text-destructive" role="alert">
               {formErrors.confirmPassword}
             </p>
@@ -137,20 +130,13 @@ const RegisterForm: React.FC = () => {
         </div>
 
         <div className="flex flex-col gap-4">
-          <Button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full"
-          >
-            {isSubmitting ? 'Rejestrowanie...' : 'Zarejestruj się'}
+          <Button type="submit" disabled={isSubmitting} className="w-full">
+            {isSubmitting ? "Rejestrowanie..." : "Zarejestruj się"}
           </Button>
 
           <p className="text-center text-sm text-muted-foreground">
-            Masz już konto?{' '}
-            <a
-              href="/auth/login"
-              className="text-primary hover:underline font-medium"
-            >
+            Masz już konto?{" "}
+            <a href="/auth/login" className="text-primary hover:underline font-medium">
               Zaloguj się
             </a>
           </p>
@@ -161,4 +147,3 @@ const RegisterForm: React.FC = () => {
 };
 
 export default RegisterForm;
-
