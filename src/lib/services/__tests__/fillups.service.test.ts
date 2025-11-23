@@ -3,6 +3,19 @@ import type { AppSupabaseClient } from "../../../db/supabase.client";
 import type { CreateFillupCommand, UpdateFillupCommand, PaginatedFillupsResponseDTO } from "../../../types";
 import { listFillupsByCar, getFillupById, createFillup, updateFillup, deleteFillup } from "../fillups.service";
 
+/**
+ * TODO: Refactor mocking strategy
+ *
+ * Current implementation uses call-count-based conditional mocking which is fragile.
+ * If the service implementation changes the order of database calls, tests will break
+ * even if the business logic is correct.
+ *
+ * Recommended approaches:
+ * 1. Use separate mock instances for each expected call
+ * 2. Use a library like msw (Mock Service Worker) for more robust HTTP/API mocking
+ * 3. Create explicit mock builder functions that don't rely on call order
+ */
+
 // Helper functions to test encoding/decoding (not exported, but testable via service behavior)
 describe("fillups.service", () => {
   let mockSupabase: AppSupabaseClient;
