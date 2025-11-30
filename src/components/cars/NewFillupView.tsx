@@ -37,22 +37,12 @@ const NewFillupView: React.FC<NewFillupViewProps> = ({ carId, initialInputMode =
   useEffect(() => {
     const fetchCarName = async () => {
       try {
-        const authToken = localStorage.getItem("auth_token");
-        const cookieToken = document.cookie
-          .split("; ")
-          .find((row) => row.startsWith("auth_token="))
-          ?.split("=")[1];
-        const devToken = localStorage.getItem("dev_token");
-        const token = authToken || cookieToken || devToken;
-
-        const headers: Record<string, string> = {
-          "Content-Type": "application/json",
-        };
-        if (token) {
-          headers.Authorization = `Bearer ${token}`;
-        }
-
-        const response = await fetch(`/api/cars/${carId}`, { headers });
+        const response = await fetch(`/api/cars/${carId}`, {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        });
         if (response.ok) {
           const carData: CarDetailsDTO = await response.json();
           setCarName(carData.name);

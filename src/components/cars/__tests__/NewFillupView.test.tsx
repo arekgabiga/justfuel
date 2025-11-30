@@ -67,7 +67,10 @@ describe("NewFillupView", () => {
       expect(global.fetch).toHaveBeenCalledWith(
         `/api/cars/${mockCarId}`,
         expect.objectContaining({
-          headers: expect.any(Object),
+          credentials: "include",
+          headers: expect.objectContaining({
+            "Content-Type": "application/json",
+          }),
         })
       );
     });

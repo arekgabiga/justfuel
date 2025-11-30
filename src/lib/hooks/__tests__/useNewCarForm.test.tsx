@@ -11,14 +11,6 @@ describe("useNewCarForm", () => {
     delete (window as any).location;
     window.location = { ...originalLocation, href: "" };
 
-    // Mock localStorage
-    const localStorageMock = {
-      getItem: vi.fn(),
-      setItem: vi.fn(),
-      clear: vi.fn(),
-    };
-    Object.defineProperty(window, "localStorage", { value: localStorageMock });
-
     vi.useFakeTimers();
   });
 
@@ -99,7 +91,6 @@ describe("useNewCarForm", () => {
       const { result } = renderHook(() => useNewCarForm());
       const event = { preventDefault: vi.fn() } as unknown as React.FormEvent;
 
-      vi.mocked(localStorage.getItem).mockReturnValue("fake-token");
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: 200,
@@ -118,8 +109,9 @@ describe("useNewCarForm", () => {
         "/api/cars",
         expect.objectContaining({
           method: "POST",
+          credentials: "include",
           headers: expect.objectContaining({
-            Authorization: "Bearer fake-token",
+            "Content-Type": "application/json",
           }),
           body: JSON.stringify({
             name: "New Car",
@@ -140,7 +132,6 @@ describe("useNewCarForm", () => {
       const { result } = renderHook(() => useNewCarForm());
       const event = { preventDefault: vi.fn() } as unknown as React.FormEvent;
 
-      vi.mocked(localStorage.getItem).mockReturnValue("fake-token");
       mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 409,

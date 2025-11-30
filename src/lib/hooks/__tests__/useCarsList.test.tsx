@@ -36,14 +36,6 @@ describe("useCarsList", () => {
     global.fetch = mockFetch;
     delete (window as any).location;
     window.location = { ...originalLocation, href: "" };
-
-    // Mock localStorage
-    const localStorageMock = {
-      getItem: vi.fn(),
-      setItem: vi.fn(),
-      clear: vi.fn(),
-    };
-    Object.defineProperty(window, "localStorage", { value: localStorageMock });
   });
 
   afterEach(() => {
@@ -53,7 +45,6 @@ describe("useCarsList", () => {
 
   describe("Initialization and Fetching", () => {
     it("should fetch cars on mount", async () => {
-      vi.mocked(localStorage.getItem).mockReturnValue("fake-token");
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: 200,
@@ -73,13 +64,13 @@ describe("useCarsList", () => {
       expect(mockFetch).toHaveBeenCalledWith(
         expect.stringContaining("/api/cars?sort=name&order=asc"),
         expect.objectContaining({
-          headers: expect.objectContaining({ Authorization: "Bearer fake-token" }),
+          credentials: "include",
+          headers: expect.objectContaining({ "Content-Type": "application/json" }),
         })
       );
     });
 
     it("should handle fetch error", async () => {
-      vi.mocked(localStorage.getItem).mockReturnValue("fake-token");
       mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 500,
@@ -97,7 +88,6 @@ describe("useCarsList", () => {
     });
 
     it("should handle unauthorized (401)", async () => {
-      vi.mocked(localStorage.getItem).mockReturnValue("fake-token");
       mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 401,
@@ -106,28 +96,33 @@ describe("useCarsList", () => {
       const { result } = renderHook(() => useCarsList());
 
       await waitFor(() => {
-        expect(window.location.href).toBe("/login");
+        expect(window.location.href).toBe("/auth/login");
       });
     });
 
-    it("should redirect to login if no token", async () => {
-      // Ensure no token is available
-      vi.mocked(localStorage.getItem).mockReturnValue(null);
+    it("should fetch cars even without explicit token (session-based auth)", async () => {
       // Clear any previous fetch calls
       mockFetch.mockClear();
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({ data: mockCars }),
+      });
 
       const { result } = renderHook(() => useCarsList());
 
-      // Should redirect immediately
-      expect(window.location.href).toBe("/login");
-      expect(mockFetch).not.toHaveBeenCalled();
+      await waitFor(() => {
+        expect(result.current.loading).toBe(false);
+      });
+
+      // Should make fetch request with session credentials
+      expect(mockFetch).toHaveBeenCalled();
+      expect(result.current.cars).toEqual(mockCars);
     });
   });
 
   describe("Retry Logic", () => {
     it("should retry fetching", async () => {
-      vi.mocked(localStorage.getItem).mockReturnValue("fake-token");
-
       // First attempt fails
       mockFetch.mockResolvedValueOnce({
         ok: false,
