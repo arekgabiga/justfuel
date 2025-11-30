@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback } from "react";
 
 interface LoginFormState {
   email: string;
@@ -16,11 +16,11 @@ interface UseLoginFormOptions {
 }
 
 export const useLoginForm = (options?: UseLoginFormOptions) => {
-  const { redirectUrl = '/' } = options || {};
+  const { redirectUrl = "/" } = options || {};
 
   const [formState, setFormState] = useState<LoginFormState>({
-    email: '',
-    password: '',
+    email: "",
+    password: "",
   });
 
   const [formErrors, setFormErrors] = useState<LoginFormErrors>({});
@@ -29,90 +29,96 @@ export const useLoginForm = (options?: UseLoginFormOptions) => {
 
   const validateEmail = useCallback((email: string): string | undefined => {
     if (!email.trim()) {
-      return 'Nieprawidłowy adres e-mail';
+      return "Nieprawidłowy adres e-mail";
     }
     // RFC 5322 compliant email regex (simplified)
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email.trim())) {
-      return 'Nieprawidłowy adres e-mail';
+      return "Nieprawidłowy adres e-mail";
     }
     return undefined;
   }, []);
 
   const validatePassword = useCallback((password: string): string | undefined => {
     if (!password) {
-      return 'Hasło jest wymagane';
+      return "Hasło jest wymagane";
     }
     return undefined;
   }, []);
 
   const validateField = useCallback(
-    (field: keyof LoginFormState): boolean => {
+    (field: keyof LoginFormState, values: LoginFormState = formState): boolean => {
       let error: string | undefined;
-      const value = formState[field];
+      const value = values[field];
 
-      if (field === 'email') {
+      if (field === "email") {
         error = validateEmail(value);
-      } else if (field === 'password') {
+      } else if (field === "password") {
         error = validatePassword(value);
       }
 
-      const newErrors = { ...formErrors };
-      if (error) {
-        newErrors[field] = error;
-      } else {
-        delete newErrors[field];
-      }
-      setFormErrors(newErrors);
+      setFormErrors((prev) => {
+        const newErrors = { ...prev };
+        if (error) {
+          newErrors[field] = error;
+        } else {
+          delete newErrors[field];
+        }
+        return newErrors;
+      });
 
       return !error;
     },
-    [formState, formErrors, validateEmail, validatePassword]
+    [formState, validateEmail, validatePassword]
   );
 
   const validateAllFields = useCallback((): boolean => {
-    const emailValid = validateField('email');
-    const passwordValid = validateField('password');
+    const emailValid = validateField("email");
+    const passwordValid = validateField("password");
     return emailValid && passwordValid;
   }, [validateField]);
 
-  const handleEmailChange = useCallback((value: string) => {
-    setFormState((prev) => ({ ...prev, email: value }));
-    setTouchedFields((prev) => new Set(prev).add('email'));
+  const handleEmailChange = useCallback(
+    (value: string) => {
+      setFormState((prev) => ({ ...prev, email: value }));
+      const predictedState = { ...formState, email: value };
+      setTouchedFields((prev) => new Set(prev).add("email"));
 
-    if (formErrors.email) {
-      setFormErrors((prev) => {
-        const newErrors = { ...prev };
-        delete newErrors.email;
-        return newErrors;
-      });
-    }
+      if (formErrors.email) {
+        setFormErrors((prev) => {
+          const newErrors = { ...prev };
+          delete newErrors.email;
+          return newErrors;
+        });
+      }
 
-    if (touchedFields.has('email')) {
       setTimeout(() => {
-        validateField('email');
+        validateField("email", predictedState);
       }, 0);
-    }
-  }, [formErrors, touchedFields, validateField]);
+    },
+    [formState, formErrors, validateField]
+  );
 
-  const handlePasswordChange = useCallback((value: string) => {
-    setFormState((prev) => ({ ...prev, password: value }));
-    setTouchedFields((prev) => new Set(prev).add('password'));
+  const handlePasswordChange = useCallback(
+    (value: string) => {
+      setFormState((prev) => ({ ...prev, password: value }));
+      const predictedState = { ...formState, password: value };
+      setTouchedFields((prev) => new Set(prev).add("password"));
 
-    if (formErrors.password) {
-      setFormErrors((prev) => {
-        const newErrors = { ...prev };
-        delete newErrors.password;
-        return newErrors;
-      });
-    }
+      if (formErrors.password) {
+        setFormErrors((prev) => {
+          const newErrors = { ...prev };
+          delete newErrors.password;
+          return newErrors;
+        });
+      }
 
-    if (touchedFields.has('password')) {
       setTimeout(() => {
-        validateField('password');
+        validateField("password", predictedState);
       }, 0);
-    }
-  }, [formErrors, touchedFields, validateField]);
+    },
+    [formState, formErrors, touchedFields, validateField]
+  );
 
   const handleFieldBlur = useCallback(
     (field: keyof LoginFormState) => {
@@ -134,10 +140,10 @@ export const useLoginForm = (options?: UseLoginFormOptions) => {
       setFormErrors({});
 
       try {
-        const response = await fetch('/api/auth/login', {
-          method: 'POST',
+        const response = await fetch("/api/auth/login", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             email: formState.email.trim(),
@@ -149,12 +155,11 @@ export const useLoginForm = (options?: UseLoginFormOptions) => {
 
         if (!response.ok) {
           // Handle API errors
-          const errorMessage =
-            data.error?.message || 'Wystąpił błąd podczas logowania. Spróbuj ponownie.';
+          const errorMessage = data.error?.message || "Wystąpił błąd podczas logowania. Spróbuj ponownie.";
 
-          if (data.error?.code === 'INVALID_CREDENTIALS') {
+          if (data.error?.code === "INVALID_CREDENTIALS") {
             setFormErrors({
-              general: 'Nieprawidłowy adres e-mail lub hasło',
+              general: "Nieprawidłowy adres e-mail lub hasło",
             });
           } else {
             setFormErrors({
@@ -168,9 +173,9 @@ export const useLoginForm = (options?: UseLoginFormOptions) => {
         // Success - redirect to the specified URL or home
         window.location.href = redirectUrl;
       } catch (error) {
-        console.error('Error during login:', error);
+        console.error("Error during login:", error);
         setFormErrors({
-          general: 'Wystąpił błąd podczas logowania. Spróbuj ponownie.',
+          general: "Wystąpił błąd podczas logowania. Spróbuj ponownie.",
         });
         setIsSubmitting(false);
       }
@@ -191,4 +196,3 @@ export const useLoginForm = (options?: UseLoginFormOptions) => {
     validatePassword,
   };
 };
-

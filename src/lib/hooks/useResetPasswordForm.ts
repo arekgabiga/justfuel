@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect } from "react";
 
 interface ResetPasswordFormState {
   password: string;
@@ -13,8 +13,8 @@ interface ResetPasswordFormErrors {
 
 export const useResetPasswordForm = (token: string | null) => {
   const [formState, setFormState] = useState<ResetPasswordFormState>({
-    password: '',
-    confirmPassword: '',
+    password: "",
+    confirmPassword: "",
   });
 
   const [formErrors, setFormErrors] = useState<ResetPasswordFormErrors>({});
@@ -31,101 +31,102 @@ export const useResetPasswordForm = (token: string | null) => {
 
   const validatePassword = useCallback((password: string): string | undefined => {
     if (!password) {
-      return 'Hasło jest wymagane';
+      return "Hasło jest wymagane";
     }
     if (password.length < 6) {
-      return 'Hasło musi mieć minimum 6 znaków';
+      return "Hasło musi mieć minimum 6 znaków";
     }
     return undefined;
   }, []);
 
-  const validateConfirmPassword = useCallback(
-    (confirmPassword: string, password: string): string | undefined => {
-      if (!confirmPassword) {
-        return 'Potwierdzenie hasła jest wymagane';
-      }
-      if (confirmPassword !== password) {
-        return 'Hasła nie są identyczne';
-      }
-      return undefined;
-    },
-    []
-  );
+  const validateConfirmPassword = useCallback((confirmPassword: string, password: string): string | undefined => {
+    if (!confirmPassword) {
+      return "Potwierdzenie hasła jest wymagane";
+    }
+    if (confirmPassword !== password) {
+      return "Hasła nie są identyczne";
+    }
+    return undefined;
+  }, []);
 
   const validateField = useCallback(
-    (field: keyof ResetPasswordFormState): boolean => {
+    (field: keyof ResetPasswordFormState, values: ResetPasswordFormState = formState): boolean => {
       let error: string | undefined;
-      const value = formState[field];
+      const value = values[field];
 
-      if (field === 'password') {
+      if (field === "password") {
         error = validatePassword(value);
-      } else if (field === 'confirmPassword') {
-        error = validateConfirmPassword(value, formState.password);
+      } else if (field === "confirmPassword") {
+        error = validateConfirmPassword(value, values.password);
       }
 
-      const newErrors = { ...formErrors };
-      if (error) {
-        newErrors[field] = error;
-      } else {
-        delete newErrors[field];
-      }
-      setFormErrors(newErrors);
+      setFormErrors((prev) => {
+        const newErrors = { ...prev };
+        if (error) {
+          newErrors[field] = error;
+        } else {
+          delete newErrors[field];
+        }
+        return newErrors;
+      });
 
       return !error;
     },
-    [formState, formErrors, validatePassword, validateConfirmPassword]
+    [formState, validatePassword, validateConfirmPassword]
   );
 
   const validateAllFields = useCallback((): boolean => {
-    const passwordValid = validateField('password');
-    const confirmPasswordValid = validateField('confirmPassword');
+    const passwordValid = validateField("password");
+    const confirmPasswordValid = validateField("confirmPassword");
     return passwordValid && confirmPasswordValid;
   }, [validateField]);
 
-  const handlePasswordChange = useCallback((value: string) => {
-    setFormState((prev) => ({ ...prev, password: value }));
-    setTouchedFields((prev) => new Set(prev).add('password'));
+  const handlePasswordChange = useCallback(
+    (value: string) => {
+      setFormState((prev) => ({ ...prev, password: value }));
+      const predictedState = { ...formState, password: value };
+      setTouchedFields((prev) => new Set(prev).add("password"));
 
-    if (formErrors.password) {
-      setFormErrors((prev) => {
-        const newErrors = { ...prev };
-        delete newErrors.password;
-        return newErrors;
-      });
-    }
+      if (formErrors.password) {
+        setFormErrors((prev) => {
+          const newErrors = { ...prev };
+          delete newErrors.password;
+          return newErrors;
+        });
+      }
 
-    // Also validate confirmPassword if it's been touched
-    if (touchedFields.has('confirmPassword')) {
+      // Also validate confirmPassword if it's been touched
       setTimeout(() => {
-        validateField('confirmPassword');
+        validateField("confirmPassword", predictedState);
       }, 0);
-    }
 
-    if (touchedFields.has('password')) {
       setTimeout(() => {
-        validateField('password');
+        validateField("password", predictedState);
       }, 0);
-    }
-  }, [formErrors, touchedFields, validateField]);
+    },
+    [formState, formErrors, touchedFields, validateField]
+  );
 
-  const handleConfirmPasswordChange = useCallback((value: string) => {
-    setFormState((prev) => ({ ...prev, confirmPassword: value }));
-    setTouchedFields((prev) => new Set(prev).add('confirmPassword'));
+  const handleConfirmPasswordChange = useCallback(
+    (value: string) => {
+      setFormState((prev) => ({ ...prev, confirmPassword: value }));
+      const predictedState = { ...formState, confirmPassword: value };
+      setTouchedFields((prev) => new Set(prev).add("confirmPassword"));
 
-    if (formErrors.confirmPassword) {
-      setFormErrors((prev) => {
-        const newErrors = { ...prev };
-        delete newErrors.confirmPassword;
-        return newErrors;
-      });
-    }
+      if (formErrors.confirmPassword) {
+        setFormErrors((prev) => {
+          const newErrors = { ...prev };
+          delete newErrors.confirmPassword;
+          return newErrors;
+        });
+      }
 
-    if (touchedFields.has('confirmPassword')) {
       setTimeout(() => {
-        validateField('confirmPassword');
+        validateField("confirmPassword", predictedState);
       }, 0);
-    }
-  }, [formErrors, touchedFields, validateField]);
+    },
+    [formState, formErrors, touchedFields, validateField]
+  );
 
   const handleFieldBlur = useCallback(
     (field: keyof ResetPasswordFormState) => {
@@ -148,10 +149,10 @@ export const useResetPasswordForm = (token: string | null) => {
       setTokenError(null);
 
       try {
-        const response = await fetch('/api/auth/reset-password', {
-          method: 'POST',
+        const response = await fetch("/api/auth/reset-password", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             password: formState.password,
@@ -162,11 +163,11 @@ export const useResetPasswordForm = (token: string | null) => {
 
         if (!response.ok) {
           // Check if it's a token error
-          if (data.error?.code === 'INVALID_TOKEN') {
-            setTokenError(data.error.message || 'Token resetowania jest nieprawidłowy lub wygasł');
+          if (data.error?.code === "INVALID_TOKEN") {
+            setTokenError(data.error.message || "Token resetowania jest nieprawidłowy lub wygasł");
           } else {
             setFormErrors({
-              general: data.error?.message || 'Wystąpił błąd podczas resetowania hasła.',
+              general: data.error?.message || "Wystąpił błąd podczas resetowania hasła.",
             });
           }
           setIsSubmitting(false);
@@ -174,11 +175,11 @@ export const useResetPasswordForm = (token: string | null) => {
         }
 
         // Success - redirect to login page
-        window.location.href = '/auth/login?reset=success';
+        window.location.href = "/auth/login?reset=success";
       } catch (error) {
-        console.error('Error during reset password:', error);
+        console.error("Error during reset password:", error);
         setFormErrors({
-          general: 'Wystąpił błąd podczas resetowania hasła. Spróbuj ponownie.',
+          general: "Wystąpił błąd podczas resetowania hasła. Spróbuj ponownie.",
         });
         setIsSubmitting(false);
       }
@@ -200,4 +201,3 @@ export const useResetPasswordForm = (token: string | null) => {
     validateConfirmPassword,
   };
 };
-

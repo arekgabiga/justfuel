@@ -176,7 +176,9 @@ export const useCarsList = () => {
     fetchCars(state.sortBy, state.sortOrder);
 
     return () => clearTimeout(timeoutId);
-  }, [fetchCars, state.sortBy, state.sortOrder]);
+    // Only run on mount - sortBy and sortOrder are fixed values
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetchCars]);
 
   return {
     ...state,

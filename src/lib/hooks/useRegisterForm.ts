@@ -62,27 +62,27 @@ export const useRegisterForm = () => {
   }, []);
 
   const validateField = useCallback(
-    (field: keyof RegisterFormState): boolean => {
+    (field: keyof RegisterFormState, values: RegisterFormState = formState): boolean => {
       let error: string | undefined;
-      const value = formState[field];
+      const value = values[field];
 
       if (field === "email") {
         error = validateEmail(value);
       } else if (field === "password") {
         error = validatePassword(value);
       } else if (field === "confirmPassword") {
-        error = validateConfirmPassword(value, formState.password);
+        error = validateConfirmPassword(value, values.password);
       }
 
-      if (error) {
-        setFormErrors((prev) => ({ ...prev, [field]: error }));
-      } else {
-        setFormErrors((prev) => {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const { [field]: removed, ...rest } = prev;
-          return rest;
-        });
-      }
+      setFormErrors((prev) => {
+        const newErrors = { ...prev };
+        if (error) {
+          newErrors[field] = error;
+        } else {
+          delete newErrors[field];
+        }
+        return newErrors;
+      });
 
       return !error;
     },
@@ -99,6 +99,7 @@ export const useRegisterForm = () => {
   const handleEmailChange = useCallback(
     (value: string) => {
       setFormState((prev) => ({ ...prev, email: value }));
+      const predictedState = { ...formState, email: value };
       setTouchedFields((prev) => new Set(prev).add("email"));
 
       if (formErrors.email) {
@@ -109,18 +110,17 @@ export const useRegisterForm = () => {
         });
       }
 
-      if (touchedFields.has("email")) {
-        setTimeout(() => {
-          validateField("email");
-        }, 0);
-      }
+      setTimeout(() => {
+        validateField("email", predictedState);
+      }, 0);
     },
-    [formErrors, touchedFields, validateField]
+    [formState, formErrors, validateField]
   );
 
   const handlePasswordChange = useCallback(
     (value: string) => {
       setFormState((prev) => ({ ...prev, password: value }));
+      const predictedState = { ...formState, password: value };
       setTouchedFields((prev) => new Set(prev).add("password"));
 
       if (formErrors.password) {
@@ -132,24 +132,21 @@ export const useRegisterForm = () => {
       }
 
       // Also validate confirmPassword if it's been touched
-      if (touchedFields.has("confirmPassword")) {
-        setTimeout(() => {
-          validateField("confirmPassword");
-        }, 0);
-      }
+      setTimeout(() => {
+        validateField("confirmPassword", predictedState);
+      }, 0);
 
-      if (touchedFields.has("password")) {
-        setTimeout(() => {
-          validateField("password");
-        }, 0);
-      }
+      setTimeout(() => {
+        validateField("password", predictedState);
+      }, 0);
     },
-    [formErrors, touchedFields, validateField]
+    [formState, formErrors, touchedFields, validateField]
   );
 
   const handleConfirmPasswordChange = useCallback(
     (value: string) => {
       setFormState((prev) => ({ ...prev, confirmPassword: value }));
+      const predictedState = { ...formState, confirmPassword: value };
       setTouchedFields((prev) => new Set(prev).add("confirmPassword"));
 
       if (formErrors.confirmPassword) {
@@ -160,13 +157,11 @@ export const useRegisterForm = () => {
         });
       }
 
-      if (touchedFields.has("confirmPassword")) {
-        setTimeout(() => {
-          validateField("confirmPassword");
-        }, 0);
-      }
+      setTimeout(() => {
+        validateField("confirmPassword", predictedState);
+      }, 0);
     },
-    [formErrors, touchedFields, validateField]
+    [formState, formErrors, touchedFields, validateField]
   );
 
   const handleFieldBlur = useCallback(

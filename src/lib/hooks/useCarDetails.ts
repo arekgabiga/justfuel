@@ -430,10 +430,12 @@ export const useCarDetails = (carId: string) => {
 
   // Load fillups when main tab is fillups
   useEffect(() => {
-    if (state.activeMainTab === "fillups" && state.car && state.fillups.length === 0) {
+    if (state.activeMainTab === "fillups" && state.car && state.fillups.length === 0 && !state.fillupsLoading) {
       fetchFillups();
     }
-  }, [state.activeMainTab, state.car, state.fillups.length, fetchFillups]);
+    // Only trigger when activeMainTab or car changes, not when fillups change
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.activeMainTab, state.car]);
 
   // Load chart data when main tab is charts and chart type changes
   useEffect(() => {

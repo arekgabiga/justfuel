@@ -213,9 +213,9 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
 
   // Field validation
   const validateField = useCallback(
-    (field: keyof EditCarFormState): boolean => {
+    (field: keyof EditCarFormState, values: EditCarFormState = formState): boolean => {
       let error: string | undefined;
-      const value = formState[field];
+      const value = values[field];
 
       if (field === "name") {
         error = validateName(value as string);
@@ -223,17 +223,19 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
         error = validateMileagePreference(value as string);
       }
 
-      const newErrors = { ...formErrors };
-      if (error) {
-        newErrors[field] = error;
-      } else {
-        delete newErrors[field];
-      }
-      setFormErrors(newErrors);
+      setFormErrors((prev) => {
+        const newErrors = { ...prev };
+        if (error) {
+          newErrors[field] = error;
+        } else {
+          delete newErrors[field];
+        }
+        return newErrors;
+      });
 
       return !error;
     },
-    [formState, formErrors, validateName, validateMileagePreference]
+    [formState, validateName, validateMileagePreference]
   );
 
   // Validate all fields
@@ -266,7 +268,8 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
   // Handle field change with real-time validation
   const handleFieldChange = useCallback(
     (field: keyof EditCarFormState, value: string) => {
-      setFormState((prev) => ({ ...prev, [field]: value }));
+      const newState = { ...formState, [field]: value };
+      setFormState(newState);
       setTouchedFields((prev) => new Set(prev).add(field));
 
       // Clear submit error when user makes changes
@@ -288,14 +291,11 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
       }
 
       // Real-time validation for critical fields (run async to not block input)
-      if (touchedFields.has(field)) {
-        // Defer validation to next tick to avoid blocking input
-        setTimeout(() => {
-          validateField(field);
-        }, 0);
-      }
+      setTimeout(() => {
+        validateField(field, newState);
+      }, 0);
     },
-    [formErrors, touchedFields, validateField]
+    [formState, formErrors, touchedFields, validateField]
   );
 
   // Handle field blur (additional validation)
@@ -597,8 +597,7 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
           let errorMessage: string;
           if (response.status === 400) {
             // Validation errors - incorrect confirmation name
-            errorMessage =
-              errorData?.error.message || "Nazwa potwierdzenia nie pasuje do nazwy samochodu";
+            errorMessage = errorData?.error.message || "Nazwa potwierdzenia nie pasuje do nazwy samochodu";
             setDeleteError(errorMessage);
           } else if (response.status === 401) {
             // Unauthorized
@@ -641,7 +640,7 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
         // Success - redirect to cars list
         try {
           await response.json(); // Consume response body
-          
+
           if (typeof window !== "undefined") {
             window.location.href = "/cars";
           }
@@ -656,22 +655,28 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
         // Handle different error types
         console.error("[useEditCarForm] Error deleting car:", error);
 
-        let errorMessage = "Wystąpił błąd serwera. Spróbuj ponownie później.";
+        // Only set error if it hasn't been set yet (to preserve specific error messages from above)
+        if (!deleteError) {
+          let errorMessage = "Wystąpił błąd serwera. Spróbuj ponownie później.";
 
-        if (error instanceof Error) {
-          // Check for AbortError (timeout)
-          if (error.name === "AbortError" || error.message.includes("aborted")) {
-            errorMessage = "Przekroczono limit czasu połączenia. Spróbuj ponownie.";
-          } else if (error.message.includes("Failed to fetch") || error.message.includes("NetworkError")) {
-            errorMessage = "Nie udało się połączyć z serwerem. Sprawdź połączenie internetowe.";
-          } else if (error.message.includes("timeout")) {
-            errorMessage = "Przekroczono limit czasu połączenia. Spróbuj ponownie.";
+          if (error instanceof Error) {
+            // Check for AbortError (timeout)
+            if (error.name === "AbortError" || error.message.includes("aborted")) {
+              errorMessage = "Przekroczono limit czasu połączenia. Spróbuj ponownie.";
+            } else if (error.message.includes("Failed to fetch") || error.message.includes("NetworkError")) {
+              errorMessage = "Nie udało się połączyć z serwerem. Sprawdź połączenie internetowe.";
+            } else if (error.message.includes("timeout")) {
+              errorMessage = "Przekroczono limit czasu połączenia. Spróbuj ponownie.";
+            } else {
+              // Re-throw the error to preserve the message
+              throw error;
+            }
           }
+
+          setDeleteError(errorMessage);
         }
 
-        setDeleteError(errorMessage);
         setIsDeleting(false);
-        throw new Error(errorMessage);
       } finally {
         // Clean up abort controller
         if (abortController) {
