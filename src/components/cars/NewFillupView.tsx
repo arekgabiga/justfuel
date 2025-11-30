@@ -47,8 +47,8 @@ const NewFillupView: React.FC<NewFillupViewProps> = ({ carId, initialInputMode =
           const carData: CarDetailsDTO = await response.json();
           setCarName(carData.name);
         }
-      } catch (error) {
-        console.error("Error fetching car name:", error);
+      } catch {
+        // Error fetching car name - silent fail, use default name
       } finally {
         setIsLoadingCar(false);
       }
@@ -68,20 +68,13 @@ const NewFillupView: React.FC<NewFillupViewProps> = ({ carId, initialInputMode =
   return (
     <div className="space-y-6 max-w-2xl">
       {/* Breadcrumbs */}
-      {!isLoadingCar && (
-        <Breadcrumbs 
-          carName={carName} 
-          carId={carId} 
-          showNewFillup={true} 
-        />
-      )}
+      {!isLoadingCar && <Breadcrumbs carName={carName} carId={carId} showNewFillup={true} />}
 
       {/* Header */}
       <header>
         <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Dodaj Nowe Tankowanie</h1>
         <p className="text-gray-600 dark:text-gray-400 mt-2">Wypełnij formularz, aby dodać nowe tankowanie</p>
       </header>
-
       {/* Form */}
       <form onSubmit={handleSubmit} noValidate aria-label="Formularz dodawania nowego tankowania" className="space-y-6">
         {/* Date field */}

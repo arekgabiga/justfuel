@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef } from "react";
-import type { CreateCarCommand, CarDetailsDTO, ErrorResponseDTO } from "../../types";
+import type { CreateCarCommand, ErrorResponseDTO } from "../../types";
 
 const REQUEST_TIMEOUT = 10000; // 10 seconds
 
@@ -104,7 +104,6 @@ export const useNewCarForm = () => {
       return "Wystąpił nieoczekiwany błąd";
     }
 
-    const code = errorData.error.code;
     const message = errorData.error.message;
 
     switch (status) {
@@ -147,13 +146,13 @@ export const useNewCarForm = () => {
       }
 
       setFormErrors((prev) => {
-        const newErrors = { ...prev };
         if (error) {
-          newErrors[field] = error;
+          return { ...prev, [field]: error };
         } else {
-          delete newErrors[field];
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { [field]: _, ...rest } = prev;
+          return rest;
         }
-        return newErrors;
       });
 
       return !error;
@@ -194,9 +193,9 @@ export const useNewCarForm = () => {
       // Clear field error when user starts typing
       if (formErrors[field]) {
         setFormErrors((prev) => {
-          const newErrors = { ...prev };
-          delete newErrors[field];
-          return newErrors;
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { [field]: _, ...rest } = prev;
+          return rest;
         });
       }
 
@@ -205,7 +204,7 @@ export const useNewCarForm = () => {
         validateField(field, newState);
       }, 0);
     },
-    [formState, formErrors, touchedFields, validateField]
+    [formState, formErrors, validateField]
   );
 
   // Handle field blur (additional validation)
@@ -327,7 +326,7 @@ export const useNewCarForm = () => {
 
         // Success - navigate to /cars
         try {
-          const createdCar: CarDetailsDTO = await response.json();
+          await response.json();
 
           // Show success briefly before redirect
           setFormErrors({});
@@ -339,15 +338,12 @@ export const useNewCarForm = () => {
               window.location.href = "/cars";
             }, 300);
           }
-        } catch (parseError) {
-          console.error("Error parsing response:", parseError);
+        } catch {
           setFormErrors({ submit: "Nie udało się przetworzyć odpowiedzi serwera" });
           setIsSubmitting(false);
         }
       } catch (error) {
         // Handle different error types
-        console.error("Error creating car:", error);
-
         let errorMessage = "Wystąpił błąd serwera. Spróbuj ponownie później.";
 
         if (error instanceof Error) {

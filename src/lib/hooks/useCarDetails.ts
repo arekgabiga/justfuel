@@ -63,8 +63,6 @@ export const useCarDetails = (carId: string) => {
     });
 
     try {
-      console.log("[useCarDetails] Fetching car:", carId);
-
       const response = await fetch(`/api/cars/${carId}`, {
         headers: {
           "Content-Type": "application/json",
@@ -72,11 +70,8 @@ export const useCarDetails = (carId: string) => {
         credentials: "include",
       });
 
-      console.log("[useCarDetails] API response:", response.status, response.statusText);
-
       if (!response.ok) {
         if (response.status === 401) {
-          console.error("[useCarDetails] Unauthorized - session missing or expired");
           setState((prev) => ({
             ...prev,
             loading: false,
@@ -99,7 +94,6 @@ export const useCarDetails = (carId: string) => {
       }
 
       const car: CarDetailsDTO = await response.json();
-      console.log("[useCarDetails] Car loaded:", car?.name);
 
       setState((prev) => ({
         ...prev,
@@ -119,7 +113,6 @@ export const useCarDetails = (carId: string) => {
         }
       }
 
-      console.error("[useCarDetails] Error loading car:", errorMessage);
       setState((prev) => ({
         ...prev,
         loading: false,
@@ -424,7 +417,7 @@ export const useCarDetails = (carId: string) => {
   // Initial load - only when carId changes
   useEffect(() => {
     fetchCarDetails();
-    // fetchCarDetails is stable (depends only on carId and getAuthToken which is stable)
+    // fetchCarDetails is stable (depends only on carId)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [carId]);
 

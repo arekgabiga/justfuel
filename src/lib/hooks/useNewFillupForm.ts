@@ -208,7 +208,6 @@ export const useNewFillupForm = ({ carId, initialInputMode = "odometer" }: UseNe
       return "Wystąpił nieoczekiwany błąd";
     }
 
-    const code = errorData.error.code;
     const message = errorData.error.message;
 
     switch (status) {
@@ -257,13 +256,13 @@ export const useNewFillupForm = ({ carId, initialInputMode = "odometer" }: UseNe
       }
 
       setFormErrors((prev) => {
-        const newErrors = { ...prev };
         if (error) {
-          newErrors[field] = error;
+          return { ...prev, [field]: error };
         } else {
-          delete newErrors[field];
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { [field]: _, ...rest } = prev;
+          return rest;
         }
-        return newErrors;
       });
 
       return !error;
@@ -330,9 +329,9 @@ export const useNewFillupForm = ({ carId, initialInputMode = "odometer" }: UseNe
       // Clear field error when user starts typing
       if (formErrors[field]) {
         setFormErrors((prev) => {
-          const newErrors = { ...prev };
-          delete newErrors[field];
-          return newErrors;
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { [field]: _, ...rest } = prev;
+          return rest;
         });
       }
 
@@ -341,7 +340,7 @@ export const useNewFillupForm = ({ carId, initialInputMode = "odometer" }: UseNe
         validateField(field, newState);
       }, 0);
     },
-    [formState, formErrors, touchedFields, validateField]
+    [formState, formErrors, validateField]
   );
 
   // Handle field blur (additional validation)
@@ -401,16 +400,22 @@ export const useNewFillupForm = ({ carId, initialInputMode = "odometer" }: UseNe
         };
 
         // Prepare request body
-        const requestBody: CreateFillupCommand = {
-          date: convertDateToISO(formState.date),
-          fuel_amount: parseFloat(formState.fuelAmount),
-          total_price: parseFloat(formState.totalPrice),
-        };
+        let requestBody: CreateFillupCommand;
 
         if (formState.inputMode === "odometer") {
-          (requestBody as any).odometer = parseInt(formState.odometer, 10);
+          requestBody = {
+            date: convertDateToISO(formState.date),
+            fuel_amount: parseFloat(formState.fuelAmount),
+            total_price: parseFloat(formState.totalPrice),
+            odometer: parseInt(formState.odometer, 10),
+          };
         } else {
-          (requestBody as any).distance = parseFloat(formState.distance);
+          requestBody = {
+            date: convertDateToISO(formState.date),
+            fuel_amount: parseFloat(formState.fuelAmount),
+            total_price: parseFloat(formState.totalPrice),
+            distance: parseFloat(formState.distance),
+          };
         }
 
         // API call with timeout
@@ -536,15 +541,12 @@ export const useNewFillupForm = ({ carId, initialInputMode = "odometer" }: UseNe
               }, 300);
             }
           }
-        } catch (parseError) {
-          console.error("Error parsing response:", parseError);
+        } catch {
           setFormErrors({ submit: "Nie udało się przetworzyć odpowiedzi serwera" });
           setIsSubmitting(false);
         }
       } catch (error) {
         // Handle different error types
-        console.error("Error creating fillup:", error);
-
         let errorMessage = "Wystąpił błąd serwera. Spróbuj ponownie później.";
 
         if (error instanceof Error) {

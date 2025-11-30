@@ -34,13 +34,18 @@ describe("useCarsList", () => {
 
   beforeEach(() => {
     global.fetch = mockFetch;
-    delete (window as any).location;
-    window.location = { ...originalLocation, href: "" };
+    Object.defineProperty(window, "location", {
+      writable: true,
+      value: { ...originalLocation, href: "" },
+    });
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
-    window.location = originalLocation;
+    Object.defineProperty(window, "location", {
+      writable: true,
+      value: originalLocation,
+    });
   });
 
   describe("Initialization and Fetching", () => {
@@ -93,7 +98,7 @@ describe("useCarsList", () => {
         status: 401,
       });
 
-      const { result } = renderHook(() => useCarsList());
+      renderHook(() => useCarsList());
 
       await waitFor(() => {
         expect(window.location.href).toBe("/auth/login");
