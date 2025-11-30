@@ -83,7 +83,7 @@ export const useNewFillupForm = ({ carId, initialInputMode = "odometer" }: UseNe
       return "Ilość paliwa jest wymagana";
     }
 
-    // Check if it's a valid number
+    // Check if it's a valid number (positive only)
     if (!/^\d*\.?\d*$/.test(amount.trim())) {
       return "Ilość paliwa musi być liczbą";
     }
@@ -238,9 +238,9 @@ export const useNewFillupForm = ({ carId, initialInputMode = "odometer" }: UseNe
 
   // Field validation
   const validateField = useCallback(
-    (field: keyof NewFillupFormState): boolean => {
+    (field: keyof NewFillupFormState, values: NewFillupFormState = formState): boolean => {
       let error: string | undefined;
-      const value = formState[field];
+      const value = values[field];
 
       if (field === "date") {
         error = validateDate(value as string);
@@ -249,26 +249,27 @@ export const useNewFillupForm = ({ carId, initialInputMode = "odometer" }: UseNe
       } else if (field === "totalPrice") {
         error = validateTotalPrice(value as string);
       } else if (field === "odometer") {
-        error = validateOdometer(value as string, formState.inputMode);
+        error = validateOdometer(value as string, values.inputMode);
       } else if (field === "distance") {
-        error = validateDistance(value as string, formState.inputMode);
+        error = validateDistance(value as string, values.inputMode);
       } else if (field === "inputMode") {
         error = validateInputMode(value as string);
       }
 
-      const newErrors = { ...formErrors };
-      if (error) {
-        newErrors[field] = error;
-      } else {
-        delete newErrors[field];
-      }
-      setFormErrors(newErrors);
+      setFormErrors((prev) => {
+        const newErrors = { ...prev };
+        if (error) {
+          newErrors[field] = error;
+        } else {
+          delete newErrors[field];
+        }
+        return newErrors;
+      });
 
       return !error;
     },
     [
       formState,
-      formErrors,
       validateDate,
       validateFuelAmount,
       validateTotalPrice,
@@ -322,7 +323,8 @@ export const useNewFillupForm = ({ carId, initialInputMode = "odometer" }: UseNe
   // Handle field change with real-time validation
   const handleFieldChange = useCallback(
     (field: keyof NewFillupFormState, value: string) => {
-      setFormState((prev) => ({ ...prev, [field]: value }));
+      const newState = { ...formState, [field]: value };
+      setFormState(newState);
       setTouchedFields((prev) => new Set(prev).add(field));
 
       // Clear field error when user starts typing
@@ -335,14 +337,11 @@ export const useNewFillupForm = ({ carId, initialInputMode = "odometer" }: UseNe
       }
 
       // Real-time validation for critical fields (run async to not block input)
-      if (touchedFields.has(field)) {
-        // Defer validation to next tick to avoid blocking input
-        setTimeout(() => {
-          validateField(field);
-        }, 0);
-      }
+      setTimeout(() => {
+        validateField(field, newState);
+      }, 0);
     },
-    [formErrors, touchedFields, validateField]
+    [formState, formErrors, touchedFields, validateField]
   );
 
   // Handle field blur (additional validation)

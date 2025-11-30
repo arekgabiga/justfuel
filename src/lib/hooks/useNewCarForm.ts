@@ -134,9 +134,9 @@ export const useNewCarForm = () => {
 
   // Field validation
   const validateField = useCallback(
-    (field: keyof NewCarFormState): boolean => {
+    (field: keyof NewCarFormState, values: NewCarFormState = formState): boolean => {
       let error: string | undefined;
-      const value = formState[field];
+      const value = values[field];
 
       if (field === "name") {
         error = validateName(value as string);
@@ -146,17 +146,19 @@ export const useNewCarForm = () => {
         error = validateMileagePreference(value as string);
       }
 
-      const newErrors = { ...formErrors };
-      if (error) {
-        newErrors[field] = error;
-      } else {
-        delete newErrors[field];
-      }
-      setFormErrors(newErrors);
+      setFormErrors((prev) => {
+        const newErrors = { ...prev };
+        if (error) {
+          newErrors[field] = error;
+        } else {
+          delete newErrors[field];
+        }
+        return newErrors;
+      });
 
       return !error;
     },
-    [formState, formErrors, validateName, validateInitialOdometer, validateMileagePreference]
+    [formState, validateName, validateInitialOdometer, validateMileagePreference]
   );
 
   // Validate all fields
@@ -185,7 +187,8 @@ export const useNewCarForm = () => {
   // Handle field change with real-time validation
   const handleFieldChange = useCallback(
     (field: keyof NewCarFormState, value: string) => {
-      setFormState((prev) => ({ ...prev, [field]: value }));
+      const newState = { ...formState, [field]: value };
+      setFormState(newState);
       setTouchedFields((prev) => new Set(prev).add(field));
 
       // Clear field error when user starts typing
@@ -198,14 +201,11 @@ export const useNewCarForm = () => {
       }
 
       // Real-time validation for critical fields (run async to not block input)
-      if (touchedFields.has(field)) {
-        // Defer validation to next tick to avoid blocking input
-        setTimeout(() => {
-          validateField(field);
-        }, 0);
-      }
+      setTimeout(() => {
+        validateField(field, newState);
+      }, 0);
     },
-    [formErrors, touchedFields, validateField]
+    [formState, formErrors, touchedFields, validateField]
   );
 
   // Handle field blur (additional validation)

@@ -42,19 +42,6 @@ export const useCarsList = () => {
       if (!token) {
         // Redirect to login when no token is present
         if (typeof window !== "undefined") {
-          // Try to redirect to login page, or just prevent the error for now
-          const hasLoginPage = false; // Check if login page exists
-          if (!hasLoginPage) {
-            // For development: show error instead of redirect
-            setState((prev) => ({
-              ...prev,
-              loading: false,
-              error: new Error(
-                "Wymagana autoryzacja. Dodaj token autoryzacji do localStorage (auth_token) lub zaloguj się."
-              ),
-            }));
-            return;
-          }
           window.location.href = "/login";
           return;
         }
@@ -215,7 +202,9 @@ export const useCarsList = () => {
     fetchCars(state.sortBy, state.sortOrder);
 
     return () => clearTimeout(timeoutId);
-  }, [fetchCars, state.sortBy, state.sortOrder]);
+    // Only run on mount - sortBy and sortOrder are fixed values
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetchCars]);
 
   return {
     ...state,

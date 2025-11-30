@@ -360,9 +360,9 @@ export const useEditFillupForm = ({ carId, fillupId }: UseEditFillupFormProps) =
 
   // Field validation
   const validateField = useCallback(
-    (field: keyof EditFillupFormState): boolean => {
+    (field: keyof EditFillupFormState, values: EditFillupFormState = formState): boolean => {
       let error: string | undefined;
-      const value = formState[field];
+      const value = values[field];
 
       if (field === "date") {
         error = validateDate(value as string);
@@ -371,26 +371,27 @@ export const useEditFillupForm = ({ carId, fillupId }: UseEditFillupFormProps) =
       } else if (field === "totalPrice") {
         error = validateTotalPrice(value as string);
       } else if (field === "odometer") {
-        error = validateOdometer(value as string, formState.inputMode);
+        error = validateOdometer(value as string, values.inputMode);
       } else if (field === "distance") {
-        error = validateDistance(value as string, formState.inputMode);
+        error = validateDistance(value as string, values.inputMode);
       } else if (field === "inputMode") {
         error = validateInputMode(value as string);
       }
 
-      const newErrors = { ...formErrors };
-      if (error) {
-        newErrors[field] = error;
-      } else {
-        delete newErrors[field];
-      }
-      setFormErrors(newErrors);
+      setFormErrors((prev) => {
+        const newErrors = { ...prev };
+        if (error) {
+          newErrors[field] = error;
+        } else {
+          delete newErrors[field];
+        }
+        return newErrors;
+      });
 
       return !error;
     },
     [
       formState,
-      formErrors,
       validateDate,
       validateFuelAmount,
       validateTotalPrice,
@@ -465,7 +466,8 @@ export const useEditFillupForm = ({ carId, fillupId }: UseEditFillupFormProps) =
   // Handle field change with real-time validation
   const handleFieldChange = useCallback(
     (field: keyof EditFillupFormState, value: string) => {
-      setFormState((prev) => ({ ...prev, [field]: value }));
+      const newState = { ...formState, [field]: value };
+      setFormState(newState);
       setTouchedFields((prev) => new Set(prev).add(field));
 
       if (formErrors[field]) {
@@ -476,13 +478,11 @@ export const useEditFillupForm = ({ carId, fillupId }: UseEditFillupFormProps) =
         });
       }
 
-      if (touchedFields.has(field)) {
-        setTimeout(() => {
-          validateField(field);
-        }, 0);
-      }
+      setTimeout(() => {
+        validateField(field, newState);
+      }, 0);
     },
-    [formErrors, touchedFields, validateField]
+    [formState, formErrors, touchedFields, validateField]
   );
 
   // Handle field blur

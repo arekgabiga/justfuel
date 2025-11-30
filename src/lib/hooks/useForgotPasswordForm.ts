@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback } from "react";
 
 interface ForgotPasswordFormState {
   email: string;
@@ -11,7 +11,7 @@ interface ForgotPasswordFormErrors {
 
 export const useForgotPasswordForm = () => {
   const [formState, setFormState] = useState<ForgotPasswordFormState>({
-    email: '',
+    email: "",
   });
 
   const [formErrors, setFormErrors] = useState<ForgotPasswordFormErrors>({});
@@ -21,59 +21,63 @@ export const useForgotPasswordForm = () => {
 
   const validateEmail = useCallback((email: string): string | undefined => {
     if (!email.trim()) {
-      return 'Nieprawidłowy adres e-mail';
+      return "Nieprawidłowy adres e-mail";
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email.trim())) {
-      return 'Nieprawidłowy adres e-mail';
+      return "Nieprawidłowy adres e-mail";
     }
     return undefined;
   }, []);
 
   const validateField = useCallback(
-    (field: keyof ForgotPasswordFormState): boolean => {
+    (field: keyof ForgotPasswordFormState, values: ForgotPasswordFormState = formState): boolean => {
       let error: string | undefined;
-      const value = formState[field];
+      const value = values[field];
 
-      if (field === 'email') {
+      if (field === "email") {
         error = validateEmail(value);
       }
 
-      const newErrors = { ...formErrors };
-      if (error) {
-        newErrors[field] = error;
-      } else {
-        delete newErrors[field];
-      }
-      setFormErrors(newErrors);
+      setFormErrors((prev) => {
+        const newErrors = { ...prev };
+        if (error) {
+          newErrors[field] = error;
+        } else {
+          delete newErrors[field];
+        }
+        return newErrors;
+      });
 
       return !error;
     },
-    [formState, formErrors, validateEmail]
+    [formState, validateEmail]
   );
 
   const validateAllFields = useCallback((): boolean => {
-    return validateField('email');
+    return validateField("email");
   }, [validateField]);
 
-  const handleEmailChange = useCallback((value: string) => {
-    setFormState((prev) => ({ ...prev, email: value }));
-    setTouchedFields((prev) => new Set(prev).add('email'));
+  const handleEmailChange = useCallback(
+    (value: string) => {
+      setFormState((prev) => ({ ...prev, email: value }));
+      const predictedState = { ...formState, email: value };
+      setTouchedFields((prev) => new Set(prev).add("email"));
 
-    if (formErrors.email) {
-      setFormErrors((prev) => {
-        const newErrors = { ...prev };
-        delete newErrors.email;
-        return newErrors;
-      });
-    }
+      if (formErrors.email) {
+        setFormErrors((prev) => {
+          const newErrors = { ...prev };
+          delete newErrors.email;
+          return newErrors;
+        });
+      }
 
-    if (touchedFields.has('email')) {
       setTimeout(() => {
-        validateField('email');
+        validateField("email", predictedState);
       }, 0);
-    }
-  }, [formErrors, touchedFields, validateField]);
+    },
+    [formState, formErrors, validateField]
+  );
 
   const handleFieldBlur = useCallback(
     (field: keyof ForgotPasswordFormState) => {
@@ -96,10 +100,10 @@ export const useForgotPasswordForm = () => {
       setIsSuccess(false);
 
       try {
-        const response = await fetch('/api/auth/forgot-password', {
-          method: 'POST',
+        const response = await fetch("/api/auth/forgot-password", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             email: formState.email.trim(),
@@ -110,7 +114,7 @@ export const useForgotPasswordForm = () => {
 
         if (!response.ok) {
           setFormErrors({
-            general: data.error?.message || 'Wystąpił błąd podczas wysyłania linku resetującego.',
+            general: data.error?.message || "Wystąpił błąd podczas wysyłania linku resetującego.",
           });
           setIsSubmitting(false);
           return;
@@ -120,9 +124,9 @@ export const useForgotPasswordForm = () => {
         setIsSuccess(true);
         setIsSubmitting(false);
       } catch (error) {
-        console.error('Error during forgot password:', error);
+        console.error("Error during forgot password:", error);
         setFormErrors({
-          general: 'Wystąpił błąd. Spróbuj ponownie.',
+          general: "Wystąpił błąd. Spróbuj ponownie.",
         });
         setIsSubmitting(false);
       }
@@ -142,4 +146,3 @@ export const useForgotPasswordForm = () => {
     validateEmail,
   };
 };
-
