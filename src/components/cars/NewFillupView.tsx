@@ -4,9 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useNewFillupForm } from "@/lib/hooks/useNewFillupForm";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, ArrowLeft } from "lucide-react";
 import type { ValidationWarningDTO, CarDetailsDTO } from "@/types";
-import { Breadcrumbs } from "./Breadcrumbs";
 
 interface NewFillupViewProps {
   carId: string;
@@ -14,9 +13,7 @@ interface NewFillupViewProps {
 }
 
 const NewFillupView: React.FC<NewFillupViewProps> = ({ carId, initialInputMode = "odometer" }) => {
-  const [carName, setCarName] = useState<string>("Samochód");
   const [carPreference, setCarPreference] = useState<"odometer" | "distance" | null>(null);
-  const [isLoadingCar, setIsLoadingCar] = useState(true);
 
   // Fetch car name and preference first
   useEffect(() => {
@@ -30,7 +27,6 @@ const NewFillupView: React.FC<NewFillupViewProps> = ({ carId, initialInputMode =
         });
         if (response.ok) {
           const carData: CarDetailsDTO = await response.json();
-          setCarName(carData.name);
           // Use car's saved preference if available, otherwise use prop default
           setCarPreference((carData.mileage_input_preference as "odometer" | "distance") || initialInputMode);
         } else {
@@ -40,8 +36,6 @@ const NewFillupView: React.FC<NewFillupViewProps> = ({ carId, initialInputMode =
       } catch {
         // Error fetching car data - use defaults
         setCarPreference(initialInputMode);
-      } finally {
-        setIsLoadingCar(false);
       }
     };
 
@@ -75,8 +69,15 @@ const NewFillupView: React.FC<NewFillupViewProps> = ({ carId, initialInputMode =
 
   return (
     <div className="space-y-6 max-w-2xl">
-      {/* Breadcrumbs */}
-      {!isLoadingCar && <Breadcrumbs carName={carName} carId={carId} showNewFillup={true} />}
+      {/* Back Navigation */}
+      <button
+        onClick={handleCancel}
+        className="flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors -ml-0.5"
+        aria-label="Wróć do szczegółów auta"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        <span>Wróć do szczegółów auta</span>
+      </button>
 
       {/* Header */}
       <header>

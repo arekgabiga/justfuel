@@ -1,13 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useEditFillupForm } from "@/lib/hooks/useEditFillupForm";
-import { AlertTriangle, Trash2 } from "lucide-react";
-import type { ValidationWarningDTO, CarDetailsDTO } from "@/types";
+import { AlertTriangle, Trash2, ArrowLeft } from "lucide-react";
+import type { ValidationWarningDTO } from "@/types";
 import { DeleteFillupDialog } from "./DeleteFillupDialog";
-import { Breadcrumbs } from "./Breadcrumbs";
 
 interface EditFillupViewProps {
   carId: string;
@@ -15,9 +14,6 @@ interface EditFillupViewProps {
 }
 
 const EditFillupView: React.FC<EditFillupViewProps> = ({ carId, fillupId }) => {
-  const [carName, setCarName] = useState<string>("Samochód");
-  const [isLoadingCar, setIsLoadingCar] = useState(true);
-
   const {
     formState,
     formErrors,
@@ -42,30 +38,6 @@ const EditFillupView: React.FC<EditFillupViewProps> = ({ carId, fillupId }) => {
     handleDeleteCancel,
   } = useEditFillupForm({ carId, fillupId });
 
-  // Fetch car name
-  useEffect(() => {
-    const fetchCarName = async () => {
-      try {
-        const response = await fetch(`/api/cars/${carId}`, {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-        });
-        if (response.ok) {
-          const carData: CarDetailsDTO = await response.json();
-          setCarName(carData.name);
-        }
-      } catch (error) {
-        console.error("Error fetching car name:", error);
-      } finally {
-        setIsLoadingCar(false);
-      }
-    };
-
-    fetchCarName();
-  }, [carId]);
-
   useEffect(() => {
     dateInputRef.current?.focus();
   }, [dateInputRef]);
@@ -86,7 +58,11 @@ const EditFillupView: React.FC<EditFillupViewProps> = ({ carId, fillupId }) => {
   if (!originalFillupData) {
     return (
       <div className="space-y-6 max-w-2xl">
-        <div className="p-4 rounded-md bg-destructive/10 border border-destructive/50" role="alert" aria-live="assertive">
+        <div
+          className="p-4 rounded-md bg-destructive/10 border border-destructive/50"
+          role="alert"
+          aria-live="assertive"
+        >
           <p className="text-sm text-destructive">{formErrors.submit || "Nie udało się załadować danych tankowania"}</p>
         </div>
       </div>
@@ -95,14 +71,16 @@ const EditFillupView: React.FC<EditFillupViewProps> = ({ carId, fillupId }) => {
 
   return (
     <div className="space-y-6 max-w-2xl">
-      {/* Breadcrumbs */}
-      {!isLoadingCar && (
-        <Breadcrumbs 
-          carName={carName} 
-          carId={carId} 
-          showEditFillup={true} 
-        />
-      )}
+      {/* Back Navigation */}
+      <button
+        onClick={handleCancel}
+        className="flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors -ml-0.5"
+        aria-label="Wróć do szczegółów auta"
+        disabled={isSubmitting || isDeleting}
+      >
+        <ArrowLeft className="h-4 w-4" />
+        <span>Wróć do szczegółów auta</span>
+      </button>
 
       {/* Header */}
       <header>
@@ -473,4 +451,3 @@ const EditFillupView: React.FC<EditFillupViewProps> = ({ carId, fillupId }) => {
 };
 
 export default EditFillupView;
-

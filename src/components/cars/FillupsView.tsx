@@ -1,9 +1,8 @@
 import React from "react";
 import { useFillupsView } from "../../lib/hooks/useFillupsView";
-import { Breadcrumbs } from "./Breadcrumbs";
 import { FillupsListView } from "./FillupsListView";
 import { AddFillupButton } from "./AddFillupButton";
-import { CarNameDisplay } from "./CarNameDisplay";
+import { CarHeader } from "./CarHeader";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -61,30 +60,13 @@ export const FillupsView: React.FC<FillupsViewProps> = ({ carId }) => {
     );
   }
 
-  const carName = car?.name || "Samochód";
-
   return (
     <main className="container mx-auto px-4 py-8 max-w-7xl">
-      {/* Breadcrumbs */}
-      <Breadcrumbs carName={carName} showFillups={true} carId={carId} />
-
-      {/* Back Button */}
-      <div className="mb-6">
-        <Button onClick={handleBack} variant="outline" size="sm">
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Powrót do samochodów
-        </Button>
-      </div>
-
-      {/* Car Header (minimalist version) */}
-      {car && (
-        <div className="mb-8">
-          <CarNameDisplay name={car.name} />
-          {carError && (
-            <p className="text-sm text-red-600 dark:text-red-400 mt-2">
-              Uwaga: {carError.message}
-            </p>
-          )}
+      {/* Car Header with Back Navigation */}
+      <div className="mb-8">{car && <CarHeader car={car} showActions={false} onBack={handleBack} />}</div>
+      {carError && (
+        <div className="mb-6">
+          <p className="text-sm text-red-600 dark:text-red-400">Uwaga: {carError.message}</p>
         </div>
       )}
 
@@ -108,4 +90,3 @@ export const FillupsView: React.FC<FillupsViewProps> = ({ carId }) => {
     </main>
   );
 };
-

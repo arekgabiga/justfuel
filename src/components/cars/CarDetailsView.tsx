@@ -1,6 +1,5 @@
 import React from "react";
 import { useCarDetails } from "../../lib/hooks/useCarDetails";
-import { Breadcrumbs } from "./Breadcrumbs";
 import { CarHeader } from "./CarHeader";
 import { TabNavigation } from "./TabNavigation";
 import { FillupsTab } from "./FillupsTab";
@@ -51,6 +50,12 @@ export const CarDetailsView: React.FC<CarDetailsViewProps> = ({ carId }) => {
     }
   };
 
+  const handleBackToCars = () => {
+    if (typeof window !== "undefined") {
+      window.location.href = "/";
+    }
+  };
+
   const handleRetry = () => {
     fetchCarDetails();
   };
@@ -93,8 +98,9 @@ export const CarDetailsView: React.FC<CarDetailsViewProps> = ({ carId }) => {
 
   return (
     <main className="container mx-auto px-4 py-8">
-      <Breadcrumbs carName={car.name} />
-      <CarHeader car={car} onEdit={openEditDialog} onDelete={openDeleteDialog} />
+      <div className="mb-8">
+        <CarHeader car={car} onEdit={openEditDialog} onDelete={openDeleteDialog} onBack={handleBackToCars} />
+      </div>
       <TabNavigation activeTab={activeMainTab} onTabChange={switchMainTab} />
 
       {activeMainTab === "fillups" && (
@@ -123,12 +129,7 @@ export const CarDetailsView: React.FC<CarDetailsViewProps> = ({ carId }) => {
 
       {car && (
         <>
-          <EditCarDialog
-            car={car}
-            isOpen={editDialogOpen}
-            onUpdate={handleUpdateCar}
-            onCancel={closeEditDialog}
-          />
+          <EditCarDialog car={car} isOpen={editDialogOpen} onUpdate={handleUpdateCar} onCancel={closeEditDialog} />
           <DeleteCarDialog
             car={car}
             isOpen={deleteDialogOpen}
@@ -140,4 +141,3 @@ export const CarDetailsView: React.FC<CarDetailsViewProps> = ({ carId }) => {
     </main>
   );
 };
-

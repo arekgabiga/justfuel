@@ -13,14 +13,7 @@ interface CarHeaderProps {
   onDelete?: () => void;
 }
 
-export const CarHeader: React.FC<CarHeaderProps> = ({
-  car,
-  carName,
-  onBack,
-  showActions = true,
-  onEdit,
-  onDelete,
-}) => {
+export const CarHeader: React.FC<CarHeaderProps> = ({ car, carName, onBack, showActions = true, onEdit, onDelete }) => {
   const handleEditClick = () => {
     if (car && typeof window !== "undefined") {
       window.location.href = `/cars/${car.id}/edit`;
@@ -32,45 +25,41 @@ export const CarHeader: React.FC<CarHeaderProps> = ({
   const displayName = car?.name || carName || "";
 
   return (
-    <div className="mb-8">
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center gap-4">
-          {onBack && (
-            <Button onClick={onBack} variant="outline" size="sm" className="flex items-center gap-2">
-              <ArrowLeft className="h-4 w-4" />
-              Powrót
-            </Button>
-          )}
-          <CarNameDisplay name={displayName} />
-        </div>
+    <div className="space-y-6">
+      {onBack && (
+        <button
+          onClick={onBack}
+          className="flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors -ml-0.5"
+          aria-label="Wróć do listy pojazdów"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          <span>Wróć do listy pojazdów</span>
+        </button>
+      )}
+      <div className="flex items-start justify-between">
+        <CarNameDisplay name={displayName} />
         {showActions && (
           <div className="flex items-center gap-2">
-          {onEdit && (
-            <Button
-              onClick={handleEditClick}
-              variant="outline"
-              size="sm"
-              className="flex items-center gap-2"
-            >
-              <Edit2 className="h-4 w-4" />
-              Edytuj
-            </Button>
-          )}
-          {onDelete && (
-            <Button
-              onClick={onDelete}
-              variant="outline"
-              size="sm"
-              className="flex items-center gap-2 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:border-red-300 dark:hover:border-red-600"
-            >
-              <Trash2 className="h-4 w-4" />
-              Usuń
-            </Button>
-          )}
-        </div>
+            {onEdit && (
+              <Button onClick={handleEditClick} variant="outline" size="sm" className="flex items-center gap-2">
+                <Edit2 className="h-4 w-4" />
+                Edytuj
+              </Button>
+            )}
+            {onDelete && (
+              <Button
+                onClick={onDelete}
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-2 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:border-red-300 dark:hover:border-red-600"
+              >
+                <Trash2 className="h-4 w-4" />
+                Usuń
+              </Button>
+            )}
+          </div>
         )}
       </div>
     </div>
   );
 };
-

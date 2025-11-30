@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useEditCarForm } from "@/lib/hooks/useEditCarForm";
 import { DeleteCarDialog } from "./DeleteCarDialog";
-import { Trash2 } from "lucide-react";
+import { Trash2, ArrowLeft } from "lucide-react";
 import type { DeleteCarCommand } from "../../types";
 
 interface EditCarViewProps {
@@ -34,25 +34,6 @@ const EditCarView: React.FC<EditCarViewProps> = ({ carId }) => {
     handleDeleteConfirm,
   } = useEditCarForm({ carId });
 
-  const handleCarsClick = () => {
-    if (typeof window !== "undefined") {
-      window.location.href = "/";
-    }
-  };
-
-  const handleCarNameClick = () => {
-    if (typeof window !== "undefined") {
-      window.location.href = `/cars/${carId}`;
-    }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent, action: () => void) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      action();
-    }
-  };
-
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -66,7 +47,11 @@ const EditCarView: React.FC<EditCarViewProps> = ({ carId }) => {
   if (!originalCarData) {
     return (
       <div className="space-y-6 max-w-2xl">
-        <div className="p-4 rounded-md bg-destructive/10 border border-destructive/50" role="alert" aria-live="assertive">
+        <div
+          className="p-4 rounded-md bg-destructive/10 border border-destructive/50"
+          role="alert"
+          aria-live="assertive"
+        >
           <p className="text-sm text-destructive">{formErrors.submit || "Nie udało się załadować danych samochodu"}</p>
         </div>
       </div>
@@ -88,49 +73,21 @@ const EditCarView: React.FC<EditCarViewProps> = ({ carId }) => {
   // 1. Submitting is in progress
   // 2. There are field validation errors AND fields were touched
   // 3. There are no changes in the form
-  const isSubmitDisabled =
-    isSubmitting || (hasFieldValidationErrors && touchedFields.size > 0) || !hasChanges;
+  const isSubmitDisabled = isSubmitting || (hasFieldValidationErrors && touchedFields.size > 0) || !hasChanges;
   const isDeleteDisabled = isSubmitting || isDeleting;
 
   return (
     <div className="space-y-6 max-w-2xl">
-      {/* Breadcrumbs with proper ARIA */}
-      <nav
-        aria-label="Breadcrumb navigation"
-        className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400 overflow-x-auto"
+      {/* Back Navigation */}
+      <button
+        onClick={handleCancel}
+        className="flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors -ml-0.5"
+        aria-label="Wróć do szczegółów auta"
+        disabled={isSubmitting || isDeleting}
       >
-        <ol className="flex items-center space-x-2" role="list">
-          <li className="flex-shrink-0">
-            <button
-              onClick={handleCarsClick}
-              onKeyDown={(e) => handleKeyDown(e, handleCarsClick)}
-              className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded px-1"
-              aria-label="Przejdź do listy samochodów"
-            >
-              Auta
-            </button>
-          </li>
-          <li className="flex-shrink-0" aria-hidden="true">
-            <span>/</span>
-          </li>
-          <li className="flex-shrink-0 min-w-0">
-            <button
-              onClick={handleCarNameClick}
-              onKeyDown={(e) => handleKeyDown(e, handleCarNameClick)}
-              className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded px-1 truncate max-w-[120px] sm:max-w-none"
-              aria-label={`Przejdź do szczegółów samochodu ${originalCarData.name}`}
-            >
-              {originalCarData.name}
-            </button>
-          </li>
-          <li className="flex-shrink-0" aria-hidden="true">
-            <span>/</span>
-          </li>
-          <li className="flex-shrink-0" aria-current="page">
-            <span className="text-gray-900 dark:text-gray-100 font-medium">Edycja</span>
-          </li>
-        </ol>
-      </nav>
+        <ArrowLeft className="h-4 w-4" />
+        <span>Wróć do szczegółów auta</span>
+      </button>
 
       {/* Header */}
       <header>
@@ -314,4 +271,3 @@ const EditCarView: React.FC<EditCarViewProps> = ({ carId }) => {
 };
 
 export default EditCarView;
-
