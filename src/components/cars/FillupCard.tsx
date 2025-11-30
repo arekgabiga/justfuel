@@ -79,7 +79,7 @@ export const FillupCard: React.FC<FillupCardProps> = ({ fillup, averageConsumpti
         }
       }}
     >
-      <div className="grid grid-cols-[min-content_min-content_1fr_1fr] gap-x-4 gap-y-3 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-x-4 gap-y-3 sm:grid-cols-4">
         <div className="min-w-0">
           <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Data</div>
           <div className="font-medium text-gray-900 dark:text-gray-100">{formatDate(fillup.date)}</div>
@@ -98,12 +98,9 @@ export const FillupCard: React.FC<FillupCardProps> = ({ fillup, averageConsumpti
         </div>
         <div className="min-w-0">
           <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Cena za litr</div>
-          <div className="font-medium text-gray-900 dark:text-gray-100">
-            {formatNumber(fillup.price_per_liter)} zł
-          </div>
+          <div className="font-medium text-gray-900 dark:text-gray-100">{formatNumber(fillup.price_per_liter)} zł</div>
         </div>
       </div>
     </div>
   );
 };
-

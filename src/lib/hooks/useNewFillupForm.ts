@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import type { CreateFillupCommand, FillupWithWarningsDTO, ErrorResponseDTO, ValidationWarningDTO } from "../../types";
 
 const REQUEST_TIMEOUT = 10000; // 10 seconds
@@ -48,6 +48,14 @@ export const useNewFillupForm = ({ carId, initialInputMode = "odometer" }: UseNe
   const [warnings, setWarnings] = useState<ValidationWarningDTO[]>([]);
   const [redirectIn, setRedirectIn] = useState<number | null>(null); // Countdown timer
   const dateInputRef = useRef<HTMLInputElement>(null);
+
+  // Update inputMode when initialInputMode prop changes (e.g., after fetching car preference)
+  useEffect(() => {
+    setFormState((prev) => ({
+      ...prev,
+      inputMode: initialInputMode,
+    }));
+  }, [initialInputMode]);
 
   // Enhanced validation functions with detailed error messages
   const validateDate = useCallback((date: string): string | undefined => {

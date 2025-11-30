@@ -58,13 +58,13 @@ export const useLoginForm = (options?: UseLoginFormOptions) => {
       }
 
       setFormErrors((prev) => {
-        const newErrors = { ...prev };
         if (error) {
-          newErrors[field] = error;
+          return { ...prev, [field]: error };
         } else {
-          delete newErrors[field];
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { [field]: _, ...rest } = prev;
+          return rest;
         }
-        return newErrors;
       });
 
       return !error;
@@ -81,9 +81,9 @@ export const useLoginForm = (options?: UseLoginFormOptions) => {
   const handleEmailChange = useCallback(
     (value: string) => {
       setFormState((prev) => ({ ...prev, email: value }));
-      const predictedState = { ...formState, email: value };
       setTouchedFields((prev) => new Set(prev).add("email"));
 
+      // Only clear error if it exists, don't re-validate on every keystroke
       if (formErrors.email) {
         setFormErrors((prev) => {
           const newErrors = { ...prev };
@@ -91,20 +91,16 @@ export const useLoginForm = (options?: UseLoginFormOptions) => {
           return newErrors;
         });
       }
-
-      setTimeout(() => {
-        validateField("email", predictedState);
-      }, 0);
     },
-    [formState, formErrors, validateField]
+    [formErrors]
   );
 
   const handlePasswordChange = useCallback(
     (value: string) => {
       setFormState((prev) => ({ ...prev, password: value }));
-      const predictedState = { ...formState, password: value };
       setTouchedFields((prev) => new Set(prev).add("password"));
 
+      // Only clear error if it exists, don't re-validate on every keystroke
       if (formErrors.password) {
         setFormErrors((prev) => {
           const newErrors = { ...prev };
@@ -112,12 +108,8 @@ export const useLoginForm = (options?: UseLoginFormOptions) => {
           return newErrors;
         });
       }
-
-      setTimeout(() => {
-        validateField("password", predictedState);
-      }, 0);
     },
-    [formState, formErrors, touchedFields, validateField]
+    [formErrors]
   );
 
   const handleFieldBlur = useCallback(

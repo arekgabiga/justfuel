@@ -125,6 +125,56 @@ describe("useRegisterForm", () => {
 
       expect(result.current.formErrors.confirmPassword).toBe("Hasła nie są identyczne");
     });
+
+    it("should clear confirm password error immediately when passwords match (BUG-19)", () => {
+      const { result } = renderHook(() => useRegisterForm());
+
+      // Set password
+      act(() => {
+        result.current.handlePasswordChange("password123");
+      });
+
+      // Set different confirm password to trigger error
+      act(() => {
+        result.current.handleConfirmPasswordChange("password456");
+      });
+
+      // Verify error exists
+      expect(result.current.formErrors.confirmPassword).toBe("Hasła nie są identyczne");
+
+      // Now fix confirm password to match - error should clear IMMEDIATELY
+      act(() => {
+        result.current.handleConfirmPasswordChange("password123");
+      });
+
+      // Error should be cleared WITHOUT needing blur or timers
+      expect(result.current.formErrors.confirmPassword).toBeUndefined();
+    });
+
+    it("should clear confirm password error when changing password to match (BUG-19)", () => {
+      const { result } = renderHook(() => useRegisterForm());
+
+      // Set password
+      act(() => {
+        result.current.handlePasswordChange("password123");
+      });
+
+      // Set different confirm password to trigger error
+      act(() => {
+        result.current.handleConfirmPasswordChange("password456");
+      });
+
+      // Verify error exists
+      expect(result.current.formErrors.confirmPassword).toBe("Hasła nie są identyczne");
+
+      // Now change password to match confirm password
+      act(() => {
+        result.current.handlePasswordChange("password456");
+      });
+
+      // Error should be cleared IMMEDIATELY
+      expect(result.current.formErrors.confirmPassword).toBeUndefined();
+    });
   });
 
   describe("Submit Handling", () => {

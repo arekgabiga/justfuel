@@ -29,7 +29,7 @@ export const AverageConsumption: React.FC<AverageConsumptionProps> = ({ value, a
   const formatValue = (val: number | null) => {
     if (val === null || val === undefined || isNaN(val)) return "N/A";
     if (val < 0 || val > 50) return "N/A"; // Invalid range
-    return `${val.toFixed(1)} L/100km`;
+    return `${val.toFixed(2)} L/100km`;
   };
 
   const color = getConsumptionColor(value);

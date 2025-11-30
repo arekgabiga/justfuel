@@ -15,8 +15,40 @@ interface NewFillupViewProps {
 
 const NewFillupView: React.FC<NewFillupViewProps> = ({ carId, initialInputMode = "odometer" }) => {
   const [carName, setCarName] = useState<string>("Samochód");
+  const [carPreference, setCarPreference] = useState<"odometer" | "distance" | null>(null);
   const [isLoadingCar, setIsLoadingCar] = useState(true);
 
+  // Fetch car name and preference first
+  useEffect(() => {
+    const fetchCarData = async () => {
+      try {
+        const response = await fetch(`/api/cars/${carId}`, {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        });
+        if (response.ok) {
+          const carData: CarDetailsDTO = await response.json();
+          setCarName(carData.name);
+          // Use car's saved preference if available, otherwise use prop default
+          setCarPreference((carData.mileage_input_preference as "odometer" | "distance") || initialInputMode);
+        } else {
+          // If API call fails, use prop default
+          setCarPreference(initialInputMode);
+        }
+      } catch {
+        // Error fetching car data - use defaults
+        setCarPreference(initialInputMode);
+      } finally {
+        setIsLoadingCar(false);
+      }
+    };
+
+    fetchCarData();
+  }, [carId, initialInputMode]);
+
+  // Initialize hook only after car data is loaded
   const {
     formState,
     formErrors,
@@ -31,31 +63,7 @@ const NewFillupView: React.FC<NewFillupViewProps> = ({ carId, initialInputMode =
     handleSubmit,
     handleCancel,
     handleSkipCountdown,
-  } = useNewFillupForm({ carId, initialInputMode });
-
-  // Fetch car name
-  useEffect(() => {
-    const fetchCarName = async () => {
-      try {
-        const response = await fetch(`/api/cars/${carId}`, {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-        });
-        if (response.ok) {
-          const carData: CarDetailsDTO = await response.json();
-          setCarName(carData.name);
-        }
-      } catch {
-        // Error fetching car name - silent fail, use default name
-      } finally {
-        setIsLoadingCar(false);
-      }
-    };
-
-    fetchCarName();
-  }, [carId]);
+  } = useNewFillupForm({ carId, initialInputMode: carPreference || initialInputMode });
 
   useEffect(() => {
     // Auto-focus date input on mount
@@ -209,6 +217,7 @@ const NewFillupView: React.FC<NewFillupViewProps> = ({ carId, initialInputMode =
             </span>
           </Label>
           <Select
+            key={formState.inputMode} // Force re-mount when value changes
             value={formState.inputMode}
             onValueChange={(value: "odometer" | "distance") => {
               handleModeToggle(value);

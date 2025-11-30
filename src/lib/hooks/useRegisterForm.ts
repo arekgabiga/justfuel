@@ -75,13 +75,13 @@ export const useRegisterForm = () => {
       }
 
       setFormErrors((prev) => {
-        const newErrors = { ...prev };
         if (error) {
-          newErrors[field] = error;
+          return { ...prev, [field]: error };
         } else {
-          delete newErrors[field];
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { [field]: _, ...rest } = prev;
+          return rest;
         }
-        return newErrors;
       });
 
       return !error;
@@ -99,9 +99,9 @@ export const useRegisterForm = () => {
   const handleEmailChange = useCallback(
     (value: string) => {
       setFormState((prev) => ({ ...prev, email: value }));
-      const predictedState = { ...formState, email: value };
       setTouchedFields((prev) => new Set(prev).add("email"));
 
+      // Only clear error if it exists, don't re-validate on every keystroke
       if (formErrors.email) {
         setFormErrors((prev) => {
           const newErrors = { ...prev };
@@ -109,20 +109,16 @@ export const useRegisterForm = () => {
           return newErrors;
         });
       }
-
-      setTimeout(() => {
-        validateField("email", predictedState);
-      }, 0);
     },
-    [formState, formErrors, validateField]
+    [formErrors]
   );
 
   const handlePasswordChange = useCallback(
     (value: string) => {
       setFormState((prev) => ({ ...prev, password: value }));
-      const predictedState = { ...formState, password: value };
       setTouchedFields((prev) => new Set(prev).add("password"));
 
+      // Clear password error if exists
       if (formErrors.password) {
         setFormErrors((prev) => {
           const newErrors = { ...prev };
@@ -131,37 +127,43 @@ export const useRegisterForm = () => {
         });
       }
 
-      // Also validate confirmPassword if it's been touched
-      setTimeout(() => {
-        validateField("confirmPassword", predictedState);
-      }, 0);
-
-      setTimeout(() => {
-        validateField("password", predictedState);
-      }, 0);
+      // Cross-field validation: if confirmPassword is touched and matches, clear its error
+      if (touchedFields.has("confirmPassword") && formState.confirmPassword) {
+        if (value === formState.confirmPassword) {
+          // Passwords match - clear confirmPassword error
+          setFormErrors((prev) => {
+            const newErrors = { ...prev };
+            delete newErrors.confirmPassword;
+            return newErrors;
+          });
+        }
+      }
     },
-    [formState, formErrors, touchedFields, validateField]
+    [formState, formErrors, touchedFields]
   );
 
   const handleConfirmPasswordChange = useCallback(
     (value: string) => {
       setFormState((prev) => ({ ...prev, confirmPassword: value }));
-      const predictedState = { ...formState, confirmPassword: value };
       setTouchedFields((prev) => new Set(prev).add("confirmPassword"));
 
-      if (formErrors.confirmPassword) {
+      // Immediately check if passwords match and clear/set error accordingly
+      if (value === formState.password) {
+        // Passwords match - clear error
         setFormErrors((prev) => {
           const newErrors = { ...prev };
           delete newErrors.confirmPassword;
           return newErrors;
         });
+      } else if (touchedFields.has("confirmPassword") || value.length > 0) {
+        // Only show error if field was touched or user started typing
+        setFormErrors((prev) => ({
+          ...prev,
+          confirmPassword: "Hasła nie są identyczne",
+        }));
       }
-
-      setTimeout(() => {
-        validateField("confirmPassword", predictedState);
-      }, 0);
     },
-    [formState, formErrors, touchedFields, validateField]
+    [formState, touchedFields]
   );
 
   const handleFieldBlur = useCallback(
