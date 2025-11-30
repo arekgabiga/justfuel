@@ -233,30 +233,6 @@ export const useNewCarForm = () => {
       let abortController: (() => void) | null = null;
 
       try {
-        // Get auth token
-        let token =
-          localStorage.getItem("auth_token") ||
-          document.cookie
-            .split("; ")
-            .find((row) => row.startsWith("auth_token="))
-            ?.split("=")[1];
-
-        if (!token && typeof window !== "undefined") {
-          const devToken = localStorage.getItem("dev_token");
-          if (devToken) {
-            token = devToken;
-          }
-        }
-
-        if (!token) {
-          setFormErrors({ submit: "Wymagane jest zalogowanie. Przekierowywanie..." });
-          if (typeof window !== "undefined") {
-            window.location.href = "/login";
-          }
-          setIsSubmitting(false);
-          return;
-        }
-
         // Prepare request body
         const requestBody: CreateCarCommand = {
           name: formState.name.trim(),
@@ -274,9 +250,9 @@ export const useNewCarForm = () => {
         const fetchRequest = abortableFetch("/api/cars", {
           method: "POST",
           headers: {
-            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
+          credentials: "include",
           body: JSON.stringify(requestBody),
         });
 
@@ -323,11 +299,11 @@ export const useNewCarForm = () => {
             setFormErrors(errors);
             nameInputRef.current?.focus();
           } else if (response.status === 401) {
-            // Unauthorized - redirect to login
-            setFormErrors({ submit: "Wymagana autoryzacja. Przekierowywanie..." });
+            // Unauthorized - session expired, redirect to login
+            setFormErrors({ submit: "Sesja wygasła. Przekierowywanie do logowania..." });
             if (typeof window !== "undefined") {
               setTimeout(() => {
-                window.location.href = "/login";
+                window.location.href = "/auth/login";
               }, 2000);
             }
             setIsSubmitting(false);

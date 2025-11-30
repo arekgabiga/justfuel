@@ -396,32 +396,6 @@ export const useNewFillupForm = ({ carId, initialInputMode = "odometer" }: UseNe
       let abortController: (() => void) | null = null;
 
       try {
-        // Get auth token
-        let token =
-          localStorage.getItem("auth_token") ||
-          document.cookie
-            .split("; ")
-            .find((row) => row.startsWith("auth_token="))
-            ?.split("=")[1];
-
-        if (!token && typeof window !== "undefined") {
-          const devToken = localStorage.getItem("dev_token");
-          if (devToken) {
-            token = devToken;
-          }
-        }
-
-        if (!token) {
-          setFormErrors({ submit: "Wymagane jest zalogowanie. Przekierowywanie..." });
-          if (typeof window !== "undefined") {
-            setTimeout(() => {
-              window.location.href = "/login";
-            }, 2000);
-          }
-          setIsSubmitting(false);
-          return;
-        }
-
         // Convert date from YYYY-MM-DD to ISO 8601
         const convertDateToISO = (date: string): string => {
           return new Date(date).toISOString();
@@ -444,9 +418,9 @@ export const useNewFillupForm = ({ carId, initialInputMode = "odometer" }: UseNe
         const fetchRequest = abortableFetch(`/api/cars/${carId}/fillups`, {
           method: "POST",
           headers: {
-            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
+          credentials: "include",
           body: JSON.stringify(requestBody),
         });
 
@@ -499,11 +473,11 @@ export const useNewFillupForm = ({ carId, initialInputMode = "odometer" }: UseNe
             setFormErrors(errors);
             dateInputRef.current?.focus();
           } else if (response.status === 401) {
-            // Unauthorized - redirect to login
-            setFormErrors({ submit: "Wymagana autoryzacja. Przekierowywanie..." });
+            // Unauthorized - session expired, redirect to login
+            setFormErrors({ submit: "Sesja wygasła. Przekierowywanie do logowania..." });
             if (typeof window !== "undefined") {
               setTimeout(() => {
-                window.location.href = "/login";
+                window.location.href = "/auth/login";
               }, 2000);
             }
             setIsSubmitting(false);

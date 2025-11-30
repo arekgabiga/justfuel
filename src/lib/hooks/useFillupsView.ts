@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import type { CarDetailsDTO, FillupDTO, PaginatedFillupsResponseDTO, PaginationDTO } from "../../types";
 
 /**
@@ -65,44 +65,6 @@ export const useFillupsView = (carId: string) => {
     initialLoading: true,
   });
 
-  const authTokenRef = useRef<string | null>(null);
-
-  /**
-   * Retrieves authentication token from localStorage or cookies
-   *
-   * Checks for:
-   * - localStorage.getItem("auth_token")
-   * - Cookie: "auth_token"
-   * - localStorage.getItem("dev_token") (development fallback)
-   *
-   * @returns Authentication token or null if not found
-   */
-  const getAuthToken = useCallback((): string | null => {
-    if (authTokenRef.current) {
-      return authTokenRef.current;
-    }
-
-    let token =
-      typeof window !== "undefined"
-        ? localStorage.getItem("auth_token") ||
-          document.cookie
-            .split("; ")
-            .find((row) => row.startsWith("auth_token="))
-            ?.split("=")[1]
-        : null;
-
-    // For development/testing: allow mock token
-    if (!token && typeof window !== "undefined") {
-      const devToken = localStorage.getItem("dev_token");
-      if (devToken) {
-        token = devToken;
-      }
-    }
-
-    authTokenRef.current = token;
-    return token;
-  }, []);
-
   /**
    * Fetches car details from the API
    *
@@ -115,24 +77,11 @@ export const useFillupsView = (carId: string) => {
     setState((prev) => ({ ...prev, carLoading: true, carError: null }));
 
     try {
-      const token = getAuthToken();
-
-      if (!token) {
-        setState((prev) => ({
-          ...prev,
-          carLoading: false,
-          carError: new Error(
-            "Wymagana autoryzacja. Dodaj token autoryzacji do localStorage (auth_token) lub zaloguj się."
-          ),
-        }));
-        return;
-      }
-
       const response = await fetch(`/api/cars/${carId}`, {
         headers: {
-          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
+        credentials: "include",
       });
 
       if (!response.ok) {
@@ -174,7 +123,7 @@ export const useFillupsView = (carId: string) => {
         carError: new Error(errorMessage),
       }));
     }
-  }, [carId, getAuthToken]);
+  }, [carId]);
 
   /**
    * Fetches fillups from the API with pagination support
@@ -190,17 +139,6 @@ export const useFillupsView = (carId: string) => {
       setState((prev) => ({ ...prev, fillupsLoading: true, fillupsError: null }));
 
       try {
-        const token = getAuthToken();
-
-        if (!token) {
-          setState((prev) => ({
-            ...prev,
-            fillupsLoading: false,
-            fillupsError: new Error("Wymagana autoryzacja"),
-          }));
-          return;
-        }
-
         const params = new URLSearchParams({
           limit: "20",
           sort: "date",
@@ -212,9 +150,9 @@ export const useFillupsView = (carId: string) => {
 
         const response = await fetch(`/api/cars/${carId}/fillups?${params}`, {
           headers: {
-            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
+          credentials: "include",
         });
 
         if (!response.ok) {
@@ -261,7 +199,7 @@ export const useFillupsView = (carId: string) => {
         }));
       }
     },
-    [carId, getAuthToken]
+    [carId]
   );
 
   /**

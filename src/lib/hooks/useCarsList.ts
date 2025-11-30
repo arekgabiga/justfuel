@@ -22,45 +22,6 @@ export const useCarsList = () => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
 
     try {
-      // Get auth token from localStorage or cookies
-      let token =
-        localStorage.getItem("auth_token") ||
-        document.cookie
-          .split("; ")
-          .find((row) => row.startsWith("auth_token="))
-          ?.split("=")[1];
-
-      // For development/testing: allow mock token
-      if (!token && typeof window !== "undefined") {
-        // Check for development mode
-        const devToken = localStorage.getItem("dev_token");
-        if (devToken) {
-          token = devToken;
-        }
-      }
-
-      if (!token) {
-        // Redirect to login when no token is present
-        if (typeof window !== "undefined") {
-          // Try to redirect to login page, or just prevent the error for now
-          const hasLoginPage = false; // Check if login page exists
-          if (!hasLoginPage) {
-            // For development: show error instead of redirect
-            setState((prev) => ({
-              ...prev,
-              loading: false,
-              error: new Error(
-                "Wymagana autoryzacja. Dodaj token autoryzacji do localStorage (auth_token) lub zaloguj się."
-              ),
-            }));
-            return;
-          }
-          window.location.href = "/login";
-          return;
-        }
-        throw new Error("Brak tokenu autoryzacji");
-      }
-
       const queryParams = new URLSearchParams({
         sort: sortBy,
         order: sortOrder,
@@ -68,16 +29,16 @@ export const useCarsList = () => {
 
       const response = await fetch(`/api/cars?${queryParams}`, {
         headers: {
-          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
+        credentials: "include",
       });
 
       if (!response.ok) {
         if (response.status === 401) {
-          // Redirect to login on auth error
+          // Redirect to login on auth error - session expired or missing
           if (typeof window !== "undefined") {
-            window.location.href = "/login";
+            window.location.href = "/auth/login";
           }
           return;
         }

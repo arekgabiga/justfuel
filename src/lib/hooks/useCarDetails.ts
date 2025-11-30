@@ -50,29 +50,6 @@ export const useCarDetails = (carId: string) => {
     chartError: null,
   });
 
-  // Get auth token
-  const getAuthToken = useCallback(() => {
-    if (typeof window === "undefined") return null;
-
-    const authToken = localStorage.getItem("auth_token");
-    const cookieToken = document.cookie
-      .split("; ")
-      .find((row) => row.startsWith("auth_token="))
-      ?.split("=")[1];
-    const devToken = localStorage.getItem("dev_token");
-
-    const token = authToken || cookieToken || devToken;
-
-    console.log("[useCarDetails] Auth tokens:", {
-      localStorage_auth_token: authToken ? "exists" : "missing",
-      cookie_auth_token: cookieToken ? "exists" : "missing",
-      localStorage_dev_token: devToken ? "exists" : "missing",
-      final_token: token ? `${token.substring(0, 20)}...` : "missing",
-    });
-
-    return token;
-  }, []);
-
   // Fetch car details
   const fetchCarDetails = useCallback(async () => {
     if (!carId) {
@@ -86,36 +63,24 @@ export const useCarDetails = (carId: string) => {
     });
 
     try {
-      const token = getAuthToken();
-
-      // Don't require token - API will use DEV_AUTH_FALLBACK if needed
       console.log("[useCarDetails] Fetching car:", carId);
 
-      // Build headers - only include Authorization if we have a valid token
-      const headers: Record<string, string> = {
-        "Content-Type": "application/json",
-      };
-
-      if (token) {
-        headers.Authorization = `Bearer ${token}`;
-      }
-
       const response = await fetch(`/api/cars/${carId}`, {
-        headers,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
       });
 
       console.log("[useCarDetails] API response:", response.status, response.statusText);
 
       if (!response.ok) {
         if (response.status === 401) {
-          console.error("[useCarDetails] Unauthorized - NOT redirecting (showing error instead)");
-          // Don't redirect, show error instead
+          console.error("[useCarDetails] Unauthorized - session missing or expired");
           setState((prev) => ({
             ...prev,
             loading: false,
-            error: new Error(
-              "Brak autoryzacji. Ustaw token w localStorage (kliknij /dev/set-token) lub włącz DEV_AUTH_FALLBACK=true"
-            ),
+            error: new Error("Wymagana autoryzacja. Zaloguj się ponownie."),
           }));
           return;
         }
@@ -161,7 +126,7 @@ export const useCarDetails = (carId: string) => {
         error: new Error(errorMessage),
       }));
     }
-  }, [carId, getAuthToken]);
+  }, [carId]);
 
   // Fetch fillups
   const fetchFillups = useCallback(
@@ -174,8 +139,6 @@ export const useCarDetails = (carId: string) => {
       });
 
       try {
-        const token = getAuthToken();
-
         const params = new URLSearchParams({
           limit: "20",
           sort: "date",
@@ -186,16 +149,11 @@ export const useCarDetails = (carId: string) => {
           params.append("cursor", cursor);
         }
 
-        const headers: Record<string, string> = {
-          "Content-Type": "application/json",
-        };
-
-        if (token) {
-          headers.Authorization = `Bearer ${token}`;
-        }
-
         const response = await fetch(`/api/cars/${carId}/fillups?${params}`, {
-          headers,
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
         });
 
         if (!response.ok) {
@@ -243,7 +201,7 @@ export const useCarDetails = (carId: string) => {
         }));
       }
     },
-    [carId, getAuthToken]
+    [carId]
   );
 
   // Fetch chart data
@@ -255,23 +213,16 @@ export const useCarDetails = (carId: string) => {
       const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 seconds timeout
 
       try {
-        const token = getAuthToken();
-
         const params = new URLSearchParams({
           type,
           limit: "50",
         });
 
-        const headers: Record<string, string> = {
-          "Content-Type": "application/json",
-        };
-
-        if (token) {
-          headers.Authorization = `Bearer ${token}`;
-        }
-
         const response = await fetch(`/api/cars/${carId}/charts?${params}`, {
-          headers,
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
           signal: controller.signal,
         });
 
@@ -339,7 +290,7 @@ export const useCarDetails = (carId: string) => {
         }));
       }
     },
-    [carId, getAuthToken]
+    [carId]
   );
 
   // Switch chart tab and fetch data
@@ -354,18 +305,12 @@ export const useCarDetails = (carId: string) => {
   // Update car
   const updateCar = useCallback(
     async (data: UpdateCarCommand) => {
-      const token = getAuthToken();
-
-      if (!token) {
-        throw new Error("Wymagana autoryzacja");
-      }
-
       const response = await fetch(`/api/cars/${carId}`, {
         method: "PATCH",
         headers: {
-          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify(data),
       });
 
@@ -394,24 +339,18 @@ export const useCarDetails = (carId: string) => {
         editDialogOpen: false,
       }));
     },
-    [carId, getAuthToken]
+    [carId]
   );
 
   // Delete car
   const deleteCar = useCallback(
     async (confirmation: DeleteCarCommand) => {
-      const token = getAuthToken();
-
-      if (!token) {
-        throw new Error("Wymagana autoryzacja");
-      }
-
       const response = await fetch(`/api/cars/${carId}`, {
         method: "DELETE",
         headers: {
-          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify(confirmation),
       });
 
@@ -432,7 +371,7 @@ export const useCarDetails = (carId: string) => {
         window.location.href = "/cars";
       }
     },
-    [carId, getAuthToken]
+    [carId]
   );
 
   // Tab management
