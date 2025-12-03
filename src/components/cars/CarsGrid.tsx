@@ -34,7 +34,7 @@ export const CarsGrid: React.FC<CarsGridProps> = ({ cars, onCarClick, loading = 
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" data-test-id="cars-grid">
       {cars.map((car) => (
         <CarCard
           key={car.id}

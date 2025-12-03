@@ -101,6 +101,7 @@ export const CarDetailsView: React.FC<CarDetailsViewProps> = ({ carId }) => {
       <div className="mb-8">
         <CarHeader car={car} onEdit={openEditDialog} onDelete={openDeleteDialog} onBack={handleBackToCars} />
       </div>
+
       <TabNavigation activeTab={activeMainTab} onTabChange={switchMainTab} />
 
       {activeMainTab === "fillups" && (

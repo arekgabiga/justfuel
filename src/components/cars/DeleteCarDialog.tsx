@@ -64,7 +64,7 @@ export const DeleteCarDialog: React.FC<DeleteCarDialogProps> = ({ car, isOpen, o
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" data-test-id="delete-car-dialog">
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6">
         <h2 className="text-2xl font-bold text-red-600 dark:text-red-400 mb-4">Usuń samochód</h2>
 
@@ -90,16 +90,17 @@ export const DeleteCarDialog: React.FC<DeleteCarDialogProps> = ({ car, isOpen, o
               }}
               placeholder={car.name}
               className="mt-1"
+              data-test-id="delete-car-confirmation-input"
             />
           </div>
 
           {error && <div className="text-sm text-red-600 dark:text-red-400">{error}</div>}
 
           <div className="flex gap-2 justify-end">
-            <Button type="button" variant="outline" onClick={onCancel} disabled={loading}>
+            <Button type="button" variant="outline" onClick={onCancel} disabled={loading} data-test-id="delete-car-cancel-button">
               Anuluj
             </Button>
-            <Button type="submit" disabled={!isConfirmButtonEnabled} className="bg-red-600 hover:bg-red-700 text-white">
+            <Button type="submit" disabled={!isConfirmButtonEnabled} className="bg-red-600 hover:bg-red-700 text-white" data-test-id="delete-car-confirm-button">
               {loading ? "Usuwanie..." : "Usuń samochód"}
             </Button>
           </div>

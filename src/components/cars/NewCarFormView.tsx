@@ -34,6 +34,7 @@ const NewCarFormView: React.FC = () => {
         onClick={handleCancel}
         className="flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors -ml-0.5"
         aria-label="Wróć do listy pojazdów"
+        data-test-id="back-to-cars-link"
       >
         <ArrowLeft className="h-4 w-4" />
         <span>Wróć do listy pojazdów</span>
@@ -48,7 +49,7 @@ const NewCarFormView: React.FC = () => {
       </header>
 
       {/* Form */}
-      <form onSubmit={handleSubmit} noValidate aria-label="Formularz dodawania nowego samochodu" className="space-y-6">
+      <form onSubmit={handleSubmit} noValidate aria-label="Formularz dodawania nowego samochodu" className="space-y-6" data-test-id="new-car-form">
         {/* Name field */}
         <div className="space-y-2">
           <Label htmlFor="name" aria-required="true">
@@ -78,6 +79,7 @@ const NewCarFormView: React.FC = () => {
             autoComplete="off"
             disabled={isSubmitting}
             className={touchedFields.has("name") && formErrors.name ? "border-destructive" : ""}
+            data-test-id="car-name-input"
             required
           />
           <p id="name-help" className="sr-only">
@@ -114,6 +116,7 @@ const NewCarFormView: React.FC = () => {
             autoComplete="off"
             disabled={isSubmitting}
             className={touchedFields.has("initialOdometer") && formErrors.initialOdometer ? "border-destructive" : ""}
+            data-test-id="car-initial-odometer-input"
           />
           <p id="initialOdometer-help" className="sr-only">
             Wprowadź początkowy stan licznika w kilometrach (opcjonalne)
@@ -157,6 +160,7 @@ const NewCarFormView: React.FC = () => {
                   ? "border-destructive"
                   : ""
               }
+              data-test-id="car-mileage-preference-select"
             >
               <SelectValue placeholder="Wybierz preferencję" />
             </SelectTrigger>
@@ -201,6 +205,7 @@ const NewCarFormView: React.FC = () => {
             className="flex-1 sm:flex-none min-w-[120px]"
             aria-busy={isSubmitting}
             aria-describedby={isSubmitting ? "submitting-status" : undefined}
+            data-test-id="save-car-button"
           >
             {isSubmitting ? "Zapisywanie..." : "Zapisz"}
           </Button>
@@ -217,6 +222,7 @@ const NewCarFormView: React.FC = () => {
             size="lg"
             className="flex-1 sm:flex-none min-w-[120px]"
             aria-label="Anuluj i wróć do listy samochodów"
+            data-test-id="cancel-car-button"
           >
             Anuluj
           </Button>

@@ -19,7 +19,7 @@ interface CarStatisticsProps {
 
 export const CarStatistics: React.FC<CarStatisticsProps> = ({ statistics }) => {
   return (
-    <div className="space-y-3">
+    <div className="space-y-3" data-test-id="car-statistics-container">
       <AverageConsumption 
         value={statistics.average_consumption} 
         average={statistics.average_consumption} 

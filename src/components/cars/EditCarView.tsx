@@ -84,6 +84,7 @@ const EditCarView: React.FC<EditCarViewProps> = ({ carId }) => {
         className="flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors -ml-0.5"
         aria-label="Wróć do szczegółów auta"
         disabled={isSubmitting || isDeleting}
+        data-test-id="back-to-car-details-link"
       >
         <ArrowLeft className="h-4 w-4" />
         <span>Wróć do szczegółów auta</span>
@@ -96,7 +97,13 @@ const EditCarView: React.FC<EditCarViewProps> = ({ carId }) => {
       </header>
 
       {/* Form */}
-      <form onSubmit={handleSubmit} noValidate aria-label="Formularz edycji samochodu" className="space-y-6">
+      <form
+        onSubmit={handleSubmit}
+        noValidate
+        aria-label="Formularz edycji samochodu"
+        className="space-y-6"
+        data-test-id="edit-car-form"
+      >
         {/* Name field */}
         <div className="space-y-2">
           <Label htmlFor="name" aria-required="true">
@@ -126,6 +133,7 @@ const EditCarView: React.FC<EditCarViewProps> = ({ carId }) => {
             autoComplete="off"
             disabled={isSubmitting || isDeleting}
             className={touchedFields.has("name") && formErrors.name ? "border-destructive" : ""}
+            data-test-id="edit-car-name-input"
             required
           />
           <p id="name-help" className="sr-only">
@@ -170,6 +178,7 @@ const EditCarView: React.FC<EditCarViewProps> = ({ carId }) => {
                   ? "border-destructive"
                   : ""
               }
+              data-test-id="edit-car-mileage-preference-select"
             >
               <SelectValue placeholder="Wybierz preferencję" />
             </SelectTrigger>
@@ -214,6 +223,7 @@ const EditCarView: React.FC<EditCarViewProps> = ({ carId }) => {
             className="flex-1 sm:flex-none min-w-[120px]"
             aria-busy={isSubmitting}
             aria-describedby={isSubmitting ? "submitting-status" : undefined}
+            data-test-id="edit-car-save-button"
           >
             {isSubmitting ? "Zapisywanie..." : "Zapisz"}
           </Button>
@@ -230,6 +240,7 @@ const EditCarView: React.FC<EditCarViewProps> = ({ carId }) => {
             size="lg"
             className="flex-1 sm:flex-none min-w-[120px]"
             aria-label="Anuluj i wróć do szczegółów samochodu"
+            data-test-id="edit-car-cancel-button"
           >
             Anuluj
           </Button>
@@ -241,6 +252,7 @@ const EditCarView: React.FC<EditCarViewProps> = ({ carId }) => {
             size="lg"
             className="flex-1 sm:flex-none min-w-[140px] text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 border-red-600 dark:border-red-400 hover:bg-red-50 dark:hover:bg-red-950"
             aria-label="Usuń samochód i wszystkie powiązane tankowania"
+            data-test-id="edit-car-delete-button"
           >
             <Trash2 className="h-4 w-4 mr-2" aria-hidden="true" />
             Usuń samochód

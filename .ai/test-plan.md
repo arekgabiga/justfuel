@@ -330,10 +330,12 @@ Plan testów obejmuje:
 1. Logowanie
 2. Dodanie nowego samochodu
 3. Edycja nazwy samochodu
-4. Wyświetlenie szczegółów samochodu
-5. Dodanie kilku tankowań
-6. Weryfikacja aktualizacji statystyk
-7. Usunięcie samochodu (z potwierdzeniem)
+4. Przełączenie na tryb "distance"
+5. Wyświetlenie szczegółów samochodu
+6. Dodanie kilku tankowań
+7. Weryfikacja obliczenia spalania i ceny za litr
+8. Weryfikacja aktualizacji statystyk
+9. Usunięcie samochodu (z potwierdzeniem)
 
 **Scenariusz 3: Zarządzanie Tankowaniami - Metoda Odometer**
 

@@ -46,6 +46,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ redirectUrl = '/' }) => {
             autoComplete="email"
             aria-invalid={touchedFields.has('email') && !!formErrors.email}
             aria-describedby={touchedFields.has('email') && formErrors.email ? 'email-error' : undefined}
+            data-test-id="login-email-input"
             required
           />
           {touchedFields.has('email') && formErrors.email && (
@@ -68,6 +69,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ redirectUrl = '/' }) => {
             autoComplete="current-password"
             aria-invalid={touchedFields.has('password') && !!formErrors.password}
             aria-describedby={touchedFields.has('password') && formErrors.password ? 'password-error' : undefined}
+            data-test-id="login-password-input"
             required
           />
           {touchedFields.has('password') && formErrors.password && (
@@ -82,6 +84,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ redirectUrl = '/' }) => {
             type="submit"
             disabled={isSubmitting}
             className="w-full"
+            data-test-id="login-submit-button"
           >
             {isSubmitting ? 'Logowanie...' : 'Zaloguj się'}
           </Button>

@@ -85,7 +85,7 @@ const NewFillupView: React.FC<NewFillupViewProps> = ({ carId, initialInputMode =
         <p className="text-gray-600 dark:text-gray-400 mt-2">Wypełnij formularz, aby dodać nowe tankowanie</p>
       </header>
       {/* Form */}
-      <form onSubmit={handleSubmit} noValidate aria-label="Formularz dodawania nowego tankowania" className="space-y-6">
+      <form onSubmit={handleSubmit} noValidate aria-label="Formularz dodawania nowego tankowania" className="space-y-6" data-test-id="new-fillup-form">
         {/* Date field */}
         <div className="space-y-2">
           <Label htmlFor="date" aria-required="true">
@@ -113,6 +113,7 @@ const NewFillupView: React.FC<NewFillupViewProps> = ({ carId, initialInputMode =
             aria-required="true"
             disabled={isSubmitting}
             className={touchedFields.has("date") && formErrors.date ? "border-destructive" : ""}
+            data-test-id="fillup-date-input"
             required
           />
           <p id="date-help" className="sr-only">
@@ -155,6 +156,7 @@ const NewFillupView: React.FC<NewFillupViewProps> = ({ carId, initialInputMode =
             autoComplete="off"
             disabled={isSubmitting}
             className={touchedFields.has("fuelAmount") && formErrors.fuelAmount ? "border-destructive" : ""}
+            data-test-id="fillup-fuel-amount-input"
             required
           />
           <p id="fuelAmount-help" className="sr-only">
@@ -197,6 +199,7 @@ const NewFillupView: React.FC<NewFillupViewProps> = ({ carId, initialInputMode =
             autoComplete="off"
             disabled={isSubmitting}
             className={touchedFields.has("totalPrice") && formErrors.totalPrice ? "border-destructive" : ""}
+            data-test-id="fillup-total-price-input"
             required
           />
           <p id="totalPrice-help" className="sr-only">
@@ -238,6 +241,7 @@ const NewFillupView: React.FC<NewFillupViewProps> = ({ carId, initialInputMode =
               }
               aria-required="true"
               className={touchedFields.has("inputMode") && formErrors.inputMode ? "border-destructive" : ""}
+              data-test-id="fillup-input-mode-select"
             >
               <SelectValue placeholder="Wybierz tryb" />
             </SelectTrigger>
@@ -287,6 +291,7 @@ const NewFillupView: React.FC<NewFillupViewProps> = ({ carId, initialInputMode =
               autoComplete="off"
               disabled={isSubmitting}
               className={touchedFields.has("odometer") && formErrors.odometer ? "border-destructive" : ""}
+              data-test-id="fillup-odometer-input"
               required
             />
             <p id="odometer-help" className="sr-only">
@@ -330,6 +335,7 @@ const NewFillupView: React.FC<NewFillupViewProps> = ({ carId, initialInputMode =
               autoComplete="off"
               disabled={isSubmitting}
               className={touchedFields.has("distance") && formErrors.distance ? "border-destructive" : ""}
+              data-test-id="fillup-distance-input"
               required
             />
             <p id="distance-help" className="sr-only">
@@ -349,6 +355,7 @@ const NewFillupView: React.FC<NewFillupViewProps> = ({ carId, initialInputMode =
             className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md p-4"
             role="alert"
             aria-live="polite"
+            data-test-id="fillup-warnings-container"
           >
             <div className="flex items-start gap-2">
               <AlertTriangle
@@ -400,6 +407,7 @@ const NewFillupView: React.FC<NewFillupViewProps> = ({ carId, initialInputMode =
             className="flex-1 sm:flex-none min-w-[120px]"
             aria-busy={isSubmitting}
             aria-describedby={isSubmitting ? "submitting-status" : undefined}
+            data-test-id="save-fillup-button"
           >
             {isSubmitting ? "Zapisywanie..." : "Zapisz"}
           </Button>
@@ -416,6 +424,7 @@ const NewFillupView: React.FC<NewFillupViewProps> = ({ carId, initialInputMode =
             size="lg"
             className="flex-1 sm:flex-none min-w-[120px]"
             aria-label="Anuluj i wróć do listy tankowań"
+            data-test-id="cancel-fillup-button"
           >
             Anuluj
           </Button>

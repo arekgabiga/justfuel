@@ -16,7 +16,7 @@ export const CarsListHeader: React.FC<CarsListHeaderProps> = ({ onAddCar }) => {
           <p className="text-gray-600 dark:text-gray-400 mt-2">Zarządzaj swoimi samochodami i śledź zużycie paliwa</p>
         </div>
 
-        <Button onClick={onAddCar} className="flex items-center gap-2" size="lg">
+        <Button onClick={onAddCar} className="flex items-center gap-2" size="lg" data-test-id="add-car-button">
           <Plus className="h-4 w-4" />
           Dodaj samochód
         </Button>
