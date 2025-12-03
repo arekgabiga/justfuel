@@ -17,8 +17,20 @@ export default defineConfig({
   },
   projects: [
     {
+      name: "setup db",
+      testDir: "./tests",
+      testMatch: "global.setup.ts",
+      teardown: "cleanup db",
+    },
+    {
+      name: "cleanup db",
+      testDir: "./tests",
+      testMatch: "global.teardown.ts",
+    },
+    {
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
+      dependencies: ["setup db"],
     },
   ],
   webServer: {
