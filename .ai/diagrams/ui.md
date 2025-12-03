@@ -7,12 +7,14 @@
 ### 1. Strony Astro (Server-side)
 
 **Nowe strony autentykacji:**
+
 - `src/pages/login.astro` - Strona logowania użytkownika (publiczna)
 - `src/pages/register.astro` - Strona rejestracji nowego użytkownika (publiczna)
 - `src/pages/forgot-password.astro` - Strona żądania resetowania hasła (opcjonalna, poza MVP)
 - `src/pages/reset-password.astro` - Strona resetowania hasła z tokenem (opcjonalna, poza MVP)
 
 **Modyfikowane strony:**
+
 - `src/pages/index.astro` - Główna strona z listą samochodów (wymaga autoryzacji)
 - `src/pages/cars.astro` - Strona listy samochodów (wymaga autoryzacji)
 - `src/pages/cars/[carId].astro` - Strona szczegółów samochodu (wymaga autoryzacji)
@@ -22,14 +24,17 @@
 ### 2. Layouty Astro
 
 **Nowe layouty:**
+
 - `src/layouts/AuthLayout.astro` - Layout dedykowany dla stron autentykacji (minimalistyczny, bez nawigacji)
 
 **Modyfikowane layouty:**
+
 - `src/layouts/Layout.astro` - Główny layout aplikacji (dodanie komponentu AuthHeader)
 
 ### 3. Komponenty React (Client-side)
 
 **Nowe komponenty autentykacji:**
+
 - `src/components/auth/LoginForm.tsx` - Formularz logowania z walidacją
 - `src/components/auth/RegisterForm.tsx` - Formularz rejestracji z walidacją
 - `src/components/auth/AuthHeader.tsx` - Nagłówek z przyciskiem wylogowania
@@ -39,11 +44,13 @@
 - `src/components/auth/ResetPasswordForm.tsx` - Formularz resetowania hasła (opcjonalny)
 
 **Istniejące komponenty (wymagają modyfikacji):**
+
 - `src/components/cars/CarsListView.tsx` - Usunięcie logiki localStorage, użycie useAuth hook
 
 ### 4. Custom Hooks React
 
 **Nowe hooki:**
+
 - `src/lib/hooks/useLoginForm.ts` - Logika formularza logowania (stan, walidacja, submit)
 - `src/lib/hooks/useRegisterForm.ts` - Logika formularza rejestracji (stan, walidacja, submit)
 - `src/lib/hooks/useAuth.ts` - Globalny hook zarządzania stanem autoryzacji (user, login, logout, refreshSession)
@@ -51,6 +58,7 @@
 - `src/lib/hooks/useResetPasswordForm.ts` - Logika formularza resetowania hasła (opcjonalny)
 
 **Istniejące hooki (wymagają modyfikacji):**
+
 - `src/lib/hooks/useCarsList.ts` - Usunięcie logiki localStorage, użycie useAuth
 - `src/lib/hooks/useCarDetails.ts` - Usunięcie logiki localStorage, użycie useAuth
 - `src/lib/hooks/useFillupsView.ts` - Usunięcie logiki localStorage, użycie useAuth
@@ -62,6 +70,7 @@
 ### 5. Endpointy API
 
 **Nowe endpointy autentykacji:**
+
 - `src/pages/api/auth/login.ts` - POST - Logowanie użytkownika
 - `src/pages/api/auth/register.ts` - POST - Rejestracja nowego użytkownika
 - `src/pages/api/auth/logout.ts` - POST - Wylogowanie użytkownika
@@ -70,6 +79,7 @@
 - `src/pages/api/auth/reset-password.ts` - POST - Resetowanie hasła z tokenem (opcjonalny)
 
 **Modyfikowane endpointy:**
+
 - `src/pages/api/cars.ts` - Zastąpienie DEFAULT_USER_ID przez requireAuth()
 - `src/pages/api/cars/[carId].ts` - Zastąpienie DEFAULT_USER_ID przez requireAuth()
 - `src/pages/api/cars/[carId]/fillups.ts` - Zastąpienie DEFAULT_USER_ID przez requireAuth()
@@ -80,17 +90,21 @@
 ### 6. Serwisy i walidacja
 
 **Nowe serwisy:**
+
 - `src/lib/services/auth.service.ts` - Funkcje autentykacji (loginUser, registerUser, logoutUser, getUserFromToken, refreshSession)
 
 **Nowa walidacja:**
+
 - `src/lib/validation/auth.ts` - Schematy Zod dla autentykacji (loginSchema, registerSchema)
 
 **Nowe utils:**
+
 - `src/lib/utils/auth.ts` - Helper funkcje (getUserFromRequest, requireAuth)
 
 ### 7. Middleware
 
 **Modyfikowany middleware:**
+
 - `src/middleware/index.ts` - Rozszerzenie o logikę sprawdzania autoryzacji, przekierowania, ustawianie context.locals.user i context.locals.isAuthenticated
 
 ### 8. Przepływ danych
@@ -113,6 +127,7 @@ Użytkownik → AuthHeader → useAuth → POST /api/auth/logout → auth.servic
 </architecture_analysis>
 
 <mermaid_diagram>
+
 ```mermaid
 flowchart TD
     subgraph "Strony Publiczne Autentykacji"
@@ -324,4 +339,3 @@ flowchart TD
 ```
 
 </mermaid_diagram>
-

@@ -1,15 +1,15 @@
-import React from "react";
-import { render } from "@testing-library/react";
-import type { RenderOptions } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import { vi } from "vitest";
-import type { CarWithStatisticsDTO, CarDetailsDTO, FillupDTO, ValidationWarningDTO } from "./types";
+import React from 'react';
+import { render } from '@testing-library/react';
+import type { RenderOptions } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { vi } from 'vitest';
+import type { CarWithStatisticsDTO, CarDetailsDTO, FillupDTO, ValidationWarningDTO } from './types';
 
 /**
  * Custom render function with providers
  * Add any global providers here (ThemeProvider, etc.) if needed
  */
-export function customRender(ui: React.ReactElement, options?: Omit<RenderOptions, "wrapper">) {
+export function customRender(ui: React.ReactElement, options?: Omit<RenderOptions, 'wrapper'>) {
   return render(ui, { ...options });
 }
 
@@ -24,10 +24,9 @@ export function setupUser() {
  * Mock window.location.href for navigation tests
  */
 export function mockWindowLocation() {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   delete (window as any).location;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  window.location = { href: "" } as any;
+
+  window.location = { href: '' } as any;
 }
 
 /**
@@ -41,7 +40,6 @@ export function setupLocalStorage() {
     clear: vi.fn(),
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   global.localStorage = localStorageMock as any;
 
   return localStorageMock;
@@ -52,10 +50,10 @@ export function setupLocalStorage() {
  */
 export function createMockCar(overrides: Partial<CarWithStatisticsDTO> = {}): CarWithStatisticsDTO {
   return {
-    id: "test-car-id",
-    name: "Test Car",
+    id: 'test-car-id',
+    name: 'Test Car',
     initial_odometer: 50000,
-    mileage_input_preference: "odometer" as const,
+    mileage_input_preference: 'odometer' as const,
     statistics: {
       total_fuel_cost: 1500,
       total_fuel_amount: 300,
@@ -74,7 +72,7 @@ export function createMockCar(overrides: Partial<CarWithStatisticsDTO> = {}): Ca
 export function createMockCarDetails(overrides: Partial<CarDetailsDTO> = {}): CarDetailsDTO {
   return {
     ...createMockCar(overrides),
-    created_at: "2024-01-01T00:00:00Z",
+    created_at: '2024-01-01T00:00:00Z',
   };
 }
 
@@ -83,9 +81,9 @@ export function createMockCarDetails(overrides: Partial<CarDetailsDTO> = {}): Ca
  */
 export function createMockFillup(overrides: Partial<FillupDTO> = {}): FillupDTO {
   return {
-    id: "test-fillup-id",
-    car_id: "test-car-id",
-    date: "2024-01-15T10:00:00Z",
+    id: 'test-fillup-id',
+    car_id: 'test-car-id',
+    date: '2024-01-15T10:00:00Z',
     fuel_amount: 45.5,
     total_price: 227.5,
     odometer: 55000,
@@ -104,5 +102,5 @@ export function createMockWarning(field: string, message: string): ValidationWar
 }
 
 // Re-export everything from @testing-library/react
-export * from "@testing-library/react";
+export * from '@testing-library/react';
 export { userEvent };

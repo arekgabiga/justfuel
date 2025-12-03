@@ -1,5 +1,5 @@
-import { test as setup } from "@playwright/test";
+import { test as setup } from '@playwright/test';
 
-setup("create new database", async () => {
+setup('create new database', async () => {
   // Global setup running...
 });

@@ -1,6 +1,6 @@
-import type { ChartDataDTO, ChartDataPointDTO, ChartMetadataDTO } from "../../types.ts";
-import type { ChartQueryInput } from "../validation/charts.ts";
-import type { AppSupabaseClient } from "../../db/supabase.client.ts";
+import type { ChartDataDTO, ChartDataPointDTO, ChartMetadataDTO } from '../../types.ts';
+import type { ChartQueryInput } from '../validation/charts.ts';
+import type { AppSupabaseClient } from '../../db/supabase.client.ts';
 
 /**
  * Gets chart data for a specific car and chart type
@@ -36,10 +36,10 @@ export async function getChartData(
 ): Promise<ChartDataDTO | null> {
   // First, verify the car exists and belongs to the user
   const { data: car, error: carError } = await supabase
-    .from("cars")
-    .select("id")
-    .eq("id", carId)
-    .eq("user_id", userId)
+    .from('cars')
+    .select('id')
+    .eq('id', carId)
+    .eq('user_id', userId)
     .limit(1)
     .maybeSingle();
 
@@ -53,18 +53,18 @@ export async function getChartData(
 
   // Build the query for fillups data
   let fillupsQuery = supabase
-    .from("fillups")
-    .select("date, odometer, fuel_consumption, price_per_liter, distance_traveled")
-    .eq("car_id", carId)
-    .order("date", { ascending: false })
+    .from('fillups')
+    .select('date, odometer, fuel_consumption, price_per_liter, distance_traveled')
+    .eq('car_id', carId)
+    .order('date', { ascending: false })
     .limit(params.limit);
 
   // Apply date filters if provided
   if (params.start_date) {
-    fillupsQuery = fillupsQuery.gte("date", params.start_date);
+    fillupsQuery = fillupsQuery.gte('date', params.start_date);
   }
   if (params.end_date) {
-    fillupsQuery = fillupsQuery.lte("date", params.end_date);
+    fillupsQuery = fillupsQuery.lte('date', params.end_date);
   }
 
   const { data: fillups, error: fillupsError } = await fillupsQuery;
@@ -95,13 +95,13 @@ export async function getChartData(
     let value: number | null = null;
 
     switch (params.type) {
-      case "consumption":
+      case 'consumption':
         value = fillup.fuel_consumption;
         break;
-      case "price_per_liter":
+      case 'price_per_liter':
         value = fillup.price_per_liter;
         break;
-      case "distance":
+      case 'distance':
         value = fillup.distance_traveled;
         break;
     }

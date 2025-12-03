@@ -2,8 +2,8 @@
 import AuthLayout from '../../layouts/AuthLayout.astro';
 import LoginForm from '../../components/auth/LoginForm.tsx';
 
-const title = "Logowanie - JustFuel";
-const description = "Zaloguj się do swojego konta JustFuel";
+const title = 'Logowanie - JustFuel';
+const description = 'Zaloguj się do swojego konta JustFuel';
 
 // Check if user is already logged in
 if (Astro.locals.isAuthenticated && Astro.locals.user) {
@@ -19,4 +19,3 @@ const redirectParam = Astro.url.searchParams.get('redirect') || '/';
 <AuthLayout title={title} description={description}>
   <LoginForm client:load redirectUrl={redirectParam} />
 </AuthLayout>
-

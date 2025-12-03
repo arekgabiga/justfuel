@@ -204,7 +204,7 @@ EditCarView (React Component)
 ### UpdateCarCommand (Request DTO)
 
 ```typescript
-type UpdateCarCommand = Partial<Pick<Car, "name" | "mileage_input_preference">>;
+type UpdateCarCommand = Partial<Pick<Car, 'name' | 'mileage_input_preference'>>;
 ```
 
 **Opis:** Typ przedstawiający dane żądania aktualizacji samochodu. Wszystkie pola są opcjonalne - podaje się tylko te, które mają zostać zaktualizowane.
@@ -243,7 +243,7 @@ type CarDetailsDTO = CarWithStatisticsDTO & { created_at: string };
 ```typescript
 interface EditCarFormState {
   name: string;
-  mileageInputPreference: "odometer" | "distance";
+  mileageInputPreference: 'odometer' | 'distance';
 }
 ```
 

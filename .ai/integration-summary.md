@@ -1,6 +1,7 @@
 # Podsumowanie integracji logowania - JustFuel
 
 ## Data: 2025-01-XX
+
 ## Status: W trakcie implementacji
 
 ---
@@ -8,6 +9,7 @@
 ## 📋 Przegląd wykonanych zadań
 
 ### ✅ 1. Instalacja i konfiguracja Supabase SSR
+
 - **Zainstalowano**: `@supabase/ssr`
 - **Zaktualizowano**: `src/db/supabase.client.ts`
   - Dodano `createSupabaseServerInstance()` z obsługą cookies
@@ -16,6 +18,7 @@
   - `httpOnly: true` dla ochrony przed XSS
 
 ### ✅ 2. Reorganizacja struktur stron
+
 - **Przeniesiono strony**:
   - `/login` → `/auth/login`
   - `/register` → `/auth/register`
@@ -23,6 +26,7 @@
 - **Zaktualizowano linki** w komponentach (`LoginForm`, `RegisterForm`)
 
 ### ✅ 3. Serwis autoryzacji (`src/lib/services/auth.service.ts`)
+
 - **Funkcje**:
   - `loginUser()` - logowanie użytkownika
   - `registerUser()` - rejestracja z automatycznym logowaniem
@@ -35,16 +39,19 @@
   - `SupabaseAuthError` → ogólne błędy autentykacji
 
 ### ✅ 4. Helper funkcje (`src/lib/utils/auth.ts`)
+
 - **`getUserFromRequest()`** - pobiera użytkownika z requestu (może zwrócić null)
 - **`requireAuth()`** - wymusza autoryzację, zwraca błąd 401 jeśli użytkownik niezalogowany
 
 ### ✅ 5. Endpoint API logowania (`src/pages/api/auth/login.ts`)
+
 - **Metoda**: `POST /api/auth/login`
 - **Walidacja**: Zod schema dla email i password
 - **Obsługa błędów**: Mapowanie błędów Supabase na komunikaty po polsku
 - **Sesja**: Automatyczne zapisywanie w HTTP-only cookies przez `@supabase/ssr`
 
 ### ✅ 6. Middleware autoryzacji (`src/middleware/index.ts`)
+
 - **Publiczne ścieżki**:
   - `/auth/login`
   - `/auth/register`
@@ -56,6 +63,7 @@
   - Tworzenie instancji Supabase z obsługą cookies
 
 ### ✅ 7. Integracja frontend
+
 - **`useLoginForm` hook** (`src/lib/hooks/useLoginForm.ts`):
   - Wywołanie API `/api/auth/login`
   - Obsługa parametru `redirect` po zalogowaniu
@@ -68,12 +76,14 @@
   - Przekazywanie parametru `redirect` do komponentu
 
 ### ✅ 8. Aktualizacja typów TypeScript
+
 - **`src/env.d.ts`**:
   - Dodano `user?: { id: string; email?: string }` do `App.Locals`
   - Dodano `isAuthenticated?: boolean` do `App.Locals`
   - Usunięto `DEV_AUTH_FALLBACK` z typów środowiskowych
 
 ### ✅ 9. Aktualizacja endpointów API (częściowo)
+
 - **Zaktualizowane**:
   - ✅ `/api/cars` (GET, POST)
   - ✅ `/api/cars/[carId]` (GET, PATCH, DELETE)
@@ -92,32 +102,36 @@
 Następujące endpointy wymagają aktualizacji do użycia `requireAuth()`:
 
 #### `/api/cars/[carId]/fillups.ts`
+
 - [ ] GET - lista tankowań
 - [ ] POST - dodanie tankowania
 
 #### `/api/cars/[carId]/fillups/[fillupId].ts`
+
 - [ ] GET - szczegóły tankowania
 - [ ] PATCH - edycja tankowania
 - [ ] DELETE - usunięcie tankowania
 
 #### `/api/cars/[carId]/charts.ts`
+
 - [ ] GET - dane wykresów
 
 #### `/api/cars/[carId]/statistics.ts`
+
 - [ ] GET - statystyki samochodu
 
 **Wzorzec aktualizacji** (dla każdego endpointu):
 
 ```typescript
 // 1. Dodać import
-import { requireAuth } from "../../../lib/utils/auth.ts"; // (dostosować ścieżkę)
+import { requireAuth } from '../../../lib/utils/auth.ts'; // (dostosować ścieżkę)
 
 // 2. Usunąć import DEFAULT_USER_ID
 // import { DEFAULT_USER_ID } from "../../../db/supabase.client.ts"; // USUNĄĆ
 
 // 3. Na początku funkcji endpointu:
 export const GET: APIRoute = async (context) => {
-  const requestId = context.request.headers.get("x-request-id") ?? undefined;
+  const requestId = context.request.headers.get('x-request-id') ?? undefined;
 
   try {
     // Require authentication
@@ -130,7 +144,6 @@ export const GET: APIRoute = async (context) => {
     }
 
     // ... reszta logiki używając userId
-
   } catch (error) {
     // Handle auth errors (thrown by requireAuth)
     if (error instanceof Response) {
@@ -150,6 +163,7 @@ export const GET: APIRoute = async (context) => {
 ### ⚠️ 2. Usunięcie nieużywanych eksportów
 
 Po zaktualizowaniu wszystkich endpointów:
+
 - [ ] Sprawdzić czy `DEFAULT_USER_ID` jest jeszcze używany gdziekolwiek
 - [ ] Jeśli nie, można go usunąć z `src/db/supabase.client.ts` (lub zostawić jako komentarz dla historii)
 
@@ -207,16 +221,19 @@ Po zaktualizowaniu wszystkich endpointów:
 ## 📝 Uwagi techniczne
 
 ### Konfiguracja cookies
+
 - `secure: import.meta.env.PROD` - cookies będą secure tylko w produkcji
 - `sameSite: 'lax'` - pozwala na cross-site requests (np. z innych domen)
 - `httpOnly: true` - ochrona przed XSS (JavaScript nie ma dostępu)
 
 ### Middleware
+
 - Middleware sprawdza autoryzację przed renderowaniem każdej strony
 - Publiczne ścieżki są pomijane w sprawdzaniu
 - Niezalogowani użytkownicy są automatycznie przekierowywani
 
 ### Bezpieczeństwo
+
 - Wszystkie endpointy API wymagają autoryzacji (po aktualizacji pozostałych)
 - Tokeny są przechowywane w HTTP-only cookies (nie w localStorage)
 - RLS (Row-Level Security) w Supabase zapewnia izolację danych użytkowników
@@ -236,6 +253,7 @@ Po zaktualizowaniu wszystkich endpointów:
 ## 📚 Pliki utworzone/zmodyfikowane
 
 ### Nowe pliki:
+
 - `src/lib/services/auth.service.ts`
 - `src/lib/utils/auth.ts`
 - `src/pages/api/auth/login.ts`
@@ -243,6 +261,7 @@ Po zaktualizowaniu wszystkich endpointów:
 - `src/pages/auth/register.astro` (przeniesiony)
 
 ### Zmodyfikowane pliki:
+
 - `src/db/supabase.client.ts`
 - `src/middleware/index.ts`
 - `src/env.d.ts`
@@ -252,6 +271,7 @@ Po zaktualizowaniu wszystkich endpointów:
 - `src/pages/api/cars/[carId].ts`
 
 ### Pliki do modyfikacji:
+
 - `src/pages/api/cars/[carId]/fillups.ts`
 - `src/pages/api/cars/[carId]/fillups/[fillupId].ts`
 - `src/pages/api/cars/[carId]/charts.ts`
@@ -259,5 +279,4 @@ Po zaktualizowaniu wszystkich endpointów:
 
 ---
 
-*Ostatnia aktualizacja: 2025-01-XX*
-
+_Ostatnia aktualizacja: 2025-01-XX_

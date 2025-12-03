@@ -1,5 +1,5 @@
-import React from "react";
-import { Info } from "lucide-react";
+import React from 'react';
+import { Info } from 'lucide-react';
 
 /**
  * EmptyChartState component displays a message when there is insufficient data to render a chart
@@ -12,9 +12,7 @@ export const EmptyChartState: React.FC = () => {
         <Info className="h-8 w-8 text-blue-600 dark:text-blue-400" />
       </div>
 
-      <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-        Za mało danych
-      </h3>
+      <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">Za mało danych</h3>
 
       <p className="text-gray-600 dark:text-gray-400 max-w-md mx-auto">
         Za mało danych do wyświetlenia wykresu. Wymagane minimum 2 tankowania.
@@ -22,5 +20,3 @@ export const EmptyChartState: React.FC = () => {
     </div>
   );
 };
-
-

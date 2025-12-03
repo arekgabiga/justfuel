@@ -1,12 +1,12 @@
-import { useState, useEffect, useCallback } from "react";
-import type { CarWithStatisticsDTO } from "../../types";
+import { useState, useEffect, useCallback } from 'react';
+import type { CarWithStatisticsDTO } from '../../types';
 
 interface CarsListState {
   loading: boolean;
   error: Error | null;
   cars: CarWithStatisticsDTO[];
-  sortBy: "name" | "created_at";
-  sortOrder: "asc" | "desc";
+  sortBy: 'name' | 'created_at';
+  sortOrder: 'asc' | 'desc';
 }
 
 export const useCarsList = () => {
@@ -14,8 +14,8 @@ export const useCarsList = () => {
     loading: true,
     error: null,
     cars: [],
-    sortBy: "name",
-    sortOrder: "asc",
+    sortBy: 'name',
+    sortOrder: 'asc',
   });
 
   const fetchCars = useCallback(async (sortBy: string, sortOrder: string) => {
@@ -29,29 +29,29 @@ export const useCarsList = () => {
 
       const response = await fetch(`/api/cars?${queryParams}`, {
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-        credentials: "include",
+        credentials: 'include',
       });
 
       if (!response.ok) {
         if (response.status === 401) {
           // Redirect to login on auth error - session expired or missing
-          if (typeof window !== "undefined") {
-            window.location.href = "/auth/login";
+          if (typeof window !== 'undefined') {
+            window.location.href = '/auth/login';
           }
           return;
         }
 
         // Handle different error types
         if (response.status === 403) {
-          throw new Error("Brak uprawnień do przeglądania samochodów");
+          throw new Error('Brak uprawnień do przeglądania samochodów');
         }
         if (response.status === 404) {
-          throw new Error("Endpoint nie został znaleziony");
+          throw new Error('Endpoint nie został znaleziony');
         }
         if (response.status >= 500) {
-          throw new Error("Wystąpił błąd serwera. Spróbuj ponownie za chwilę.");
+          throw new Error('Wystąpił błąd serwera. Spróbuj ponownie za chwilę.');
         }
 
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -60,15 +60,14 @@ export const useCarsList = () => {
       const data = await response.json();
 
       // Validate response data
-      if (!data || typeof data !== "object") {
-        throw new Error("Nieprawidłowa odpowiedź z serwera");
+      if (!data || typeof data !== 'object') {
+        throw new Error('Nieprawidłowa odpowiedź z serwera');
       }
 
       if (!Array.isArray(data.data)) {
         // Log warning only in development
-        if (process.env.NODE_ENV === "development") {
-          // eslint-disable-next-line no-console
-          console.warn("Oczekiwano tablicy samochodów, otrzymano:", typeof data.data);
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('Oczekiwano tablicy samochodów, otrzymano:', typeof data.data);
         }
         setState((prev) => ({
           ...prev,
@@ -83,17 +82,16 @@ export const useCarsList = () => {
       const validCars = data.data.filter((car: CarWithStatisticsDTO) => {
         return (
           car &&
-          typeof car.id === "string" &&
-          typeof car.name === "string" &&
+          typeof car.id === 'string' &&
+          typeof car.name === 'string' &&
           car.statistics &&
-          typeof car.statistics === "object"
+          typeof car.statistics === 'object'
         );
       });
 
       if (validCars.length !== data.data.length) {
         // Log warning only in development
-        if (process.env.NODE_ENV === "development") {
-          // eslint-disable-next-line no-console
+        if (process.env.NODE_ENV === 'development') {
           console.warn(`Filtrowano ${data.data.length - validCars.length} nieprawidłowych samochodów`);
         }
       }
@@ -106,18 +104,17 @@ export const useCarsList = () => {
       }));
     } catch (error) {
       // Log error only in development
-      if (process.env.NODE_ENV === "development") {
-        // eslint-disable-next-line no-console
-        console.error("Error fetching cars:", error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error fetching cars:', error);
       }
 
-      let errorMessage = "Nieznany błąd";
+      let errorMessage = 'Nieznany błąd';
 
       if (error instanceof Error) {
-        if (error.message.includes("Failed to fetch") || error.message.includes("NetworkError")) {
-          errorMessage = "Nie udało się pobrać danych. Sprawdź połączenie internetowe.";
-        } else if (error.message.includes("timeout")) {
-          errorMessage = "Przekroczono limit czasu połączenia. Spróbuj ponownie.";
+        if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+          errorMessage = 'Nie udało się pobrać danych. Sprawdź połączenie internetowe.';
+        } else if (error.message.includes('timeout')) {
+          errorMessage = 'Przekroczono limit czasu połączenia. Spróbuj ponownie.';
         } else {
           errorMessage = error.message;
         }
@@ -145,15 +142,15 @@ export const useCarsList = () => {
 
   const handleCarClick = useCallback((carId: string) => {
     // Navigate to car details page using Astro router
-    if (typeof window !== "undefined") {
+    if (typeof window !== 'undefined') {
       window.location.href = `/cars/${carId}`;
     }
   }, []);
 
   const handleAddCar = useCallback(() => {
     // Navigate to add car form using Astro router
-    if (typeof window !== "undefined") {
-      window.location.href = "/cars/new";
+    if (typeof window !== 'undefined') {
+      window.location.href = '/cars/new';
     }
   }, []);
 
@@ -166,7 +163,7 @@ export const useCarsList = () => {
           return {
             ...prev,
             loading: false,
-            error: new Error("Przekroczono limit czasu połączenia. Sprawdź połączenie internetowe."),
+            error: new Error('Przekroczono limit czasu połączenia. Sprawdź połączenie internetowe.'),
           };
         }
         return prev;
@@ -177,8 +174,7 @@ export const useCarsList = () => {
 
     return () => clearTimeout(timeoutId);
     // Only run on mount - sortBy and sortOrder are fixed values
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fetchCars]);
+  }, [fetchCars, state.sortBy, state.sortOrder]);
 
   return {
     ...state,

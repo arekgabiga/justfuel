@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
-import type { CarDetailsDTO, FillupDTO, PaginatedFillupsResponseDTO, PaginationDTO } from "../../types";
+import { useState, useEffect, useCallback } from 'react';
+import type { CarDetailsDTO, FillupDTO, PaginatedFillupsResponseDTO, PaginationDTO } from '../../types';
 
 /**
  * State interface for the fillups view hook
@@ -79,20 +79,20 @@ export const useFillupsView = (carId: string) => {
     try {
       const response = await fetch(`/api/cars/${carId}`, {
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-        credentials: "include",
+        credentials: 'include',
       });
 
       if (!response.ok) {
         if (response.status === 401) {
-          throw new Error("Brak autoryzacji. Zaloguj się ponownie.");
+          throw new Error('Brak autoryzacji. Zaloguj się ponownie.');
         }
         if (response.status === 404) {
-          throw new Error("Samochód nie został znaleziony");
+          throw new Error('Samochód nie został znaleziony');
         }
         if (response.status >= 500) {
-          throw new Error("Wystąpił błąd serwera. Spróbuj ponownie za chwilę.");
+          throw new Error('Wystąpił błąd serwera. Spróbuj ponownie za chwilę.');
         }
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -105,13 +105,13 @@ export const useFillupsView = (carId: string) => {
         carError: null,
       }));
     } catch (error) {
-      let errorMessage = "Nieznany błąd";
+      let errorMessage = 'Nieznany błąd';
 
       if (error instanceof Error) {
-        if (error.message.includes("Failed to fetch") || error.message.includes("NetworkError")) {
-          errorMessage = "Nie udało się pobrać danych. Sprawdź połączenie internetowe.";
-        } else if (error.message.includes("timeout")) {
-          errorMessage = "Przekroczono limit czasu połączenia. Spróbuj ponownie.";
+        if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+          errorMessage = 'Nie udało się pobrać danych. Sprawdź połączenie internetowe.';
+        } else if (error.message.includes('timeout')) {
+          errorMessage = 'Przekroczono limit czasu połączenia. Spróbuj ponownie.';
         } else {
           errorMessage = error.message;
         }
@@ -140,30 +140,30 @@ export const useFillupsView = (carId: string) => {
 
       try {
         const params = new URLSearchParams({
-          limit: "20",
-          sort: "date",
-          order: "desc",
+          limit: '20',
+          sort: 'date',
+          order: 'desc',
         });
         if (cursor) {
-          params.append("cursor", cursor);
+          params.append('cursor', cursor);
         }
 
         const response = await fetch(`/api/cars/${carId}/fillups?${params}`, {
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
-          credentials: "include",
+          credentials: 'include',
         });
 
         if (!response.ok) {
           if (response.status === 401) {
-            throw new Error("Brak autoryzacji. Zaloguj się ponownie.");
+            throw new Error('Brak autoryzacji. Zaloguj się ponownie.');
           }
           if (response.status === 404) {
-            throw new Error("Samochód nie został znaleziony");
+            throw new Error('Samochód nie został znaleziony');
           }
           if (response.status >= 500) {
-            throw new Error("Wystąpił błąd serwera. Spróbuj ponownie za chwilę.");
+            throw new Error('Wystąpił błąd serwera. Spróbuj ponownie za chwilę.');
           }
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -179,13 +179,13 @@ export const useFillupsView = (carId: string) => {
           initialLoading: false,
         }));
       } catch (error) {
-        let errorMessage = "Nieznany błąd";
+        let errorMessage = 'Nieznany błąd';
 
         if (error instanceof Error) {
-          if (error.message.includes("Failed to fetch") || error.message.includes("NetworkError")) {
-            errorMessage = "Nie udało się pobrać danych. Sprawdź połączenie internetowe.";
-          } else if (error.message.includes("timeout")) {
-            errorMessage = "Przekroczono limit czasu połączenia. Spróbuj ponownie.";
+          if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+            errorMessage = 'Nie udało się pobrać danych. Sprawdź połączenie internetowe.';
+          } else if (error.message.includes('timeout')) {
+            errorMessage = 'Przekroczono limit czasu połączenia. Spróbuj ponownie.';
           } else {
             errorMessage = error.message;
           }
@@ -243,7 +243,7 @@ export const useFillupsView = (carId: string) => {
    */
   const handleFillupClick = useCallback(
     (fillupId: string) => {
-      if (typeof window !== "undefined") {
+      if (typeof window !== 'undefined') {
         window.location.href = `/cars/${carId}/fillups/${fillupId}/edit`;
       }
     },
@@ -256,7 +256,7 @@ export const useFillupsView = (carId: string) => {
    * Navigates to add fillup form: /cars/{carId}/fillups/new
    */
   const handleAddFillupClick = useCallback(() => {
-    if (typeof window !== "undefined") {
+    if (typeof window !== 'undefined') {
       window.location.href = `/cars/${carId}/fillups/new`;
     }
   }, [carId]);
@@ -267,8 +267,8 @@ export const useFillupsView = (carId: string) => {
    * Navigates to cars list: /cars
    */
   const handleBack = useCallback(() => {
-    if (typeof window !== "undefined") {
-      window.location.href = "/cars";
+    if (typeof window !== 'undefined') {
+      window.location.href = '/cars';
     }
   }, []);
 

@@ -1,5 +1,5 @@
-@import "tailwindcss";
-@import "tw-animate-css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -9,25 +9,25 @@
      ============================================ */
 
   /* Typography - Font Families (Material Design) */
-  --font-sans: "Roboto", "Roboto Fallback", system-ui, -apple-system, sans-serif;
-  --font-mono: "Roboto Mono", "Cascadia Code", "Consolas", monospace;
+  --font-sans: 'Roboto', 'Roboto Fallback', system-ui, -apple-system, sans-serif;
+  --font-mono: 'Roboto Mono', 'Cascadia Code', 'Consolas', monospace;
 
   /* Typography - Material Design Type Scale */
-  --font-size-display-large: 3.5625rem;    /* 57px */
-  --font-size-display-medium: 2.8125rem;   /* 45px */
-  --font-size-display-small: 2.25rem;      /* 36px */
-  --font-size-headline-large: 2rem;        /* 32px */
-  --font-size-headline-medium: 1.75rem;     /* 28px */
-  --font-size-headline-small: 1.5rem;      /* 24px */
-  --font-size-title-large: 1.375rem;       /* 22px */
-  --font-size-title-medium: 1rem;          /* 16px */
-  --font-size-title-small: 0.875rem;       /* 14px */
-  --font-size-label-large: 0.875rem;       /* 14px */
-  --font-size-label-medium: 0.75rem;       /* 12px */
-  --font-size-label-small: 0.6875rem;      /* 11px */
-  --font-size-body-large: 1rem;            /* 16px */
-  --font-size-body-medium: 0.875rem;       /* 14px */
-  --font-size-body-small: 0.75rem;         /* 12px */
+  --font-size-display-large: 3.5625rem; /* 57px */
+  --font-size-display-medium: 2.8125rem; /* 45px */
+  --font-size-display-small: 2.25rem; /* 36px */
+  --font-size-headline-large: 2rem; /* 32px */
+  --font-size-headline-medium: 1.75rem; /* 28px */
+  --font-size-headline-small: 1.5rem; /* 24px */
+  --font-size-title-large: 1.375rem; /* 22px */
+  --font-size-title-medium: 1rem; /* 16px */
+  --font-size-title-small: 0.875rem; /* 14px */
+  --font-size-label-large: 0.875rem; /* 14px */
+  --font-size-label-medium: 0.75rem; /* 12px */
+  --font-size-label-small: 0.6875rem; /* 11px */
+  --font-size-body-large: 1rem; /* 16px */
+  --font-size-body-medium: 0.875rem; /* 14px */
+  --font-size-body-small: 0.75rem; /* 12px */
 
   /* Typography - Legacy Font Sizes (for compatibility) */
   --font-size-xs: var(--font-size-label-small);
@@ -42,11 +42,11 @@
   --font-size-5xl: var(--font-size-headline-large);
 
   /* Typography - Material Design Line Heights */
-  --line-height-display: 4rem;             /* 64px */
-  --line-height-headline: 2.5rem;          /* 40px */
-  --line-height-title: 1.75rem;            /* 28px */
-  --line-height-label: 1.25rem;            /* 20px */
-  --line-height-body: 1.5rem;              /* 24px */
+  --line-height-display: 4rem; /* 64px */
+  --line-height-headline: 2.5rem; /* 40px */
+  --line-height-title: 1.75rem; /* 28px */
+  --line-height-label: 1.25rem; /* 20px */
+  --line-height-body: 1.5rem; /* 24px */
 
   /* Typography - Legacy Line Heights (for compatibility) */
   --line-height-tight: 1.25;
@@ -63,16 +63,16 @@
 
   /* Spacing Scale - Material Design (8dp base unit) */
   --md-spacing-0: 0;
-  --md-spacing-1: 0.25rem;      /* 4dp */
-  --md-spacing-2: 0.5rem;       /* 8dp */
-  --md-spacing-3: 0.75rem;      /* 12dp */
-  --md-spacing-4: 1rem;         /* 16dp */
-  --md-spacing-5: 1.25rem;      /* 20dp */
-  --md-spacing-6: 1.5rem;       /* 24dp */
-  --md-spacing-8: 2rem;         /* 32dp */
-  --md-spacing-12: 3rem;        /* 48dp */
-  --md-spacing-16: 4rem;        /* 64dp */
-  --md-spacing-24: 6rem;        /* 96dp */
+  --md-spacing-1: 0.25rem; /* 4dp */
+  --md-spacing-2: 0.5rem; /* 8dp */
+  --md-spacing-3: 0.75rem; /* 12dp */
+  --md-spacing-4: 1rem; /* 16dp */
+  --md-spacing-5: 1.25rem; /* 20dp */
+  --md-spacing-6: 1.5rem; /* 24dp */
+  --md-spacing-8: 2rem; /* 32dp */
+  --md-spacing-12: 3rem; /* 48dp */
+  --md-spacing-16: 4rem; /* 64dp */
+  --md-spacing-24: 6rem; /* 96dp */
 
   /* Legacy Spacing (for compatibility) */
   --spacing-0: var(--md-spacing-0);
@@ -82,20 +82,20 @@
   --spacing-4: var(--md-spacing-4);
   --spacing-5: var(--md-spacing-5);
   --spacing-6: var(--md-spacing-6);
-  --spacing-7: 1.75rem;    /* 28px - legacy */
+  --spacing-7: 1.75rem; /* 28px - legacy */
   --spacing-8: var(--md-spacing-8);
-  --spacing-10: 2.5rem;   /* 40px - legacy */
+  --spacing-10: 2.5rem; /* 40px - legacy */
   --spacing-12: var(--md-spacing-12);
   --spacing-16: var(--md-spacing-16);
-  --spacing-20: 5rem;     /* 80px - legacy */
+  --spacing-20: 5rem; /* 80px - legacy */
   --spacing-24: var(--md-spacing-24);
 
   /* Border Radius - Material Design */
-  --md-radius-xs: 0.25rem;      /* 4dp */
-  --md-radius-sm: 0.5rem;       /* 8dp */
-  --md-radius-md: 0.75rem;      /* 12dp */
-  --md-radius-lg: 1rem;         /* 16dp */
-  --md-radius-xl: 1.75rem;      /* 28dp */
+  --md-radius-xs: 0.25rem; /* 4dp */
+  --md-radius-sm: 0.5rem; /* 8dp */
+  --md-radius-md: 0.75rem; /* 12dp */
+  --md-radius-lg: 1rem; /* 16dp */
+  --md-radius-xl: 1.75rem; /* 28dp */
   --md-radius-full: 9999px;
 
   /* Component-specific radius */
@@ -116,35 +116,26 @@
 
   /* Border Width */
   --border-width-none: 0;
-  --border-width-thin: 0.0625rem;  /* 1px */
-  --border-width-medium: 0.125rem;  /* 2px */
-  --border-width-thick: 0.1875rem;  /* 3px */
+  --border-width-thin: 0.0625rem; /* 1px */
+  --border-width-medium: 0.125rem; /* 2px */
+  --border-width-thick: 0.1875rem; /* 3px */
   --border-width: var(--border-width-thin);
 
   /* Elevation - Material Design (0-24dp) */
   --md-elevation-0: none;
-  --md-elevation-1: 0px 1px 2px 0px oklch(0 0 0 / 0.3),
-                    0px 1px 3px 1px oklch(0 0 0 / 0.15);
-  --md-elevation-2: 0px 1px 2px 0px oklch(0 0 0 / 0.3),
-                    0px 2px 6px 2px oklch(0 0 0 / 0.15);
-  --md-elevation-3: 0px 1px 3px 0px oklch(0 0 0 / 0.3),
-                    0px 4px 8px 3px oklch(0 0 0 / 0.15);
-  --md-elevation-4: 0px 2px 4px 0px oklch(0 0 0 / 0.3),
-                    0px 7px 13px 4px oklch(0 0 0 / 0.15);
-  --md-elevation-5: 0px 3px 5px 0px oklch(0 0 0 / 0.3),
-                    0px 9px 18px 5px oklch(0 0 0 / 0.15);
-  --md-elevation-8: 0px 5px 5px 0px oklch(0 0 0 / 0.3),
-                    0px 8px 10px 0px oklch(0 0 0 / 0.15),
-                    0px 3px 14px 2px oklch(0 0 0 / 0.12);
-  --md-elevation-12: 0px 7px 8px 0px oklch(0 0 0 / 0.3),
-                     0px 5px 22px 4px oklch(0 0 0 / 0.15),
-                     0px 12px 17px 2px oklch(0 0 0 / 0.12);
-  --md-elevation-16: 0px 8px 10px 0px oklch(0 0 0 / 0.3),
-                     0px 3px 14px 2px oklch(0 0 0 / 0.15),
-                     0px 5px 5px 0px oklch(0 0 0 / 0.12);
-  --md-elevation-24: 0px 11px 15px 0px oklch(0 0 0 / 0.3),
-                     0px 4px 6px 0px oklch(0 0 0 / 0.15),
-                     0px 2px 4px 0px oklch(0 0 0 / 0.12);
+  --md-elevation-1: 0px 1px 2px 0px oklch(0 0 0 / 0.3), 0px 1px 3px 1px oklch(0 0 0 / 0.15);
+  --md-elevation-2: 0px 1px 2px 0px oklch(0 0 0 / 0.3), 0px 2px 6px 2px oklch(0 0 0 / 0.15);
+  --md-elevation-3: 0px 1px 3px 0px oklch(0 0 0 / 0.3), 0px 4px 8px 3px oklch(0 0 0 / 0.15);
+  --md-elevation-4: 0px 2px 4px 0px oklch(0 0 0 / 0.3), 0px 7px 13px 4px oklch(0 0 0 / 0.15);
+  --md-elevation-5: 0px 3px 5px 0px oklch(0 0 0 / 0.3), 0px 9px 18px 5px oklch(0 0 0 / 0.15);
+  --md-elevation-8:
+    0px 5px 5px 0px oklch(0 0 0 / 0.3), 0px 8px 10px 0px oklch(0 0 0 / 0.15), 0px 3px 14px 2px oklch(0 0 0 / 0.12);
+  --md-elevation-12:
+    0px 7px 8px 0px oklch(0 0 0 / 0.3), 0px 5px 22px 4px oklch(0 0 0 / 0.15), 0px 12px 17px 2px oklch(0 0 0 / 0.12);
+  --md-elevation-16:
+    0px 8px 10px 0px oklch(0 0 0 / 0.3), 0px 3px 14px 2px oklch(0 0 0 / 0.15), 0px 5px 5px 0px oklch(0 0 0 / 0.12);
+  --md-elevation-24:
+    0px 11px 15px 0px oklch(0 0 0 / 0.3), 0px 4px 6px 0px oklch(0 0 0 / 0.15), 0px 2px 4px 0px oklch(0 0 0 / 0.12);
 
   /* Legacy Shadows (for compatibility) */
   --shadow-none: var(--md-elevation-0);
@@ -154,7 +145,7 @@
   --shadow-16: var(--md-elevation-4);
   --shadow-28: var(--md-elevation-8);
   --shadow-64: var(--md-elevation-24);
-  
+
   /* Shadow aliases for compatibility */
   --shadow-xs: var(--md-elevation-1);
   --shadow-sm: var(--md-elevation-2);
@@ -241,21 +232,21 @@
   --z-toast: 500;
 
   /* Focus States - Material Design Accessibility (2dp) */
-  --md-focus-outline-width: 0.125rem;      /* 2dp */
+  --md-focus-outline-width: 0.125rem; /* 2dp */
   --md-focus-outline-color: oklch(0.55 0.22 264); /* Material Blue 500 - will be overridden by --md-primary */
-  --md-focus-outline-offset: 0.125rem;     /* 2dp */
+  --md-focus-outline-offset: 0.125rem; /* 2dp */
 
   /* Legacy Focus States (for compatibility) */
   --focus-stroke-width: var(--md-focus-outline-width);
   --focus-stroke-color: var(--md-focus-outline-color);
   --focus-outline-width: var(--md-focus-outline-width);
   --focus-outline-offset: var(--md-focus-outline-offset);
-  --focus-ring-width: 0.1875rem;   /* 3px - legacy */
+  --focus-ring-width: 0.1875rem; /* 3px - legacy */
 
   /* Contrast Ratios - Material Design (WCAG AAA where possible) */
-  --md-contrast-text: 7;                   /* AAA for normal text */
-  --md-contrast-text-large: 4.5;           /* AAA for large text */
-  --md-contrast-ui: 3;                     /* AA for UI components */
+  --md-contrast-text: 7; /* AAA for normal text */
+  --md-contrast-text-large: 4.5; /* AAA for large text */
+  --md-contrast-ui: 3; /* AA for UI components */
 
   /* Legacy Contrast Ratios (for compatibility) */
   --contrast-min-text: var(--md-contrast-text);
@@ -271,7 +262,7 @@
   --md-primary-container: oklch(0.9 0.05 264);
   --md-on-primary: oklch(0.985 0 0);
   --md-on-primary-container: oklch(0.25 0.05 264);
-  
+
   /* Update focus color to use primary */
   --md-focus-outline-color: var(--md-primary);
 
@@ -321,7 +312,7 @@
   --border: var(--md-outline-variant);
   --input: var(--md-surface-container-high);
   --ring: var(--md-primary);
-  
+
   /* Feedback Colors - Success, Warning, Info */
   --success: oklch(0.65 0.15 145);
   --success-foreground: oklch(0.985 0 0);
@@ -344,7 +335,7 @@
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
-  
+
   /* Sidebar Colors */
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
@@ -362,28 +353,19 @@
      ============================================ */
 
   /* Elevation - Dark mode (lighter shadows) */
-  --md-elevation-1: 0px 1px 2px 0px oklch(0 0 0 / 0.3),
-                    0px 1px 3px 1px oklch(0 0 0 / 0.15);
-  --md-elevation-2: 0px 1px 2px 0px oklch(0 0 0 / 0.3),
-                    0px 2px 6px 2px oklch(0 0 0 / 0.15);
-  --md-elevation-3: 0px 1px 3px 0px oklch(0 0 0 / 0.3),
-                    0px 4px 8px 3px oklch(0 0 0 / 0.15);
-  --md-elevation-4: 0px 2px 4px 0px oklch(0 0 0 / 0.3),
-                    0px 7px 13px 4px oklch(0 0 0 / 0.15);
-  --md-elevation-5: 0px 3px 5px 0px oklch(0 0 0 / 0.3),
-                    0px 9px 18px 5px oklch(0 0 0 / 0.15);
-  --md-elevation-8: 0px 5px 5px 0px oklch(0 0 0 / 0.3),
-                    0px 8px 10px 0px oklch(0 0 0 / 0.15),
-                    0px 3px 14px 2px oklch(0 0 0 / 0.12);
-  --md-elevation-12: 0px 7px 8px 0px oklch(0 0 0 / 0.3),
-                     0px 5px 22px 4px oklch(0 0 0 / 0.15),
-                     0px 12px 17px 2px oklch(0 0 0 / 0.12);
-  --md-elevation-16: 0px 8px 10px 0px oklch(0 0 0 / 0.3),
-                     0px 3px 14px 2px oklch(0 0 0 / 0.15),
-                     0px 5px 5px 0px oklch(0 0 0 / 0.12);
-  --md-elevation-24: 0px 11px 15px 0px oklch(0 0 0 / 0.3),
-                     0px 4px 6px 0px oklch(0 0 0 / 0.15),
-                     0px 2px 4px 0px oklch(0 0 0 / 0.12);
+  --md-elevation-1: 0px 1px 2px 0px oklch(0 0 0 / 0.3), 0px 1px 3px 1px oklch(0 0 0 / 0.15);
+  --md-elevation-2: 0px 1px 2px 0px oklch(0 0 0 / 0.3), 0px 2px 6px 2px oklch(0 0 0 / 0.15);
+  --md-elevation-3: 0px 1px 3px 0px oklch(0 0 0 / 0.3), 0px 4px 8px 3px oklch(0 0 0 / 0.15);
+  --md-elevation-4: 0px 2px 4px 0px oklch(0 0 0 / 0.3), 0px 7px 13px 4px oklch(0 0 0 / 0.15);
+  --md-elevation-5: 0px 3px 5px 0px oklch(0 0 0 / 0.3), 0px 9px 18px 5px oklch(0 0 0 / 0.15);
+  --md-elevation-8:
+    0px 5px 5px 0px oklch(0 0 0 / 0.3), 0px 8px 10px 0px oklch(0 0 0 / 0.15), 0px 3px 14px 2px oklch(0 0 0 / 0.12);
+  --md-elevation-12:
+    0px 7px 8px 0px oklch(0 0 0 / 0.3), 0px 5px 22px 4px oklch(0 0 0 / 0.15), 0px 12px 17px 2px oklch(0 0 0 / 0.12);
+  --md-elevation-16:
+    0px 8px 10px 0px oklch(0 0 0 / 0.3), 0px 3px 14px 2px oklch(0 0 0 / 0.15), 0px 5px 5px 0px oklch(0 0 0 / 0.12);
+  --md-elevation-24:
+    0px 11px 15px 0px oklch(0 0 0 / 0.3), 0px 4px 6px 0px oklch(0 0 0 / 0.15), 0px 2px 4px 0px oklch(0 0 0 / 0.12);
 
   /* Legacy Shadows (for compatibility) */
   --shadow-2: var(--md-elevation-1);
@@ -392,7 +374,7 @@
   --shadow-16: var(--md-elevation-4);
   --shadow-28: var(--md-elevation-8);
   --shadow-64: var(--md-elevation-24);
-  
+
   /* Shadow aliases */
   --shadow-xs: var(--md-elevation-1);
   --shadow-sm: var(--md-elevation-2);
@@ -414,7 +396,7 @@
   --md-primary-container: oklch(0.3 0.1 264);
   --md-on-primary: oklch(0.15 0 0);
   --md-on-primary-container: oklch(0.9 0.05 264);
-  
+
   /* Update focus color to use primary in dark mode */
   --md-focus-outline-color: var(--md-primary);
 
@@ -460,7 +442,7 @@
   --border: var(--md-outline-variant);
   --input: var(--md-surface-container-high);
   --ring: var(--md-primary);
-  
+
   /* Feedback Colors - adjusted for dark mode */
   --success: oklch(0.7 0.15 145);
   --success-foreground: oklch(0.985 0 0);
@@ -483,7 +465,7 @@
   --chart-3: oklch(0.769 0.188 70.08);
   --chart-4: oklch(0.627 0.265 303.9);
   --chart-5: oklch(0.645 0.246 16.439);
-  
+
   /* Sidebar Colors */
   --sidebar: oklch(0.205 0 0);
   --sidebar-foreground: oklch(0.985 0 0);
@@ -699,7 +681,7 @@
   * {
     @apply border-border outline-ring/50;
   }
-  
+
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-sans);
@@ -726,7 +708,7 @@
   .animate-fade-in {
     animation: fadeIn var(--md-duration-medium1) var(--md-easing-standard);
   }
-  
+
   @keyframes fadeIn {
     from {
       opacity: 0;

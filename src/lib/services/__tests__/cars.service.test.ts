@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import type { AppSupabaseClient } from "../../../db/supabase.client";
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import type { AppSupabaseClient } from '../../../db/supabase.client';
 import type {
   CarWithStatisticsDTO,
   CarDetailsDTO,
@@ -7,7 +7,7 @@ import type {
   CreateCarCommand,
   UpdateCarCommand,
   DeleteCarCommand,
-} from "../../../types";
+} from '../../../types';
 import {
   listUserCarsWithStats,
   getUserCarWithStats,
@@ -16,11 +16,11 @@ import {
   deleteCar,
   getCarStatistics,
   ConflictError,
-} from "../cars.service";
+} from '../cars.service';
 
-describe("cars.service", () => {
+describe('cars.service', () => {
   let mockSupabase: AppSupabaseClient;
-  const userId = "user-123";
+  const userId = 'user-123';
 
   beforeEach(() => {
     // Mock Supabase query builder pattern
@@ -29,28 +29,28 @@ describe("cars.service", () => {
     } as unknown as AppSupabaseClient;
   });
 
-  describe("ConflictError", () => {
-    it("should create error with message", () => {
+  describe('ConflictError', () => {
+    it('should create error with message', () => {
       // Arrange & Act
-      const error = new ConflictError("Car name already exists");
+      const error = new ConflictError('Car name already exists');
 
       // Assert
       expect(error).toBeInstanceOf(Error);
-      expect(error.name).toBe("ConflictError");
-      expect(error.message).toBe("Car name already exists");
+      expect(error.name).toBe('ConflictError');
+      expect(error.message).toBe('Car name already exists');
     });
   });
 
-  describe("listUserCarsWithStats", () => {
-    it("should list cars with default parameters (created_at desc)", async () => {
+  describe('listUserCarsWithStats', () => {
+    it('should list cars with default parameters (created_at desc)', async () => {
       // Arrange
       const mockCars = [
-        { id: "car-1", name: "Audi A4", initial_odometer: 50000, mileage_input_preference: "odometer" },
-        { id: "car-2", name: "BMW X5", initial_odometer: 30000, mileage_input_preference: "distance" },
+        { id: 'car-1', name: 'Audi A4', initial_odometer: 50000, mileage_input_preference: 'odometer' },
+        { id: 'car-2', name: 'BMW X5', initial_odometer: 30000, mileage_input_preference: 'distance' },
       ];
       const mockStats = [
         {
-          car_id: "car-1",
+          car_id: 'car-1',
           total_fuel_cost: 1000,
           total_fuel_amount: 200,
           total_distance: 1500,
@@ -67,7 +67,7 @@ describe("cars.service", () => {
       };
 
       vi.mocked(mockSupabase.from).mockImplementation((table: string) => {
-        if (table === "cars") {
+        if (table === 'cars') {
           return {
             ...mockQuery,
             select: vi.fn().mockReturnValue({
@@ -75,7 +75,7 @@ describe("cars.service", () => {
             }),
           } as any;
         }
-        if (table === "car_statistics") {
+        if (table === 'car_statistics') {
           return {
             select: vi.fn().mockReturnValue({
               in: vi.fn().mockResolvedValue({ data: mockStats, error: null }),
@@ -86,24 +86,24 @@ describe("cars.service", () => {
       });
 
       // Act
-      const result = await listUserCarsWithStats(mockSupabase, { sort: "name", order: "asc" });
+      const result = await listUserCarsWithStats(mockSupabase, { sort: 'name', order: 'asc' });
 
       // Assert
       expect(result).toHaveLength(2);
-      expect(result[0].id).toBe("car-1");
+      expect(result[0].id).toBe('car-1');
       expect(result[0].statistics.fillup_count).toBe(10);
       expect(result[1].statistics.fillup_count).toBe(0); // No stats for car-2
     });
 
-    it("should sort cars by name ASC", async () => {
+    it('should sort cars by name ASC', async () => {
       // Arrange
       const mockCars = [
-        { id: "car-1", name: "Audi A4", initial_odometer: 50000, mileage_input_preference: "odometer" },
-        { id: "car-2", name: "BMW X5", initial_odometer: 30000, mileage_input_preference: "distance" },
+        { id: 'car-1', name: 'Audi A4', initial_odometer: 50000, mileage_input_preference: 'odometer' },
+        { id: 'car-2', name: 'BMW X5', initial_odometer: 30000, mileage_input_preference: 'distance' },
       ];
 
       vi.mocked(mockSupabase.from).mockImplementation((table: string) => {
-        if (table === "cars") {
+        if (table === 'cars') {
           return {
             select: vi.fn().mockReturnValue({
               order: vi.fn().mockReturnValue(Promise.resolve({ data: mockCars, error: null })),
@@ -118,13 +118,13 @@ describe("cars.service", () => {
       });
 
       // Act
-      const result = await listUserCarsWithStats(mockSupabase, { sort: "name", order: "asc" });
+      const result = await listUserCarsWithStats(mockSupabase, { sort: 'name', order: 'asc' });
 
       // Assert
-      expect(mockSupabase.from).toHaveBeenCalledWith("cars");
+      expect(mockSupabase.from).toHaveBeenCalledWith('cars');
     });
 
-    it("should return empty array for user with no cars", async () => {
+    it('should return empty array for user with no cars', async () => {
       // Arrange
       vi.mocked(mockSupabase.from).mockReturnValue({
         select: vi.fn().mockReturnValue({
@@ -139,14 +139,14 @@ describe("cars.service", () => {
       expect(result).toEqual([]);
     });
 
-    it("should handle cars with zero statistics", async () => {
+    it('should handle cars with zero statistics', async () => {
       // Arrange
       const mockCars = [
-        { id: "car-1", name: "Audi A4", initial_odometer: 50000, mileage_input_preference: "odometer" },
+        { id: 'car-1', name: 'Audi A4', initial_odometer: 50000, mileage_input_preference: 'odometer' },
       ];
 
       vi.mocked(mockSupabase.from).mockImplementation((table: string) => {
-        if (table === "cars") {
+        if (table === 'cars') {
           return {
             select: vi.fn().mockReturnValue({
               order: vi.fn().mockResolvedValue({ data: mockCars, error: null }),
@@ -174,9 +174,9 @@ describe("cars.service", () => {
       });
     });
 
-    it("should use userId from options", async () => {
+    it('should use userId from options', async () => {
       // Arrange
-      const customUserId = "custom-user-456";
+      const customUserId = 'custom-user-456';
       const mockQuery = {
         select: vi.fn().mockReturnThis(),
         order: vi.fn().mockReturnThis(),
@@ -195,36 +195,36 @@ describe("cars.service", () => {
       await listUserCarsWithStats(mockSupabase, {}, { userId: customUserId });
 
       // Assert - verifies eq was called in chain
-      expect(mockSupabase.from).toHaveBeenCalledWith("cars");
+      expect(mockSupabase.from).toHaveBeenCalledWith('cars');
     });
 
-    it("should throw error on database error", async () => {
+    it('should throw error on database error', async () => {
       // Arrange
       vi.mocked(mockSupabase.from).mockReturnValue({
         select: vi.fn().mockReturnValue({
           order: vi.fn().mockResolvedValue({
             data: null,
-            error: { message: "Database error" },
+            error: { message: 'Database error' },
           }),
         }),
       } as any);
 
       // Act & Assert
-      await expect(listUserCarsWithStats(mockSupabase, {})).rejects.toThrow("Failed to fetch cars");
+      await expect(listUserCarsWithStats(mockSupabase, {})).rejects.toThrow('Failed to fetch cars');
     });
   });
 
-  describe("getUserCarWithStats", () => {
-    const carId = "car-123";
+  describe('getUserCarWithStats', () => {
+    const carId = 'car-123';
 
-    it("should return existing car with statistics", async () => {
+    it('should return existing car with statistics', async () => {
       // Arrange
       const mockCar = {
         id: carId,
-        name: "Audi A4",
+        name: 'Audi A4',
         initial_odometer: 50000,
-        mileage_input_preference: "odometer",
-        created_at: "2024-01-01T00:00:00Z",
+        mileage_input_preference: 'odometer',
+        created_at: '2024-01-01T00:00:00Z',
         user_id: userId,
       };
       const mockStats = {
@@ -238,7 +238,7 @@ describe("cars.service", () => {
       };
 
       vi.mocked(mockSupabase.from).mockImplementation((table: string) => {
-        if (table === "cars") {
+        if (table === 'cars') {
           return {
             select: vi.fn().mockReturnValue({
               eq: vi.fn().mockReturnValue({
@@ -269,19 +269,19 @@ describe("cars.service", () => {
       expect(result?.statistics.fillup_count).toBe(10);
     });
 
-    it("should return car without statistics (zero values)", async () => {
+    it('should return car without statistics (zero values)', async () => {
       // Arrange
       const mockCar = {
         id: carId,
-        name: "Audi A4",
+        name: 'Audi A4',
         initial_odometer: 50000,
-        mileage_input_preference: "odometer",
-        created_at: "2024-01-01T00:00:00Z",
+        mileage_input_preference: 'odometer',
+        created_at: '2024-01-01T00:00:00Z',
         user_id: userId,
       };
 
       vi.mocked(mockSupabase.from).mockImplementation((table: string) => {
-        if (table === "cars") {
+        if (table === 'cars') {
           return {
             select: vi.fn().mockReturnValue({
               eq: vi.fn().mockReturnValue({
@@ -317,7 +317,7 @@ describe("cars.service", () => {
       });
     });
 
-    it("should return null for non-existent car", async () => {
+    it('should return null for non-existent car', async () => {
       // Arrange
       vi.mocked(mockSupabase.from).mockReturnValue({
         select: vi.fn().mockReturnValue({
@@ -330,15 +330,15 @@ describe("cars.service", () => {
       } as any);
 
       // Act
-      const result = await getUserCarWithStats(mockSupabase, "non-existent-car");
+      const result = await getUserCarWithStats(mockSupabase, 'non-existent-car');
 
       // Assert
       expect(result).toBeNull();
     });
 
-    it("should use userId from options", async () => {
+    it('should use userId from options', async () => {
       // Arrange
-      const customUserId = "custom-user-456";
+      const customUserId = 'custom-user-456';
       vi.mocked(mockSupabase.from).mockReturnValue({
         select: vi.fn().mockReturnValue({
           eq: vi.fn().mockReturnValue({
@@ -355,24 +355,24 @@ describe("cars.service", () => {
       await getUserCarWithStats(mockSupabase, carId, { userId: customUserId });
 
       // Assert
-      expect(mockSupabase.from).toHaveBeenCalledWith("cars");
+      expect(mockSupabase.from).toHaveBeenCalledWith('cars');
     });
   });
 
-  describe("createCar", () => {
-    it("should create new car with valid input", async () => {
+  describe('createCar', () => {
+    it('should create new car with valid input', async () => {
       // Arrange
       const input: CreateCarCommand = {
-        name: "Audi A4",
+        name: 'Audi A4',
         initial_odometer: 50000,
-        mileage_input_preference: "odometer",
+        mileage_input_preference: 'odometer',
       };
       const mockCreatedCar = {
-        id: "car-123",
-        name: "Audi A4",
+        id: 'car-123',
+        name: 'Audi A4',
         initial_odometer: 50000,
-        mileage_input_preference: "odometer",
-        created_at: "2024-01-01T00:00:00Z",
+        mileage_input_preference: 'odometer',
+        created_at: '2024-01-01T00:00:00Z',
       };
 
       vi.mocked(mockSupabase.from).mockReturnValue({
@@ -387,17 +387,17 @@ describe("cars.service", () => {
       const result = await createCar(mockSupabase, userId, input);
 
       // Assert
-      expect(result.id).toBe("car-123");
-      expect(result.name).toBe("Audi A4");
+      expect(result.id).toBe('car-123');
+      expect(result.name).toBe('Audi A4');
       expect(result.statistics.fillup_count).toBe(0);
     });
 
-    it("should throw ConflictError on duplicate name", async () => {
+    it('should throw ConflictError on duplicate name', async () => {
       // Arrange
       const input: CreateCarCommand = {
-        name: "Audi A4",
+        name: 'Audi A4',
         initial_odometer: 50000,
-        mileage_input_preference: "odometer",
+        mileage_input_preference: 'odometer',
       };
 
       vi.mocked(mockSupabase.from).mockReturnValue({
@@ -405,7 +405,7 @@ describe("cars.service", () => {
           select: vi.fn().mockReturnValue({
             single: vi.fn().mockResolvedValue({
               data: null,
-              error: { code: "23505", message: "duplicate key value violates unique constraint" },
+              error: { code: '23505', message: 'duplicate key value violates unique constraint' },
             }),
           }),
         }),
@@ -415,19 +415,19 @@ describe("cars.service", () => {
       await expect(createCar(mockSupabase, userId, input)).rejects.toThrow(ConflictError);
     });
 
-    it("should handle initial_odometer = 0", async () => {
+    it('should handle initial_odometer = 0', async () => {
       // Arrange
       const input: CreateCarCommand = {
-        name: "Audi A4",
+        name: 'Audi A4',
         initial_odometer: 0,
-        mileage_input_preference: "odometer",
+        mileage_input_preference: 'odometer',
       };
       const mockCreatedCar = {
-        id: "car-123",
-        name: "Audi A4",
+        id: 'car-123',
+        name: 'Audi A4',
         initial_odometer: 0,
-        mileage_input_preference: "odometer",
-        created_at: "2024-01-01T00:00:00Z",
+        mileage_input_preference: 'odometer',
+        created_at: '2024-01-01T00:00:00Z',
       };
 
       vi.mocked(mockSupabase.from).mockReturnValue({
@@ -445,19 +445,19 @@ describe("cars.service", () => {
       expect(result.initial_odometer).toBe(0);
     });
 
-    it("should handle null initial_odometer", async () => {
+    it('should handle null initial_odometer', async () => {
       // Arrange
       const input: CreateCarCommand = {
-        name: "Audi A4",
+        name: 'Audi A4',
         initial_odometer: null,
-        mileage_input_preference: "distance",
+        mileage_input_preference: 'distance',
       };
       const mockCreatedCar = {
-        id: "car-123",
-        name: "Audi A4",
+        id: 'car-123',
+        name: 'Audi A4',
         initial_odometer: null,
-        mileage_input_preference: "distance",
-        created_at: "2024-01-01T00:00:00Z",
+        mileage_input_preference: 'distance',
+        created_at: '2024-01-01T00:00:00Z',
       };
 
       vi.mocked(mockSupabase.from).mockReturnValue({
@@ -475,19 +475,19 @@ describe("cars.service", () => {
       expect(result.initial_odometer).toBeNull();
     });
 
-    it("should create car with odometer preference", async () => {
+    it('should create car with odometer preference', async () => {
       // Arrange
       const input: CreateCarCommand = {
-        name: "Audi A4",
+        name: 'Audi A4',
         initial_odometer: 50000,
-        mileage_input_preference: "odometer",
+        mileage_input_preference: 'odometer',
       };
       const mockCreatedCar = {
-        id: "car-123",
-        name: "Audi A4",
+        id: 'car-123',
+        name: 'Audi A4',
         initial_odometer: 50000,
-        mileage_input_preference: "odometer",
-        created_at: "2024-01-01T00:00:00Z",
+        mileage_input_preference: 'odometer',
+        created_at: '2024-01-01T00:00:00Z',
       };
 
       vi.mocked(mockSupabase.from).mockReturnValue({
@@ -502,22 +502,22 @@ describe("cars.service", () => {
       const result = await createCar(mockSupabase, userId, input);
 
       // Assert
-      expect(result.mileage_input_preference).toBe("odometer");
+      expect(result.mileage_input_preference).toBe('odometer');
     });
 
-    it("should create car with distance preference", async () => {
+    it('should create car with distance preference', async () => {
       // Arrange
       const input: CreateCarCommand = {
-        name: "BMW X5",
+        name: 'BMW X5',
         initial_odometer: 30000,
-        mileage_input_preference: "distance",
+        mileage_input_preference: 'distance',
       };
       const mockCreatedCar = {
-        id: "car-456",
-        name: "BMW X5",
+        id: 'car-456',
+        name: 'BMW X5',
         initial_odometer: 30000,
-        mileage_input_preference: "distance",
-        created_at: "2024-01-01T00:00:00Z",
+        mileage_input_preference: 'distance',
+        created_at: '2024-01-01T00:00:00Z',
       };
 
       vi.mocked(mockSupabase.from).mockReturnValue({
@@ -532,27 +532,27 @@ describe("cars.service", () => {
       const result = await createCar(mockSupabase, userId, input);
 
       // Assert
-      expect(result.mileage_input_preference).toBe("distance");
+      expect(result.mileage_input_preference).toBe('distance');
     });
   });
 
-  describe("updateCar", () => {
-    const carId = "car-123";
+  describe('updateCar', () => {
+    const carId = 'car-123';
 
-    it("should update car name", async () => {
+    it('should update car name', async () => {
       // Arrange
-      const input: UpdateCarCommand = { name: "Audi A5" };
-      const existingCar = { id: carId, name: "Audi A4", user_id: userId };
+      const input: UpdateCarCommand = { name: 'Audi A5' };
+      const existingCar = { id: carId, name: 'Audi A4', user_id: userId };
       const updatedCar = {
         id: carId,
-        name: "Audi A5",
+        name: 'Audi A5',
         initial_odometer: 50000,
-        mileage_input_preference: "odometer",
-        created_at: "2024-01-01T00:00:00Z",
+        mileage_input_preference: 'odometer',
+        created_at: '2024-01-01T00:00:00Z',
       };
 
       vi.mocked(mockSupabase.from).mockImplementation((table: string) => {
-        if (table === "cars") {
+        if (table === 'cars') {
           const calls = vi.mocked(mockSupabase.from).mock.calls.length;
 
           // First call: fetch existingCar
@@ -614,14 +614,14 @@ describe("cars.service", () => {
       const result = await updateCar(mockSupabase, userId, carId, input);
 
       // Assert
-      expect(result.name).toBe("Audi A5");
+      expect(result.name).toBe('Audi A5');
     });
 
-    it("should throw ConflictError on duplicate name", async () => {
+    it('should throw ConflictError on duplicate name', async () => {
       // Arrange
-      const input: UpdateCarCommand = { name: "BMW X5" };
-      const existingCar = { id: carId, name: "Audi A4", user_id: userId };
-      const duplicateCar = { id: "other-car-id" };
+      const input: UpdateCarCommand = { name: 'BMW X5' };
+      const existingCar = { id: carId, name: 'Audi A4', user_id: userId };
+      const duplicateCar = { id: 'other-car-id' };
 
       vi.mocked(mockSupabase.from).mockImplementation(() => {
         const calls = vi.mocked(mockSupabase.from).mock.calls.length;
@@ -660,9 +660,9 @@ describe("cars.service", () => {
       await expect(updateCar(mockSupabase, userId, carId, input)).rejects.toThrow(ConflictError);
     });
 
-    it("should throw error for non-existent car", async () => {
+    it('should throw error for non-existent car', async () => {
       // Arrange
-      const input: UpdateCarCommand = { name: "Audi A5" };
+      const input: UpdateCarCommand = { name: 'Audi A5' };
 
       vi.mocked(mockSupabase.from).mockReturnValue({
         select: vi.fn().mockReturnValue({
@@ -678,21 +678,21 @@ describe("cars.service", () => {
 
       // Act & Assert
       await expect(updateCar(mockSupabase, userId, carId, input)).rejects.toThrow(
-        "Car not found or does not belong to user"
+        'Car not found or does not belong to user'
       );
     });
   });
 
-  describe("deleteCar", () => {
-    const carId = "car-123";
+  describe('deleteCar', () => {
+    const carId = 'car-123';
 
-    it("should delete car with correct confirmation", async () => {
+    it('should delete car with correct confirmation', async () => {
       // Arrange
-      const input: DeleteCarCommand = { confirmation_name: "Audi A4" };
-      const existingCar = { id: carId, name: "Audi A4", user_id: userId };
+      const input: DeleteCarCommand = { confirmation_name: 'Audi A4' };
+      const existingCar = { id: carId, name: 'Audi A4', user_id: userId };
 
       vi.mocked(mockSupabase.from).mockImplementation((table: string) => {
-        if (table === "cars") {
+        if (table === 'cars') {
           const calls = vi.mocked(mockSupabase.from).mock.calls.length;
 
           // First call: fetch existing car
@@ -725,13 +725,13 @@ describe("cars.service", () => {
       const result = await deleteCar(mockSupabase, userId, carId, input);
 
       // Assert
-      expect(result.message).toContain("deleted successfully");
+      expect(result.message).toContain('deleted successfully');
     });
 
-    it("should throw error on incorrect confirmation", async () => {
+    it('should throw error on incorrect confirmation', async () => {
       // Arrange
-      const input: DeleteCarCommand = { confirmation_name: "Wrong Name" };
-      const existingCar = { id: carId, name: "Audi A4", user_id: userId };
+      const input: DeleteCarCommand = { confirmation_name: 'Wrong Name' };
+      const existingCar = { id: carId, name: 'Audi A4', user_id: userId };
 
       vi.mocked(mockSupabase.from).mockReturnValue({
         select: vi.fn().mockReturnValue({
@@ -747,13 +747,13 @@ describe("cars.service", () => {
 
       // Act & Assert
       await expect(deleteCar(mockSupabase, userId, carId, input)).rejects.toThrow(
-        "Confirmation name does not match car name"
+        'Confirmation name does not match car name'
       );
     });
 
-    it("should throw error for non-existent car", async () => {
+    it('should throw error for non-existent car', async () => {
       // Arrange
-      const input: DeleteCarCommand = { confirmation_name: "Audi A4" };
+      const input: DeleteCarCommand = { confirmation_name: 'Audi A4' };
 
       vi.mocked(mockSupabase.from).mockReturnValue({
         select: vi.fn().mockReturnValue({
@@ -768,14 +768,14 @@ describe("cars.service", () => {
       } as any);
 
       // Act & Assert
-      await expect(deleteCar(mockSupabase, userId, carId, input)).rejects.toThrow("Car not found");
+      await expect(deleteCar(mockSupabase, userId, carId, input)).rejects.toThrow('Car not found');
     });
   });
 
-  describe("getCarStatistics", () => {
-    const carId = "car-123";
+  describe('getCarStatistics', () => {
+    const carId = 'car-123';
 
-    it("should return statistics for car with fillups", async () => {
+    it('should return statistics for car with fillups', async () => {
       // Arrange
       const mockData = {
         id: carId,
@@ -791,7 +791,7 @@ describe("cars.service", () => {
             fillup_count: 10,
           },
         ],
-        fillups: [{ date: "2024-01-15T00:00:00Z", odometer: 51500 }],
+        fillups: [{ date: '2024-01-15T00:00:00Z', odometer: 51500 }],
       };
 
       vi.mocked(mockSupabase.from).mockReturnValue({
@@ -815,11 +815,11 @@ describe("cars.service", () => {
       expect(result).not.toBeNull();
       expect(result?.car_id).toBe(carId);
       expect(result?.fillup_count).toBe(10);
-      expect(result?.latest_fillup_date).toBe("2024-01-15T00:00:00Z");
+      expect(result?.latest_fillup_date).toBe('2024-01-15T00:00:00Z');
       expect(result?.current_odometer).toBe(51500);
     });
 
-    it("should return statistics for car without fillups", async () => {
+    it('should return statistics for car without fillups', async () => {
       // Arrange
       const mockData = {
         id: carId,
@@ -862,7 +862,7 @@ describe("cars.service", () => {
       expect(result?.current_odometer).toBeNull();
     });
 
-    it("should return null for non-existent car", async () => {
+    it('should return null for non-existent car', async () => {
       // Arrange
       vi.mocked(mockSupabase.from).mockReturnValue({
         select: vi.fn().mockReturnValue({
@@ -879,13 +879,13 @@ describe("cars.service", () => {
       } as any);
 
       // Act
-      const result = await getCarStatistics(mockSupabase, "non-existent-car");
+      const result = await getCarStatistics(mockSupabase, 'non-existent-car');
 
       // Assert
       expect(result).toBeNull();
     });
 
-    it("should throw error on database error", async () => {
+    it('should throw error on database error', async () => {
       // Arrange
       vi.mocked(mockSupabase.from).mockReturnValue({
         select: vi.fn().mockReturnValue({
@@ -895,7 +895,7 @@ describe("cars.service", () => {
                 limit: vi.fn().mockReturnValue({
                   maybeSingle: vi.fn().mockResolvedValue({
                     data: null,
-                    error: { message: "Database error" },
+                    error: { message: 'Database error' },
                   }),
                 }),
               }),
@@ -905,7 +905,7 @@ describe("cars.service", () => {
       } as any);
 
       // Act & Assert
-      await expect(getCarStatistics(mockSupabase, carId)).rejects.toThrow("Failed to fetch car statistics");
+      await expect(getCarStatistics(mockSupabase, carId)).rejects.toThrow('Failed to fetch car statistics');
     });
   });
 });

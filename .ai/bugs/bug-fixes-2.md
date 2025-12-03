@@ -105,7 +105,7 @@ const handleFieldChange = useCallback(
 // Zmień logikę isSubmitDisabled:
 const hasErrors = Object.keys(formErrors).length > 0;
 // Wyklucz submit error z blokowania przycisku jeśli są zmiany
-const hasFieldErrors = Object.keys(formErrors).filter((key) => key !== "submit").length > 0;
+const hasFieldErrors = Object.keys(formErrors).filter((key) => key !== 'submit').length > 0;
 const isSubmitDisabled = isSubmitting || (hasFieldErrors && touchedFields.size > 0) || !hasChanges();
 ```
 
@@ -114,7 +114,7 @@ const isSubmitDisabled = isSubmitting || (hasFieldErrors && touchedFields.size >
 ```typescript
 // Sprawdź czy są błędy walidacji pól (nie submit)
 const hasFieldValidationErrors = Object.keys(formErrors).some(
-  (key) => key !== "submit" && formErrors[key as keyof typeof formErrors]
+  (key) => key !== 'submit' && formErrors[key as keyof typeof formErrors]
 );
 
 // Przycisk jest zablokowany tylko gdy:
@@ -197,7 +197,7 @@ Zgodnie z dokumentacją w `bugs-2.md`, system powinien używać następujących 
 // Zastąp funkcję getConsumptionColor:
 const getConsumptionColor = (consumption: number | null | undefined, avg: number) => {
   if (!consumption || avg === 0 || !isFinite(consumption) || !isFinite(avg)) {
-    return "text-gray-600 dark:text-gray-400";
+    return 'text-gray-600 dark:text-gray-400';
   }
 
   // Oblicz procentowe odchylenie od średniej
@@ -205,36 +205,36 @@ const getConsumptionColor = (consumption: number | null | undefined, avg: number
 
   // EKSTREMALNIE NISKIE: Znacząco lepsze niż średnia (odchylenie <= -15%)
   if (deviation <= -15) {
-    return "text-green-800 dark:text-green-300 font-semibold";
+    return 'text-green-800 dark:text-green-300 font-semibold';
   }
 
   // BARDZO NISKIE: Wyraźnie lepsze niż średnia (-15% < odchylenie <= -8%)
   if (deviation <= -8) {
-    return "text-green-600 dark:text-green-400 font-semibold";
+    return 'text-green-600 dark:text-green-400 font-semibold';
   }
 
   // LEKKO NISKIE: Nieznacznie lepsze niż średnia (-8% < odchylenie < 0%)
   if (deviation < 0) {
-    return "text-lime-500 dark:text-lime-400";
+    return 'text-lime-500 dark:text-lime-400';
   }
 
   // NEUTRALNE: Wynik w granicach normy (0% <= odchylenie < 5%)
   if (deviation < 5) {
-    return "text-yellow-600 dark:text-yellow-400";
+    return 'text-yellow-600 dark:text-yellow-400';
   }
 
   // LEKKO WYSOKIE: Nieznacznie gorsze niż średnia (5% <= odchylenie < 10%)
   if (deviation < 10) {
-    return "text-orange-600 dark:text-orange-400";
+    return 'text-orange-600 dark:text-orange-400';
   }
 
   // BARDZO WYSOKIE: Wyraźnie gorsze niż średnia (10% <= odchylenie < 20%)
   if (deviation < 20) {
-    return "text-red-600 dark:text-red-400 font-semibold";
+    return 'text-red-600 dark:text-red-400 font-semibold';
   }
 
   // EKSTREMALNIE WYSOKIE: Znacząco gorsze niż średnia (odchylenie >= 20%)
-  return "text-red-800 dark:text-red-300 font-semibold";
+  return 'text-red-800 dark:text-red-300 font-semibold';
 };
 ```
 

@@ -14,7 +14,7 @@ export const CarCard: React.FC<CarCardProps> = ({ car, onClick }) => {
   };
 
   return (
-    <div 
+    <div
       className="group bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 hover:-translate-y-1 transform"
       onClick={handleClick}
       role="button"

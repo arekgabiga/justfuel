@@ -196,9 +196,9 @@ Endpoint `/api/cars/{carId}/charts` służy do pobierania danych szeregów czaso
 
 ```typescript
 // src/pages/api/cars/[carId]/charts.ts
-import type { APIRoute } from "astro";
-import { getChartData } from "../../../lib/services/charts.service";
-import { createSupabaseClient } from "../../../db/supabase.client";
+import type { APIRoute } from 'astro';
+import { getChartData } from '../../../lib/services/charts.service';
+import { createSupabaseClient } from '../../../db/supabase.client';
 
 export const GET: APIRoute = async ({ params, url, request }) => {
   // Implementacja endpointu

@@ -1,11 +1,11 @@
-import React, { useEffect, useRef } from "react";
-import type { FillupDTO, PaginationDTO } from "../../types";
-import { FillupCard } from "./FillupCard";
-import { LoadingState } from "./LoadingState";
-import { ErrorState } from "./ErrorState";
-import { EmptyFillupsState } from "./EmptyFillupsState";
-import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+import React, { useEffect, useRef } from 'react';
+import type { FillupDTO, PaginationDTO } from '../../types';
+import { FillupCard } from './FillupCard';
+import { LoadingState } from './LoadingState';
+import { ErrorState } from './ErrorState';
+import { EmptyFillupsState } from './EmptyFillupsState';
+import { Button } from '@/components/ui/button';
+import { Loader2 } from 'lucide-react';
 
 interface FillupsListViewProps {
   fillups: FillupDTO[];
@@ -57,9 +57,7 @@ export const FillupsListView: React.FC<FillupsListViewProps> = ({
   }, [loading, pagination.has_more, onLoadMore]);
 
   if (error) {
-    return (
-      <ErrorState error={error} onRetry={onRetry || (() => {})} />
-    );
+    return <ErrorState error={error} onRetry={onRetry || (() => undefined)} />;
   }
 
   if (loading && fillups.length === 0) {
@@ -102,4 +100,3 @@ export const FillupsListView: React.FC<FillupsListViewProps> = ({
     </div>
   );
 };
-

@@ -1,11 +1,11 @@
 export const prerender = false;
 
-import type { APIRoute } from "astro";
-import { fillupIdParamSchema, updateFillupRequestSchema } from "../../../../../lib/validation/fillups.ts";
-import { carIdParamSchema } from "../../../../../lib/validation/cars.ts";
-import { updateFillup, getFillupById, deleteFillup } from "../../../../../lib/services/fillups.service.ts";
-import { requireAuth } from "../../../../../lib/utils/auth.ts";
-import type { ErrorResponseDTO } from "../../../../../types.ts";
+import type { APIRoute } from 'astro';
+import { fillupIdParamSchema, updateFillupRequestSchema } from '../../../../../lib/validation/fillups.ts';
+import { carIdParamSchema } from '../../../../../lib/validation/cars.ts';
+import { updateFillup, getFillupById, deleteFillup } from '../../../../../lib/services/fillups.service.ts';
+import { requireAuth } from '../../../../../lib/utils/auth.ts';
+import type { ErrorResponseDTO } from '../../../../../types.ts';
 
 /**
  * GET /api/cars/{carId}/fillups/{fillupId}
@@ -24,7 +24,7 @@ import type { ErrorResponseDTO } from "../../../../../types.ts";
  * - 500: Internal Server Error
  */
 export const GET: APIRoute = async (context) => {
-  const requestId = context.request.headers.get("x-request-id") ?? undefined;
+  const requestId = context.request.headers.get('x-request-id') ?? undefined;
 
   try {
     // Require authentication
@@ -35,13 +35,13 @@ export const GET: APIRoute = async (context) => {
     if (!supabase) {
       const errorResponse: ErrorResponseDTO = {
         error: {
-          code: "INTERNAL_ERROR",
-          message: "Supabase client not available",
+          code: 'INTERNAL_ERROR',
+          message: 'Supabase client not available',
         },
       };
       return new Response(JSON.stringify(errorResponse), {
         status: 500,
-        headers: { "Content-Type": "application/json" },
+        headers: { 'Content-Type': 'application/json' },
       });
     }
 
@@ -56,14 +56,14 @@ export const GET: APIRoute = async (context) => {
     if (!carIdValidation.success) {
       const errorResponse: ErrorResponseDTO = {
         error: {
-          code: "INVALID_CAR_ID",
-          message: "Invalid car ID format",
+          code: 'INVALID_CAR_ID',
+          message: 'Invalid car ID format',
           details: { issues: carIdValidation.error.message },
         },
       };
       return new Response(JSON.stringify(errorResponse), {
         status: 400,
-        headers: { "Content-Type": "application/json" },
+        headers: { 'Content-Type': 'application/json' },
       });
     }
 
@@ -74,14 +74,14 @@ export const GET: APIRoute = async (context) => {
     if (!fillupIdValidation.success) {
       const errorResponse: ErrorResponseDTO = {
         error: {
-          code: "INVALID_FILLUP_ID",
-          message: "Invalid fillup ID format",
+          code: 'INVALID_FILLUP_ID',
+          message: 'Invalid fillup ID format',
           details: { issues: fillupIdValidation.error.message },
         },
       };
       return new Response(JSON.stringify(errorResponse), {
         status: 400,
-        headers: { "Content-Type": "application/json" },
+        headers: { 'Content-Type': 'application/json' },
       });
     }
 
@@ -94,20 +94,20 @@ export const GET: APIRoute = async (context) => {
     if (!result) {
       const errorResponse: ErrorResponseDTO = {
         error: {
-          code: "FILLUP_NOT_FOUND",
+          code: 'FILLUP_NOT_FOUND',
           message: "Fillup not found or does not belong to user's car",
         },
       };
       return new Response(JSON.stringify(errorResponse), {
         status: 404,
-        headers: { "Content-Type": "application/json" },
+        headers: { 'Content-Type': 'application/json' },
       });
     }
 
     // 4. Return success response
     return new Response(JSON.stringify(result), {
       status: 200,
-      headers: { "Content-Type": "application/json" },
+      headers: { 'Content-Type': 'application/json' },
     });
   } catch (error) {
     // Handle auth errors (thrown by requireAuth)
@@ -117,34 +117,34 @@ export const GET: APIRoute = async (context) => {
     // Handle known errors
     if (error instanceof Error) {
       // Car not found error
-      if (error.message === "Car not found") {
+      if (error.message === 'Car not found') {
         const errorResponse: ErrorResponseDTO = {
           error: {
-            code: "CAR_NOT_FOUND",
-            message: "Car not found or does not belong to user",
+            code: 'CAR_NOT_FOUND',
+            message: 'Car not found or does not belong to user',
           },
         };
         return new Response(JSON.stringify(errorResponse), {
           status: 404,
-          headers: { "Content-Type": "application/json" },
+          headers: { 'Content-Type': 'application/json' },
         });
       }
 
       // Log unexpected errors for debugging
-      // eslint-disable-next-line no-console
-      console.error(`[GET /api/cars/[carId]/fillups/[fillupId]] requestId=${requestId ?? "-"}`, error);
+
+      console.error(`[GET /api/cars/[carId]/fillups/[fillupId]] requestId=${requestId ?? '-'}`, error);
     }
 
     // Generic server error response
     const errorResponse: ErrorResponseDTO = {
       error: {
-        code: "INTERNAL_SERVER_ERROR",
-        message: "An unexpected error occurred",
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'An unexpected error occurred',
       },
     };
     return new Response(JSON.stringify(errorResponse), {
       status: 500,
-      headers: { "Content-Type": "application/json" },
+      headers: { 'Content-Type': 'application/json' },
     });
   }
 };
@@ -175,7 +175,7 @@ export const GET: APIRoute = async (context) => {
  * - 500: Internal Server Error
  */
 export const PATCH: APIRoute = async (context) => {
-  const requestId = context.request.headers.get("x-request-id") ?? undefined;
+  const requestId = context.request.headers.get('x-request-id') ?? undefined;
 
   try {
     // Require authentication
@@ -186,13 +186,13 @@ export const PATCH: APIRoute = async (context) => {
     if (!supabase) {
       const errorResponse: ErrorResponseDTO = {
         error: {
-          code: "INTERNAL_ERROR",
-          message: "Supabase client not available",
+          code: 'INTERNAL_ERROR',
+          message: 'Supabase client not available',
         },
       };
       return new Response(JSON.stringify(errorResponse), {
         status: 500,
-        headers: { "Content-Type": "application/json" },
+        headers: { 'Content-Type': 'application/json' },
       });
     }
 
@@ -207,14 +207,14 @@ export const PATCH: APIRoute = async (context) => {
     if (!carIdValidation.success) {
       const errorResponse: ErrorResponseDTO = {
         error: {
-          code: "INVALID_CAR_ID",
-          message: "Invalid car ID format",
+          code: 'INVALID_CAR_ID',
+          message: 'Invalid car ID format',
           details: { issues: carIdValidation.error.message },
         },
       };
       return new Response(JSON.stringify(errorResponse), {
         status: 400,
-        headers: { "Content-Type": "application/json" },
+        headers: { 'Content-Type': 'application/json' },
       });
     }
 
@@ -225,14 +225,14 @@ export const PATCH: APIRoute = async (context) => {
     if (!fillupIdValidation.success) {
       const errorResponse: ErrorResponseDTO = {
         error: {
-          code: "INVALID_FILLUP_ID",
-          message: "Invalid fillup ID format",
+          code: 'INVALID_FILLUP_ID',
+          message: 'Invalid fillup ID format',
           details: { issues: fillupIdValidation.error.message },
         },
       };
       return new Response(JSON.stringify(errorResponse), {
         status: 400,
-        headers: { "Content-Type": "application/json" },
+        headers: { 'Content-Type': 'application/json' },
       });
     }
 
@@ -246,13 +246,13 @@ export const PATCH: APIRoute = async (context) => {
     } catch {
       const errorResponse: ErrorResponseDTO = {
         error: {
-          code: "INVALID_JSON",
-          message: "Invalid JSON in request body",
+          code: 'INVALID_JSON',
+          message: 'Invalid JSON in request body',
         },
       };
       return new Response(JSON.stringify(errorResponse), {
         status: 400,
-        headers: { "Content-Type": "application/json" },
+        headers: { 'Content-Type': 'application/json' },
       });
     }
 
@@ -262,14 +262,14 @@ export const PATCH: APIRoute = async (context) => {
     if (!bodyValidation.success) {
       const errorResponse: ErrorResponseDTO = {
         error: {
-          code: "INVALID_REQUEST_BODY",
-          message: "Invalid request body",
+          code: 'INVALID_REQUEST_BODY',
+          message: 'Invalid request body',
           details: { issues: bodyValidation.error.message },
         },
       };
       return new Response(JSON.stringify(errorResponse), {
         status: 400,
-        headers: { "Content-Type": "application/json" },
+        headers: { 'Content-Type': 'application/json' },
       });
     }
 
@@ -279,15 +279,15 @@ export const PATCH: APIRoute = async (context) => {
     const result = await updateFillup(supabase, userId, carId, fillupId, updateData);
 
     // Log successful update
-    // eslint-disable-next-line no-console
+
     console.log(
-      `[PATCH /api/cars/[carId]/fillups/[fillupId]] requestId=${requestId ?? "-"} carId=${carId} fillupId=${fillupId} updatedFields=${Object.keys(updateData).join(",")} updatedEntries=${result.updated_entries_count} warnings=${result.warnings.length}`
+      `[PATCH /api/cars/[carId]/fillups/[fillupId]] requestId=${requestId ?? '-'} carId=${carId} fillupId=${fillupId} updatedFields=${Object.keys(updateData).join(',')} updatedEntries=${result.updated_entries_count} warnings=${result.warnings.length}`
     );
 
     // 5. Return success response
     return new Response(JSON.stringify(result), {
       status: 200,
-      headers: { "Content-Type": "application/json" },
+      headers: { 'Content-Type': 'application/json' },
     });
   } catch (error) {
     // Handle auth errors (thrown by requireAuth)
@@ -297,76 +297,76 @@ export const PATCH: APIRoute = async (context) => {
     // Handle known errors
     if (error instanceof Error) {
       // Fillup not found error
-      if (error.message === "Fillup not found") {
+      if (error.message === 'Fillup not found') {
         const errorResponse: ErrorResponseDTO = {
           error: {
-            code: "FILLUP_NOT_FOUND",
+            code: 'FILLUP_NOT_FOUND',
             message: "Fillup not found or does not belong to user's car",
           },
         };
         return new Response(JSON.stringify(errorResponse), {
           status: 404,
-          headers: { "Content-Type": "application/json" },
+          headers: { 'Content-Type': 'application/json' },
         });
       }
 
       // Car not found error
-      if (error.message === "Car not found") {
+      if (error.message === 'Car not found') {
         const errorResponse: ErrorResponseDTO = {
           error: {
-            code: "CAR_NOT_FOUND",
-            message: "Car not found or does not belong to user",
+            code: 'CAR_NOT_FOUND',
+            message: 'Car not found or does not belong to user',
           },
         };
         return new Response(JSON.stringify(errorResponse), {
           status: 404,
-          headers: { "Content-Type": "application/json" },
+          headers: { 'Content-Type': 'application/json' },
         });
       }
 
       // Database operation errors
-      if (error.message.includes("Failed to fetch") || error.message.includes("Failed to update")) {
+      if (error.message.includes('Failed to fetch') || error.message.includes('Failed to update')) {
         const errorResponse: ErrorResponseDTO = {
           error: {
-            code: "DATABASE_ERROR",
-            message: "Database operation failed",
+            code: 'DATABASE_ERROR',
+            message: 'Database operation failed',
           },
         };
         return new Response(JSON.stringify(errorResponse), {
           status: 500,
-          headers: { "Content-Type": "application/json" },
+          headers: { 'Content-Type': 'application/json' },
         });
       }
 
       // Validation errors from service
-      if (error.message === "Either odometer or distance must be provided") {
+      if (error.message === 'Either odometer or distance must be provided') {
         const errorResponse: ErrorResponseDTO = {
           error: {
-            code: "INVALID_REQUEST_BODY",
-            message: "Either odometer or distance must be provided",
+            code: 'INVALID_REQUEST_BODY',
+            message: 'Either odometer or distance must be provided',
           },
         };
         return new Response(JSON.stringify(errorResponse), {
           status: 400,
-          headers: { "Content-Type": "application/json" },
+          headers: { 'Content-Type': 'application/json' },
         });
       }
 
       // Log unexpected errors for debugging
-      // eslint-disable-next-line no-console
-      console.error(`[PATCH /api/cars/[carId]/fillups/[fillupId]] requestId=${requestId ?? "-"}`, error);
+
+      console.error(`[PATCH /api/cars/[carId]/fillups/[fillupId]] requestId=${requestId ?? '-'}`, error);
     }
 
     // Generic server error response
     const errorResponse: ErrorResponseDTO = {
       error: {
-        code: "INTERNAL_SERVER_ERROR",
-        message: "An unexpected error occurred",
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'An unexpected error occurred',
       },
     };
     return new Response(JSON.stringify(errorResponse), {
       status: 500,
-      headers: { "Content-Type": "application/json" },
+      headers: { 'Content-Type': 'application/json' },
     });
   }
 };
@@ -388,7 +388,7 @@ export const PATCH: APIRoute = async (context) => {
  * - 500: Internal Server Error
  */
 export const DELETE: APIRoute = async (context) => {
-  const requestId = context.request.headers.get("x-request-id") ?? undefined;
+  const requestId = context.request.headers.get('x-request-id') ?? undefined;
 
   try {
     // Require authentication
@@ -399,13 +399,13 @@ export const DELETE: APIRoute = async (context) => {
     if (!supabase) {
       const errorResponse: ErrorResponseDTO = {
         error: {
-          code: "INTERNAL_ERROR",
-          message: "Supabase client not available",
+          code: 'INTERNAL_ERROR',
+          message: 'Supabase client not available',
         },
       };
       return new Response(JSON.stringify(errorResponse), {
         status: 500,
-        headers: { "Content-Type": "application/json" },
+        headers: { 'Content-Type': 'application/json' },
       });
     }
 
@@ -420,14 +420,14 @@ export const DELETE: APIRoute = async (context) => {
     if (!carIdValidation.success) {
       const errorResponse: ErrorResponseDTO = {
         error: {
-          code: "INVALID_CAR_ID",
-          message: "Invalid car ID format",
+          code: 'INVALID_CAR_ID',
+          message: 'Invalid car ID format',
           details: { issues: carIdValidation.error.message },
         },
       };
       return new Response(JSON.stringify(errorResponse), {
         status: 400,
-        headers: { "Content-Type": "application/json" },
+        headers: { 'Content-Type': 'application/json' },
       });
     }
 
@@ -438,14 +438,14 @@ export const DELETE: APIRoute = async (context) => {
     if (!fillupIdValidation.success) {
       const errorResponse: ErrorResponseDTO = {
         error: {
-          code: "INVALID_FILLUP_ID",
-          message: "Invalid fillup ID format",
+          code: 'INVALID_FILLUP_ID',
+          message: 'Invalid fillup ID format',
           details: { issues: fillupIdValidation.error.message },
         },
       };
       return new Response(JSON.stringify(errorResponse), {
         status: 400,
-        headers: { "Content-Type": "application/json" },
+        headers: { 'Content-Type': 'application/json' },
       });
     }
 
@@ -456,15 +456,15 @@ export const DELETE: APIRoute = async (context) => {
     const result = await deleteFillup(supabase, userId, carId, fillupId);
 
     // Log successful deletion
-    // eslint-disable-next-line no-console
+
     console.log(
-      `[DELETE /api/cars/[carId]/fillups/[fillupId]] requestId=${requestId ?? "-"} carId=${carId} fillupId=${fillupId} updatedEntries=${result.updated_entries_count}`
+      `[DELETE /api/cars/[carId]/fillups/[fillupId]] requestId=${requestId ?? '-'} carId=${carId} fillupId=${fillupId} updatedEntries=${result.updated_entries_count}`
     );
 
     // 4. Return success response
     return new Response(JSON.stringify(result), {
       status: 200,
-      headers: { "Content-Type": "application/json" },
+      headers: { 'Content-Type': 'application/json' },
     });
   } catch (error) {
     // Handle auth errors (thrown by requireAuth)
@@ -474,66 +474,66 @@ export const DELETE: APIRoute = async (context) => {
     // Handle known errors
     if (error instanceof Error) {
       // Fillup not found error
-      if (error.message === "Fillup not found") {
+      if (error.message === 'Fillup not found') {
         const errorResponse: ErrorResponseDTO = {
           error: {
-            code: "NOT_FOUND",
+            code: 'NOT_FOUND',
             message: "Fillup or car not found, or doesn't belong to user",
           },
         };
         return new Response(JSON.stringify(errorResponse), {
           status: 404,
-          headers: { "Content-Type": "application/json" },
+          headers: { 'Content-Type': 'application/json' },
         });
       }
 
       // Car not found error
-      if (error.message === "Car not found") {
+      if (error.message === 'Car not found') {
         const errorResponse: ErrorResponseDTO = {
           error: {
-            code: "NOT_FOUND",
+            code: 'NOT_FOUND',
             message: "Fillup or car not found, or doesn't belong to user",
           },
         };
         return new Response(JSON.stringify(errorResponse), {
           status: 404,
-          headers: { "Content-Type": "application/json" },
+          headers: { 'Content-Type': 'application/json' },
         });
       }
 
       // Database operation errors
       if (
-        error.message.includes("Failed to fetch") ||
-        error.message.includes("Failed to delete") ||
-        error.message.includes("Failed to update")
+        error.message.includes('Failed to fetch') ||
+        error.message.includes('Failed to delete') ||
+        error.message.includes('Failed to update')
       ) {
         const errorResponse: ErrorResponseDTO = {
           error: {
-            code: "INTERNAL_ERROR",
-            message: "An unexpected error occurred while deleting fillup",
+            code: 'INTERNAL_ERROR',
+            message: 'An unexpected error occurred while deleting fillup',
           },
         };
         return new Response(JSON.stringify(errorResponse), {
           status: 500,
-          headers: { "Content-Type": "application/json" },
+          headers: { 'Content-Type': 'application/json' },
         });
       }
 
       // Log unexpected errors for debugging
-      // eslint-disable-next-line no-console
-      console.error(`[DELETE /api/cars/[carId]/fillups/[fillupId]] requestId=${requestId ?? "-"}`, error);
+
+      console.error(`[DELETE /api/cars/[carId]/fillups/[fillupId]] requestId=${requestId ?? '-'}`, error);
     }
 
     // Generic server error response
     const errorResponse: ErrorResponseDTO = {
       error: {
-        code: "INTERNAL_ERROR",
-        message: "An unexpected error occurred while deleting fillup",
+        code: 'INTERNAL_ERROR',
+        message: 'An unexpected error occurred while deleting fillup',
       },
     };
     return new Response(JSON.stringify(errorResponse), {
       status: 500,
-      headers: { "Content-Type": "application/json" },
+      headers: { 'Content-Type': 'application/json' },
     });
   }
 };

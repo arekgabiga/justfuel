@@ -445,8 +445,8 @@ Query params dla API.
 type ListFillupsQueryParams = {
   limit?: number; // default: 20, max: 100
   cursor?: string; // Base64 cursor
-  sort?: "date" | "odometer"; // default: "date"
-  order?: "asc" | "desc"; // default: "desc"
+  sort?: 'date' | 'odometer'; // default: "date"
+  order?: 'asc' | 'desc'; // default: "desc"
 };
 ```
 
@@ -577,11 +577,11 @@ const fetchFillups = async (cursor?: string) => {
 
   try {
     const token = getAuthToken();
-    const params = new URLSearchParams({ limit: "20", sort: "date", order: "desc" });
-    if (cursor) params.append("cursor", cursor);
+    const params = new URLSearchParams({ limit: '20', sort: 'date', order: 'desc' });
+    if (cursor) params.append('cursor', cursor);
 
     const response = await fetch(`/api/cars/${carId}/fillups?${params}`, {
-      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
     });
 
     if (!response.ok) {
@@ -890,16 +890,16 @@ const fetchFillups = async (cursor?: string) => {
 
 ```astro
 ---
-import Layout from "../../../layouts/Layout.astro";
-import { FillupsView } from "../../../components/cars/FillupsView";
+import Layout from '../../../layouts/Layout.astro';
+import { FillupsView } from '../../../components/cars/FillupsView';
 
-const title = "Historia Tankowań - JustFuel";
-const description = "Historia tankowań dla samochodu";
+const title = 'Historia Tankowań - JustFuel';
+const description = 'Historia tankowań dla samochodu';
 
 const carId = Astro.params.carId;
 
 if (!carId) {
-  return Astro.redirect("/cars");
+  return Astro.redirect('/cars');
 }
 ---
 
@@ -921,8 +921,8 @@ if (!carId) {
 **Plik:** `src/lib/hooks/useFillupsView.ts`
 
 ```typescript
-import { useState, useEffect, useCallback } from "react";
-import type { CarDetailsDTO, FillupDTO, PaginatedFillupsResponseDTO } from "../../types";
+import { useState, useEffect, useCallback } from 'react';
+import type { CarDetailsDTO, FillupDTO, PaginatedFillupsResponseDTO } from '../../types';
 
 export const useFillupsView = (carId: string) => {
   // State management

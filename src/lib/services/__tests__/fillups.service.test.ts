@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import type { AppSupabaseClient } from "../../../db/supabase.client";
-import type { CreateFillupCommand, UpdateFillupCommand, PaginatedFillupsResponseDTO } from "../../../types";
-import { listFillupsByCar, getFillupById, createFillup, updateFillup, deleteFillup } from "../fillups.service";
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import type { AppSupabaseClient } from '../../../db/supabase.client';
+import type { CreateFillupCommand, UpdateFillupCommand, PaginatedFillupsResponseDTO } from '../../../types';
+import { listFillupsByCar, getFillupById, createFillup, updateFillup, deleteFillup } from '../fillups.service';
 
 /**
  * TODO: Refactor mocking strategy
@@ -17,10 +17,10 @@ import { listFillupsByCar, getFillupById, createFillup, updateFillup, deleteFill
  */
 
 // Helper functions to test encoding/decoding (not exported, but testable via service behavior)
-describe("fillups.service", () => {
+describe('fillups.service', () => {
   let mockSupabase: AppSupabaseClient;
-  const userId = "user-123";
-  const carId = "car-123";
+  const userId = 'user-123';
+  const carId = 'car-123';
 
   beforeEach(() => {
     mockSupabase = {
@@ -28,14 +28,14 @@ describe("fillups.service", () => {
     } as unknown as AppSupabaseClient;
   });
 
-  describe("listFillupsByCar", () => {
-    it("should list fillups with default parameters", async () => {
+  describe('listFillupsByCar', () => {
+    it('should list fillups with default parameters', async () => {
       // Arrange
       const mockFillups = [
         {
-          id: "fillup-1",
+          id: 'fillup-1',
           car_id: carId,
-          date: "2024-01-15",
+          date: '2024-01-15',
           fuel_amount: 50,
           total_price: 250,
           odometer: 50500,
@@ -46,7 +46,7 @@ describe("fillups.service", () => {
       ];
 
       vi.mocked(mockSupabase.from).mockImplementation((table: string) => {
-        if (table === "fillups") {
+        if (table === 'fillups') {
           const calls = vi.mocked(mockSupabase.from).mock.calls.length;
 
           // First call: fetch fillups
@@ -82,10 +82,10 @@ describe("fillups.service", () => {
       expect(result.pagination.has_more).toBe(false);
     });
 
-    it("should return empty array when car has no fillups", async () => {
+    it('should return empty array when car has no fillups', async () => {
       // Arrange
       vi.mocked(mockSupabase.from).mockImplementation((table: string) => {
-        if (table === "fillups") {
+        if (table === 'fillups') {
           return {
             select: vi.fn().mockReturnValue({
               eq: vi.fn().mockReturnValue({
@@ -98,7 +98,7 @@ describe("fillups.service", () => {
             }),
           } as any;
         }
-        if (table === "cars") {
+        if (table === 'cars') {
           return {
             select: vi.fn().mockReturnValue({
               eq: vi.fn().mockReturnValue({
@@ -122,10 +122,10 @@ describe("fillups.service", () => {
       expect(result.pagination.total_count).toBe(0);
     });
 
-    it("should throw error for non-existent car", async () => {
+    it('should throw error for non-existent car', async () => {
       // Arrange
       vi.mocked(mockSupabase.from).mockImplementation((table: string) => {
-        if (table === "fillups") {
+        if (table === 'fillups') {
           return {
             select: vi.fn().mockReturnValue({
               eq: vi.fn().mockReturnValue({
@@ -138,7 +138,7 @@ describe("fillups.service", () => {
             }),
           } as any;
         }
-        if (table === "cars") {
+        if (table === 'cars') {
           return {
             select: vi.fn().mockReturnValue({
               eq: vi.fn().mockReturnValue({
@@ -155,26 +155,26 @@ describe("fillups.service", () => {
       });
 
       // Act & Assert
-      await expect(listFillupsByCar(mockSupabase, userId, "non-existent-car", {})).rejects.toThrow("Car not found");
+      await expect(listFillupsByCar(mockSupabase, userId, 'non-existent-car', {})).rejects.toThrow('Car not found');
     });
 
-    it("should throw error on invalid cursor", async () => {
+    it('should throw error on invalid cursor', async () => {
       // Act & Assert
-      await expect(listFillupsByCar(mockSupabase, userId, carId, { cursor: "invalid-cursor" })).rejects.toThrow(
-        "Invalid cursor format"
+      await expect(listFillupsByCar(mockSupabase, userId, carId, { cursor: 'invalid-cursor' })).rejects.toThrow(
+        'Invalid cursor format'
       );
     });
   });
 
-  describe("getFillupById", () => {
-    const fillupId = "fillup-123";
+  describe('getFillupById', () => {
+    const fillupId = 'fillup-123';
 
-    it("should return fillup by ID", async () => {
+    it('should return fillup by ID', async () => {
       // Arrange
       const mockFillup = {
         id: fillupId,
         car_id: carId,
-        date: "2024-01-15",
+        date: '2024-01-15',
         fuel_amount: 50,
         total_price: 250,
         odometer: 50500,
@@ -201,7 +201,7 @@ describe("fillups.service", () => {
       expect(result?.id).toBe(fillupId);
     });
 
-    it("should return null for non-existent fillup", async () => {
+    it('should return null for non-existent fillup', async () => {
       // Arrange
       vi.mocked(mockSupabase.from).mockReturnValue({
         select: vi.fn().mockReturnValue({
@@ -214,27 +214,27 @@ describe("fillups.service", () => {
       } as any);
 
       // Act
-      const result = await getFillupById(mockSupabase, userId, carId, "non-existent-fillup");
+      const result = await getFillupById(mockSupabase, userId, carId, 'non-existent-fillup');
 
       // Assert
       expect(result).toBeNull();
     });
   });
 
-  describe("createFillup", () => {
-    it("should create first fillup with odometer method", async () => {
+  describe('createFillup', () => {
+    it('should create first fillup with odometer method', async () => {
       // Arrange
       const input: CreateFillupCommand = {
-        date: "2024-01-15",
+        date: '2024-01-15',
         fuel_amount: 50,
         total_price: 250,
         odometer: 50500,
       };
       const mockCar = { id: carId, initial_odometer: 50000 };
       const mockCreatedFillup = {
-        id: "fillup-123",
+        id: 'fillup-123',
         car_id: carId,
-        date: "2024-01-15",
+        date: '2024-01-15',
         fuel_amount: 50,
         total_price: 250,
         odometer: 50500,
@@ -244,7 +244,7 @@ describe("fillups.service", () => {
       };
 
       vi.mocked(mockSupabase.from).mockImplementation((table: string) => {
-        if (table === "cars") {
+        if (table === 'cars') {
           return {
             select: vi.fn().mockReturnValue({
               eq: vi.fn().mockReturnValue({
@@ -257,8 +257,8 @@ describe("fillups.service", () => {
             }),
           } as any;
         }
-        if (table === "fillups") {
-          const calls = vi.mocked(mockSupabase.from).mock.calls.filter((c) => c[0] === "fillups").length;
+        if (table === 'fillups') {
+          const calls = vi.mocked(mockSupabase.from).mock.calls.filter((c) => c[0] === 'fillups').length;
 
           // First call: get previous fillup (none exists)
           if (calls === 1) {
@@ -290,25 +290,25 @@ describe("fillups.service", () => {
       const result = await createFillup(mockSupabase, userId, carId, input);
 
       // Assert
-      expect(result.id).toBe("fillup-123");
+      expect(result.id).toBe('fillup-123');
       expect(result.distance_traveled).toBe(500);
       expect(result.fuel_consumption).toBe(10.0);
     });
 
-    it("should create fillup with distance method", async () => {
+    it('should create fillup with distance method', async () => {
       // Arrange
       const input: CreateFillupCommand = {
-        date: "2024-01-15",
+        date: '2024-01-15',
         fuel_amount: 50,
         total_price: 250,
         distance: 500,
       };
       const mockCar = { id: carId, initial_odometer: 50000 };
-      const mockPreviousFillup = { odometer: 50000, date: "2024-01-01" };
+      const mockPreviousFillup = { odometer: 50000, date: '2024-01-01' };
       const mockCreatedFillup = {
-        id: "fillup-123",
+        id: 'fillup-123',
         car_id: carId,
-        date: "2024-01-15",
+        date: '2024-01-15',
         fuel_amount: 50,
         total_price: 250,
         odometer: 50500,
@@ -318,7 +318,7 @@ describe("fillups.service", () => {
       };
 
       vi.mocked(mockSupabase.from).mockImplementation((table: string) => {
-        if (table === "cars") {
+        if (table === 'cars') {
           return {
             select: vi.fn().mockReturnValue({
               eq: vi.fn().mockReturnValue({
@@ -331,8 +331,8 @@ describe("fillups.service", () => {
             }),
           } as any;
         }
-        if (table === "fillups") {
-          const calls = vi.mocked(mockSupabase.from).mock.calls.filter((c) => c[0] === "fillups").length;
+        if (table === 'fillups') {
+          const calls = vi.mocked(mockSupabase.from).mock.calls.filter((c) => c[0] === 'fillups').length;
 
           // First call: get previous fillup
           if (calls === 1) {
@@ -364,24 +364,24 @@ describe("fillups.service", () => {
       const result = await createFillup(mockSupabase, userId, carId, input);
 
       // Assert
-      expect(result.id).toBe("fillup-123");
+      expect(result.id).toBe('fillup-123');
       expect(result.odometer).toBe(50500);
     });
 
-    it("should generate warning for odometer going backwards", async () => {
+    it('should generate warning for odometer going backwards', async () => {
       // Arrange
       const input: CreateFillupCommand = {
-        date: "2024-01-15",
+        date: '2024-01-15',
         fuel_amount: 50,
         total_price: 250,
         odometer: 49500, // Less than previous odometer
       };
       const mockCar = { id: carId, initial_odometer: 50000 };
-      const mockPreviousFillup = { odometer: 50000, date: "2024-01-01" };
+      const mockPreviousFillup = { odometer: 50000, date: '2024-01-01' };
       const mockCreatedFillup = {
-        id: "fillup-123",
+        id: 'fillup-123',
         car_id: carId,
-        date: "2024-01-15",
+        date: '2024-01-15',
         fuel_amount: 50,
         total_price: 250,
         odometer: 49500,
@@ -391,7 +391,7 @@ describe("fillups.service", () => {
       };
 
       vi.mocked(mockSupabase.from).mockImplementation((table: string) => {
-        if (table === "cars") {
+        if (table === 'cars') {
           return {
             select: vi.fn().mockReturnValue({
               eq: vi.fn().mockReturnValue({
@@ -404,8 +404,8 @@ describe("fillups.service", () => {
             }),
           } as any;
         }
-        if (table === "fillups") {
-          const calls = vi.mocked(mockSupabase.from).mock.calls.filter((c) => c[0] === "fillups").length;
+        if (table === 'fillups') {
+          const calls = vi.mocked(mockSupabase.from).mock.calls.filter((c) => c[0] === 'fillups').length;
 
           if (calls === 1) {
             return {
@@ -437,13 +437,13 @@ describe("fillups.service", () => {
       // Assert
       expect(result.warnings).toBeDefined();
       expect(result.warnings).toHaveLength(1);
-      expect(result.warnings?.[0].field).toBe("odometer");
+      expect(result.warnings?.[0].field).toBe('odometer');
     });
 
-    it("should throw error for non-existent car", async () => {
+    it('should throw error for non-existent car', async () => {
       // Arrange
       const input: CreateFillupCommand = {
-        date: "2024-01-15",
+        date: '2024-01-15',
         fuel_amount: 50,
         total_price: 250,
         odometer: 50500,
@@ -462,22 +462,22 @@ describe("fillups.service", () => {
       } as any);
 
       // Act & Assert
-      await expect(createFillup(mockSupabase, userId, "non-existent-car", input)).rejects.toThrow(
-        "Car not found or does not belong to user"
+      await expect(createFillup(mockSupabase, userId, 'non-existent-car', input)).rejects.toThrow(
+        'Car not found or does not belong to user'
       );
     });
   });
 
-  describe("updateFillup", () => {
-    const fillupId = "fillup-123";
+  describe('updateFillup', () => {
+    const fillupId = 'fillup-123';
 
-    it("should update fillup fuel amount", async () => {
+    it('should update fillup fuel amount', async () => {
       // Arrange
       const input: UpdateFillupCommand = { fuel_amount: 55 };
       const existingFillup = {
         id: fillupId,
         car_id: carId,
-        date: "2024-01-15",
+        date: '2024-01-15',
         fuel_amount: 50,
         total_price: 250,
         odometer: 50500,
@@ -489,8 +489,8 @@ describe("fillups.service", () => {
       const updatedFillup = { ...existingFillup, fuel_amount: 55, price_per_liter: 4.545 };
 
       vi.mocked(mockSupabase.from).mockImplementation((table: string) => {
-        if (table === "fillups") {
-          const calls = vi.mocked(mockSupabase.from).mock.calls.filter((c) => c[0] === "fillups").length;
+        if (table === 'fillups') {
+          const calls = vi.mocked(mockSupabase.from).mock.calls.filter((c) => c[0] === 'fillups').length;
 
           // First call: fetch existing
           if (calls === 1) {
@@ -517,7 +517,7 @@ describe("fillups.service", () => {
             }),
           } as any;
         }
-        if (table === "cars") {
+        if (table === 'cars') {
           return {
             select: vi.fn().mockReturnValue({
               eq: vi.fn().mockReturnValue({
@@ -541,7 +541,7 @@ describe("fillups.service", () => {
       expect(result.updated_entries_count).toBe(1);
     });
 
-    it("should throw error for non-existent fillup", async () => {
+    it('should throw error for non-existent fillup', async () => {
       // Arrange
       const input: UpdateFillupCommand = { fuel_amount: 55 };
 
@@ -556,28 +556,28 @@ describe("fillups.service", () => {
       } as any);
 
       // Act & Assert
-      await expect(updateFillup(mockSupabase, userId, carId, "non-existent-fillup", input)).rejects.toThrow(
-        "Fillup not found"
+      await expect(updateFillup(mockSupabase, userId, carId, 'non-existent-fillup', input)).rejects.toThrow(
+        'Fillup not found'
       );
     });
   });
 
-  describe("deleteFillup", () => {
-    const fillupId = "fillup-123";
+  describe('deleteFillup', () => {
+    const fillupId = 'fillup-123';
 
-    it("should delete fillup successfully", async () => {
+    it('should delete fillup successfully', async () => {
       // Arrange
       const existingFillup = {
         id: fillupId,
         car_id: carId,
         odometer: 50500,
-        date: "2024-01-15",
+        date: '2024-01-15',
       };
       const mockCar = { id: carId };
 
       vi.mocked(mockSupabase.from).mockImplementation((table: string) => {
-        if (table === "fillups") {
-          const calls = vi.mocked(mockSupabase.from).mock.calls.filter((c) => c[0] === "fillups").length;
+        if (table === 'fillups') {
+          const calls = vi.mocked(mockSupabase.from).mock.calls.filter((c) => c[0] === 'fillups').length;
 
           // First call: fetch existing fillup
           if (calls === 1) {
@@ -612,7 +612,7 @@ describe("fillups.service", () => {
             }),
           } as any;
         }
-        if (table === "cars") {
+        if (table === 'cars') {
           return {
             select: vi.fn().mockReturnValue({
               eq: vi.fn().mockReturnValue({
@@ -632,10 +632,10 @@ describe("fillups.service", () => {
       const result = await deleteFillup(mockSupabase, userId, carId, fillupId);
 
       // Assert
-      expect(result.message).toContain("deleted successfully");
+      expect(result.message).toContain('deleted successfully');
     });
 
-    it("should throw error for non-existent fillup", async () => {
+    it('should throw error for non-existent fillup', async () => {
       // Arrange
       vi.mocked(mockSupabase.from).mockReturnValue({
         select: vi.fn().mockReturnValue({
@@ -648,8 +648,8 @@ describe("fillups.service", () => {
       } as any);
 
       // Act & Assert
-      await expect(deleteFillup(mockSupabase, userId, carId, "non-existent-fillup")).rejects.toThrow(
-        "Fillup not found"
+      await expect(deleteFillup(mockSupabase, userId, carId, 'non-existent-fillup')).rejects.toThrow(
+        'Fillup not found'
       );
     });
   });

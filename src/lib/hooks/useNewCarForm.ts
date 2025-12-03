@@ -1,12 +1,12 @@
-import { useState, useCallback, useRef } from "react";
-import type { CreateCarCommand, ErrorResponseDTO } from "../../types";
+import { useState, useCallback, useRef } from 'react';
+import type { CreateCarCommand, ErrorResponseDTO } from '../../types';
 
 const REQUEST_TIMEOUT = 10000; // 10 seconds
 
 interface NewCarFormState {
   name: string;
   initialOdometer: string; // string because it can be empty
-  mileageInputPreference: "odometer" | "distance";
+  mileageInputPreference: 'odometer' | 'distance';
 }
 
 interface NewCarFormErrors {
@@ -23,9 +23,9 @@ interface AbortableFetch {
 
 export const useNewCarForm = () => {
   const [formState, setFormState] = useState<NewCarFormState>({
-    name: "",
-    initialOdometer: "",
-    mileageInputPreference: "odometer",
+    name: '',
+    initialOdometer: '',
+    mileageInputPreference: 'odometer',
   });
 
   const [formErrors, setFormErrors] = useState<NewCarFormErrors>({});
@@ -37,13 +37,13 @@ export const useNewCarForm = () => {
   const validateName = useCallback((name: string): string | undefined => {
     const trimmed = name.trim();
     if (!trimmed) {
-      return "Nazwa jest wymagana";
+      return 'Nazwa jest wymagana';
     }
     if (trimmed.length < 1) {
-      return "Nazwa nie może być pusta";
+      return 'Nazwa nie może być pusta';
     }
     if (trimmed.length > 100) {
-      return "Nazwa może mieć maksymalnie 100 znaków";
+      return 'Nazwa może mieć maksymalnie 100 znaków';
     }
     return undefined;
   }, []);
@@ -55,26 +55,26 @@ export const useNewCarForm = () => {
 
     // Check if it's a valid integer format
     if (!/^-?\d+$/.test(odometer.trim())) {
-      return "Stan licznika musi być liczbą całkowitą";
+      return 'Stan licznika musi być liczbą całkowitą';
     }
 
     const num = parseInt(odometer, 10);
     if (isNaN(num)) {
-      return "Stan licznika musi być liczbą";
+      return 'Stan licznika musi być liczbą';
     }
     if (num < 0) {
-      return "Stan licznika nie może być ujemny";
+      return 'Stan licznika nie może być ujemny';
     }
     // Check for unreasonably large numbers
     if (num > 9999999) {
-      return "Stan licznika jest zbyt duży (maksymalnie 9999999)";
+      return 'Stan licznika jest zbyt duży (maksymalnie 9999999)';
     }
     return undefined;
   }, []);
 
   const validateMileagePreference = useCallback((preference: string): string | undefined => {
-    if (preference !== "odometer" && preference !== "distance") {
-      return "Wybierz preferencję wprowadzania przebiegu";
+    if (preference !== 'odometer' && preference !== 'distance') {
+      return 'Wybierz preferencję wprowadzania przebiegu';
     }
     return undefined;
   }, []);
@@ -101,31 +101,31 @@ export const useNewCarForm = () => {
   // Helper function to get user-friendly error message
   const getErrorMessage = useCallback((status: number, errorData?: ErrorResponseDTO): string => {
     if (!errorData) {
-      return "Wystąpił nieoczekiwany błąd";
+      return 'Wystąpił nieoczekiwany błąd';
     }
 
     const message = errorData.error.message;
 
     switch (status) {
       case 400:
-        return message || "Nieprawidłowe dane formularza";
+        return message || 'Nieprawidłowe dane formularza';
       case 401:
-        return "Wymagana autoryzacja";
+        return 'Wymagana autoryzacja';
       case 403:
-        return "Brak uprawnień";
+        return 'Brak uprawnień';
       case 404:
-        return "Endpoint nie został znaleziony";
+        return 'Endpoint nie został znaleziony';
       case 409:
-        return message || "Konflikt danych";
+        return message || 'Konflikt danych';
       case 422:
-        return message || "Nieprawidłowe dane";
+        return message || 'Nieprawidłowe dane';
       case 429:
-        return "Zbyt wiele żądań. Spróbuj ponownie za chwilę";
+        return 'Zbyt wiele żądań. Spróbuj ponownie za chwilę';
       case 500:
       case 502:
       case 503:
       case 504:
-        return "Wystąpił błąd serwera. Spróbuj ponownie później";
+        return 'Wystąpił błąd serwera. Spróbuj ponownie później';
       default:
         return message || `Wystąpił błąd (status: ${status})`;
     }
@@ -137,11 +137,11 @@ export const useNewCarForm = () => {
       let error: string | undefined;
       const value = values[field];
 
-      if (field === "name") {
+      if (field === 'name') {
         error = validateName(value as string);
-      } else if (field === "initialOdometer") {
+      } else if (field === 'initialOdometer') {
         error = validateInitialOdometer(value as string);
-      } else if (field === "mileageInputPreference") {
+      } else if (field === 'mileageInputPreference') {
         error = validateMileagePreference(value as string);
       }
 
@@ -149,7 +149,6 @@ export const useNewCarForm = () => {
         if (error) {
           return { ...prev, [field]: error };
         } else {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { [field]: _, ...rest } = prev;
           return rest;
         }
@@ -162,9 +161,9 @@ export const useNewCarForm = () => {
 
   // Validate all fields
   const validateAllFields = useCallback((): boolean => {
-    const nameValid = validateField("name");
-    const odometerValid = validateField("initialOdometer");
-    const preferenceValid = validateField("mileageInputPreference");
+    const nameValid = validateField('name');
+    const odometerValid = validateField('initialOdometer');
+    const preferenceValid = validateField('mileageInputPreference');
 
     // Focus first invalid field
     if (!nameValid) {
@@ -193,7 +192,6 @@ export const useNewCarForm = () => {
       // Clear field error when user starts typing
       if (formErrors[field]) {
         setFormErrors((prev) => {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { [field]: _, ...rest } = prev;
           return rest;
         });
@@ -246,12 +244,12 @@ export const useNewCarForm = () => {
         }
 
         // API call with timeout
-        const fetchRequest = abortableFetch("/api/cars", {
-          method: "POST",
+        const fetchRequest = abortableFetch('/api/cars', {
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
-          credentials: "include",
+          credentials: 'include',
           body: JSON.stringify(requestBody),
         });
 
@@ -266,7 +264,7 @@ export const useNewCarForm = () => {
             errorData = await response.json();
           } catch {
             errorData = {
-              error: { code: "INTERNAL_ERROR", message: "Nieznany błąd" },
+              error: { code: 'INTERNAL_ERROR', message: 'Nieznany błąd' },
             };
           }
 
@@ -279,14 +277,14 @@ export const useNewCarForm = () => {
             if (errorData && errorData.error.details?.issues) {
               const issues = errorData.error.details.issues as string;
 
-              if (issues.toLowerCase().includes("name") || issues.toLowerCase().includes("trim")) {
-                errors.name = "Nieprawidłowa nazwa samochodu";
+              if (issues.toLowerCase().includes('name') || issues.toLowerCase().includes('trim')) {
+                errors.name = 'Nieprawidłowa nazwa samochodu';
               }
-              if (issues.toLowerCase().includes("odometer")) {
-                errors.initialOdometer = "Nieprawidłowy stan licznika";
+              if (issues.toLowerCase().includes('odometer')) {
+                errors.initialOdometer = 'Nieprawidłowy stan licznika';
               }
-              if (issues.toLowerCase().includes("preference") || issues.toLowerCase().includes("mileage")) {
-                errors.mileageInputPreference = "Nieprawidłowa preferencja";
+              if (issues.toLowerCase().includes('preference') || issues.toLowerCase().includes('mileage')) {
+                errors.mileageInputPreference = 'Nieprawidłowa preferencja';
               }
             }
 
@@ -299,10 +297,10 @@ export const useNewCarForm = () => {
             nameInputRef.current?.focus();
           } else if (response.status === 401) {
             // Unauthorized - session expired, redirect to login
-            setFormErrors({ submit: "Sesja wygasła. Przekierowywanie do logowania..." });
-            if (typeof window !== "undefined") {
+            setFormErrors({ submit: 'Sesja wygasła. Przekierowywanie do logowania...' });
+            if (typeof window !== 'undefined') {
               setTimeout(() => {
-                window.location.href = "/auth/login";
+                window.location.href = '/auth/login';
               }, 2000);
             }
             setIsSubmitting(false);
@@ -310,8 +308,8 @@ export const useNewCarForm = () => {
           } else if (response.status === 409) {
             // Conflict - car name already exists
             setFormErrors({
-              name: "Samochód o tej nazwie już istnieje. Wybierz inną nazwę.",
-              submit: "Nazwa samochodu musi być unikalna",
+              name: 'Samochód o tej nazwie już istnieje. Wybierz inną nazwę.',
+              submit: 'Nazwa samochodu musi być unikalna',
             });
             nameInputRef.current?.focus();
           } else {
@@ -332,28 +330,28 @@ export const useNewCarForm = () => {
           setFormErrors({});
           setIsSubmitting(false);
 
-          if (typeof window !== "undefined") {
+          if (typeof window !== 'undefined') {
             // Small delay to let user see success state
             setTimeout(() => {
-              window.location.href = "/cars";
+              window.location.href = '/cars';
             }, 300);
           }
         } catch {
-          setFormErrors({ submit: "Nie udało się przetworzyć odpowiedzi serwera" });
+          setFormErrors({ submit: 'Nie udało się przetworzyć odpowiedzi serwera' });
           setIsSubmitting(false);
         }
       } catch (error) {
         // Handle different error types
-        let errorMessage = "Wystąpił błąd serwera. Spróbuj ponownie później.";
+        let errorMessage = 'Wystąpił błąd serwera. Spróbuj ponownie później.';
 
         if (error instanceof Error) {
           // Check for AbortError (timeout)
-          if (error.name === "AbortError" || error.message.includes("aborted")) {
-            errorMessage = "Przekroczono limit czasu połączenia. Spróbuj ponownie.";
-          } else if (error.message.includes("Failed to fetch") || error.message.includes("NetworkError")) {
-            errorMessage = "Nie udało się połączyć z serwerem. Sprawdź połączenie internetowe.";
-          } else if (error.message.includes("timeout")) {
-            errorMessage = "Przekroczono limit czasu połączenia. Spróbuj ponownie.";
+          if (error.name === 'AbortError' || error.message.includes('aborted')) {
+            errorMessage = 'Przekroczono limit czasu połączenia. Spróbuj ponownie.';
+          } else if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+            errorMessage = 'Nie udało się połączyć z serwerem. Sprawdź połączenie internetowe.';
+          } else if (error.message.includes('timeout')) {
+            errorMessage = 'Przekroczono limit czasu połączenia. Spróbuj ponownie.';
           }
         }
 
@@ -371,8 +369,8 @@ export const useNewCarForm = () => {
 
   // Handle cancel
   const handleCancel = useCallback(() => {
-    if (typeof window !== "undefined") {
-      window.location.href = "/cars";
+    if (typeof window !== 'undefined') {
+      window.location.href = '/cars';
     }
   }, []);
 

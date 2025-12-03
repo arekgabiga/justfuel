@@ -1,4 +1,4 @@
-import { Page, Locator } from "@playwright/test";
+import { Page, Locator } from '@playwright/test';
 
 export class CarDetailsPage {
   readonly page: Page;
@@ -11,19 +11,19 @@ export class CarDetailsPage {
 
   // Locators
   get carHeader(): Locator {
-    return this.page.getByTestId("car-header");
+    return this.page.getByTestId('car-header');
   }
 
   get editButton(): Locator {
-    return this.page.getByTestId("car-edit-button");
+    return this.page.getByTestId('car-edit-button');
   }
 
   get deleteButton(): Locator {
-    return this.page.getByTestId("car-delete-button");
+    return this.page.getByTestId('car-delete-button');
   }
 
   get backButton(): Locator {
-    return this.page.getByTestId("back-to-cars-button");
+    return this.page.getByTestId('back-to-cars-button');
   }
 
   // Actions

@@ -1,12 +1,12 @@
-import React from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useEditCarForm } from "@/lib/hooks/useEditCarForm";
-import { DeleteCarDialog } from "./DeleteCarDialog";
-import { Trash2, ArrowLeft } from "lucide-react";
-import type { DeleteCarCommand } from "../../types";
+import React from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useEditCarForm } from '@/lib/hooks/useEditCarForm';
+import { DeleteCarDialog } from './DeleteCarDialog';
+import { Trash2, ArrowLeft } from 'lucide-react';
+import type { DeleteCarCommand } from '../../types';
 
 interface EditCarViewProps {
   carId: string;
@@ -52,7 +52,7 @@ const EditCarView: React.FC<EditCarViewProps> = ({ carId }) => {
           role="alert"
           aria-live="assertive"
         >
-          <p className="text-sm text-destructive">{formErrors.submit || "Nie udało się załadować danych samochodu"}</p>
+          <p className="text-sm text-destructive">{formErrors.submit || 'Nie udało się załadować danych samochodu'}</p>
         </div>
       </div>
     );
@@ -60,7 +60,7 @@ const EditCarView: React.FC<EditCarViewProps> = ({ carId }) => {
 
   // Check if there are field validation errors (excluding submit error)
   const hasFieldValidationErrors = Object.keys(formErrors).some(
-    (key) => key !== "submit" && formErrors[key as keyof typeof formErrors]
+    (key) => key !== 'submit' && formErrors[key as keyof typeof formErrors]
   );
 
   // Check if there are changes in the form
@@ -118,28 +118,28 @@ const EditCarView: React.FC<EditCarViewProps> = ({ carId }) => {
             name="name"
             type="text"
             value={formState.name}
-            onChange={(e) => handleFieldChange("name", e.target.value)}
-            onBlur={() => handleFieldBlur("name")}
+            onChange={(e) => handleFieldChange('name', e.target.value)}
+            onBlur={() => handleFieldBlur('name')}
             placeholder="np. Moje Audi A4"
-            aria-invalid={touchedFields.has("name") && !!formErrors.name}
+            aria-invalid={touchedFields.has('name') && !!formErrors.name}
             aria-describedby={
-              touchedFields.has("name") && formErrors.name
-                ? "name-error name-help"
-                : touchedFields.has("name")
-                  ? "name-help"
+              touchedFields.has('name') && formErrors.name
+                ? 'name-error name-help'
+                : touchedFields.has('name')
+                  ? 'name-help'
                   : undefined
             }
             aria-required="true"
             autoComplete="off"
             disabled={isSubmitting || isDeleting}
-            className={touchedFields.has("name") && formErrors.name ? "border-destructive" : ""}
+            className={touchedFields.has('name') && formErrors.name ? 'border-destructive' : ''}
             data-test-id="edit-car-name-input"
             required
           />
           <p id="name-help" className="sr-only">
             Wprowadź nazwę samochodu (1-100 znaków)
           </p>
-          {touchedFields.has("name") && formErrors.name && (
+          {touchedFields.has('name') && formErrors.name && (
             <p id="name-error" className="text-sm text-destructive mt-1" role="alert" aria-live="polite">
               {formErrors.name}
             </p>
@@ -157,7 +157,7 @@ const EditCarView: React.FC<EditCarViewProps> = ({ carId }) => {
           <Select
             value={formState.mileageInputPreference}
             onValueChange={(value) => {
-              handleFieldChange("mileageInputPreference", value);
+              handleFieldChange('mileageInputPreference', value);
             }}
             disabled={isSubmitting || isDeleting}
           >
@@ -167,16 +167,16 @@ const EditCarView: React.FC<EditCarViewProps> = ({ carId }) => {
               aria-invalid={!!formErrors.mileageInputPreference}
               aria-describedby={
                 formErrors.mileageInputPreference
-                  ? "mileageInputPreference-error mileageInputPreference-help"
-                  : touchedFields.has("mileageInputPreference")
-                    ? "mileageInputPreference-help"
+                  ? 'mileageInputPreference-error mileageInputPreference-help'
+                  : touchedFields.has('mileageInputPreference')
+                    ? 'mileageInputPreference-help'
                     : undefined
               }
               aria-required="true"
               className={
-                touchedFields.has("mileageInputPreference") && formErrors.mileageInputPreference
-                  ? "border-destructive"
-                  : ""
+                touchedFields.has('mileageInputPreference') && formErrors.mileageInputPreference
+                  ? 'border-destructive'
+                  : ''
               }
               data-test-id="edit-car-mileage-preference-select"
             >
@@ -190,7 +190,7 @@ const EditCarView: React.FC<EditCarViewProps> = ({ carId }) => {
           <p id="mileageInputPreference-help" className="sr-only">
             Wybierz jak będziesz wprowadzać przebieg: stan licznika lub przejechany dystans
           </p>
-          {touchedFields.has("mileageInputPreference") && formErrors.mileageInputPreference && (
+          {touchedFields.has('mileageInputPreference') && formErrors.mileageInputPreference && (
             <p
               id="mileageInputPreference-error"
               className="text-sm text-destructive mt-1"
@@ -222,10 +222,10 @@ const EditCarView: React.FC<EditCarViewProps> = ({ carId }) => {
             size="lg"
             className="flex-1 sm:flex-none min-w-[120px]"
             aria-busy={isSubmitting}
-            aria-describedby={isSubmitting ? "submitting-status" : undefined}
+            aria-describedby={isSubmitting ? 'submitting-status' : undefined}
             data-test-id="edit-car-save-button"
           >
-            {isSubmitting ? "Zapisywanie..." : "Zapisz"}
+            {isSubmitting ? 'Zapisywanie...' : 'Zapisz'}
           </Button>
           {isSubmitting && (
             <span id="submitting-status" className="sr-only">
@@ -266,14 +266,9 @@ const EditCarView: React.FC<EditCarViewProps> = ({ carId }) => {
           car={originalCarData}
           isOpen={deleteDialogOpen}
           onDelete={async (data: DeleteCarCommand) => {
-            try {
-              await handleDeleteConfirm(data);
-              // On success, handleDeleteConfirm redirects to /cars
-              // No need to handle success here
-            } catch (err) {
-              // Rethrow error to be handled by DeleteCarDialog
-              throw err;
-            }
+            await handleDeleteConfirm(data);
+            // On success, handleDeleteConfirm redirects to /cars
+            // No need to handle success here
           }}
           onCancel={handleDeleteCancel}
         />

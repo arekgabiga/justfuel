@@ -1,10 +1,10 @@
-import { expect } from "@playwright/test";
-import type { Page, Locator } from "@playwright/test";
+import { expect } from '@playwright/test';
+import type { Page, Locator } from '@playwright/test';
 
 export interface NewCarFormData {
   name: string;
   initialOdometer?: string;
-  mileagePreference: "odometer" | "distance";
+  mileagePreference: 'odometer' | 'distance';
 }
 
 export class NewCarPage {
@@ -16,31 +16,31 @@ export class NewCarPage {
 
   // Locators
   get form(): Locator {
-    return this.page.getByTestId("new-car-form");
+    return this.page.getByTestId('new-car-form');
   }
 
   get nameInput(): Locator {
-    return this.page.getByTestId("car-name-input");
+    return this.page.getByTestId('car-name-input');
   }
 
   get initialOdometerInput(): Locator {
-    return this.page.getByTestId("car-initial-odometer-input");
+    return this.page.getByTestId('car-initial-odometer-input');
   }
 
   get mileagePreferenceSelect(): Locator {
-    return this.page.getByTestId("car-mileage-preference-select");
+    return this.page.getByTestId('car-mileage-preference-select');
   }
 
   get saveButton(): Locator {
-    return this.page.getByTestId("save-car-button");
+    return this.page.getByTestId('save-car-button');
   }
 
   get cancelButton(): Locator {
-    return this.page.getByTestId("cancel-car-button");
+    return this.page.getByTestId('cancel-car-button');
   }
 
   get backLink(): Locator {
-    return this.page.getByTestId("back-to-cars-link");
+    return this.page.getByTestId('back-to-cars-link');
   }
 
   // Actions
@@ -61,16 +61,16 @@ export class NewCarPage {
     await this.page.waitForTimeout(300);
   }
 
-  async selectMileagePreference(preference: "odometer" | "distance"): Promise<void> {
+  async selectMileagePreference(preference: 'odometer' | 'distance'): Promise<void> {
     await this.mileagePreferenceSelect.click();
     await this.page
-      .getByRole("option", { name: preference === "odometer" ? "Stan licznika" : "Przejechany dystans" })
+      .getByRole('option', { name: preference === 'odometer' ? 'Stan licznika' : 'Przejechany dystans' })
       .click();
   }
 
   async submit(): Promise<void> {
     // Wait for the button to be enabled (validation runs async with setTimeout)
-    await this.saveButton.waitFor({ state: "visible" });
+    await this.saveButton.waitFor({ state: 'visible' });
     await expect(this.saveButton).toBeEnabled({ timeout: 2000 });
     await this.saveButton.click();
   }
@@ -84,7 +84,7 @@ export class NewCarPage {
   }
 
   async goto(): Promise<void> {
-    await this.page.goto("/cars/new");
+    await this.page.goto('/cars/new');
   }
 
   // Validation

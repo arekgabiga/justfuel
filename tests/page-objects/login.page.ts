@@ -1,4 +1,4 @@
-import { Page, Locator } from "@playwright/test";
+import type { Page, Locator } from '@playwright/test';
 
 export class LoginPage {
   readonly page: Page;
@@ -9,15 +9,15 @@ export class LoginPage {
 
   // Locators
   get emailInput(): Locator {
-    return this.page.getByTestId("login-email-input");
+    return this.page.getByTestId('login-email-input');
   }
 
   get passwordInput(): Locator {
-    return this.page.getByTestId("login-password-input");
+    return this.page.getByTestId('login-password-input');
   }
 
   get submitButton(): Locator {
-    return this.page.getByTestId("login-submit-button");
+    return this.page.getByTestId('login-submit-button');
   }
 
   // Actions
@@ -26,11 +26,11 @@ export class LoginPage {
     await this.passwordInput.fill(password);
     await this.submitButton.click();
     // Wait for successful login redirect
-    await this.page.waitForURL("/");
+    await this.page.waitForURL('/');
   }
 
   async goto(): Promise<void> {
-    await this.page.goto("/auth/login", { waitUntil: "networkidle" });
+    await this.page.goto('/auth/login', { waitUntil: 'networkidle' });
   }
 
   // Validation

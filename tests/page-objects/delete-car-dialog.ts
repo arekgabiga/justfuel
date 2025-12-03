@@ -1,4 +1,4 @@
-import { Page, Locator } from "@playwright/test";
+import { Page, Locator } from '@playwright/test';
 
 export class DeleteCarDialog {
   readonly page: Page;
@@ -9,19 +9,19 @@ export class DeleteCarDialog {
 
   // Locators
   get dialog(): Locator {
-    return this.page.getByTestId("delete-car-dialog");
+    return this.page.getByTestId('delete-car-dialog');
   }
 
   get confirmationInput(): Locator {
-    return this.page.getByTestId("delete-car-confirmation-input");
+    return this.page.getByTestId('delete-car-confirmation-input');
   }
 
   get confirmButton(): Locator {
-    return this.page.getByTestId("delete-car-confirm-button");
+    return this.page.getByTestId('delete-car-confirm-button');
   }
 
   get cancelButton(): Locator {
-    return this.page.getByTestId("delete-car-cancel-button");
+    return this.page.getByTestId('delete-car-cancel-button');
   }
 
   // Actions

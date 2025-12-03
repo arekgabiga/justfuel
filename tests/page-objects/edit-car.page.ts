@@ -1,8 +1,8 @@
-import { Page, Locator } from "@playwright/test";
+import { Page, Locator } from '@playwright/test';
 
 export interface EditCarFormData {
   name?: string;
-  mileagePreference?: "odometer" | "distance";
+  mileagePreference?: 'odometer' | 'distance';
 }
 
 export class EditCarPage {
@@ -16,31 +16,31 @@ export class EditCarPage {
 
   // Locators
   get form(): Locator {
-    return this.page.getByTestId("edit-car-form");
+    return this.page.getByTestId('edit-car-form');
   }
 
   get nameInput(): Locator {
-    return this.page.getByTestId("edit-car-name-input");
+    return this.page.getByTestId('edit-car-name-input');
   }
 
   get mileagePreferenceSelect(): Locator {
-    return this.page.getByTestId("edit-car-mileage-preference-select");
+    return this.page.getByTestId('edit-car-mileage-preference-select');
   }
 
   get saveButton(): Locator {
-    return this.page.getByTestId("edit-car-save-button");
+    return this.page.getByTestId('edit-car-save-button');
   }
 
   get cancelButton(): Locator {
-    return this.page.getByTestId("edit-car-cancel-button");
+    return this.page.getByTestId('edit-car-cancel-button');
   }
 
   get deleteButton(): Locator {
-    return this.page.getByTestId("edit-car-delete-button");
+    return this.page.getByTestId('edit-car-delete-button');
   }
 
   get backLink(): Locator {
-    return this.page.getByTestId("back-to-car-details-link");
+    return this.page.getByTestId('back-to-car-details-link');
   }
 
   // Actions
@@ -49,16 +49,18 @@ export class EditCarPage {
     await this.nameInput.fill(name);
   }
 
-  async selectMileagePreference(preference: "odometer" | "distance"): Promise<void> {
+  async selectMileagePreference(preference: 'odometer' | 'distance'): Promise<void> {
     await this.mileagePreferenceSelect.click();
-    await this.page.getByRole("option", { name: preference === "odometer" ? "Stan licznika" : "Przejechany dystans" }).click();
+    await this.page
+      .getByRole('option', { name: preference === 'odometer' ? 'Stan licznika' : 'Przejechany dystans' })
+      .click();
   }
 
   async updateCar(data: EditCarFormData): Promise<void> {
     if (data.name) {
       await this.updateCarName(data.name);
     }
-    
+
     if (data.mileagePreference) {
       await this.selectMileagePreference(data.mileagePreference);
     }

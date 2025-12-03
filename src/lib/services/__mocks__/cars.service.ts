@@ -1,4 +1,4 @@
-import { vi } from "vitest";
+import { vi } from 'vitest';
 
 export const listUserCarsWithStats = vi.fn();
 export const getUserCarWithStats = vi.fn();

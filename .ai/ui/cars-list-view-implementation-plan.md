@@ -187,8 +187,8 @@ interface CarsListState {
   loading: boolean;
   error: Error | null;
   cars: CarWithStatisticsDTO[];
-  sortBy: "name" | "created_at";
-  sortOrder: "asc" | "desc";
+  sortBy: 'name' | 'created_at';
+  sortOrder: 'asc' | 'desc';
 }
 ```
 
@@ -196,7 +196,7 @@ interface CarsListState {
 
 ```typescript
 interface SortOption {
-  value: "name" | "created_at";
+  value: 'name' | 'created_at';
   label: string;
 }
 ```
@@ -204,7 +204,7 @@ interface SortOption {
 ### ConsumptionColor
 
 ```typescript
-type ConsumptionColor = "green" | "yellow" | "red" | "gray";
+type ConsumptionColor = 'green' | 'yellow' | 'red' | 'gray';
 ```
 
 ## 6. Zarządzanie stanem
@@ -217,8 +217,8 @@ const useCarsList = () => {
     loading: true,
     error: null,
     cars: [],
-    sortBy: "created_at",
-    sortOrder: "desc",
+    sortBy: 'created_at',
+    sortOrder: 'desc',
   });
 
   const fetchCars = async (sortBy: string, sortOrder: string) => {
@@ -251,7 +251,7 @@ const fetchCars = async (sortBy: string, sortOrder: string) => {
   const response = await fetch(`/api/cars?sort=${sortBy}&order=${sortOrder}`, {
     headers: {
       Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
     },
   });
 

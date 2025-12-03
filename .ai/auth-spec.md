@@ -404,7 +404,7 @@ Wszystkie endpointy autentykacji znajdują się w `src/pages/api/auth/`:
 - **Response (200 OK)**:
   ```typescript
   {
-    message: "Wylogowano pomyślnie";
+    message: 'Wylogowano pomyślnie';
   }
   ```
 - **Response (401 Unauthorized)**: Brak lub nieprawidłowy token (ale endpoint może zwrócić sukces nawet bez tokenu)
@@ -423,7 +423,7 @@ Wszystkie endpointy autentykacji znajdują się w `src/pages/api/auth/`:
 - **Response (200 OK)**:
   ```typescript
   {
-    message: "Jeśli konto z tym adresem e-mail istnieje, wysłaliśmy link do resetowania hasła.";
+    message: 'Jeśli konto z tym adresem e-mail istnieje, wysłaliśmy link do resetowania hasła.';
   }
   ```
 - **Uwaga**: Zawsze zwraca sukces (dla bezpieczeństwa, aby nie ujawniać, czy konto istnieje)
@@ -443,7 +443,7 @@ Wszystkie endpointy autentykacji znajdują się w `src/pages/api/auth/`:
 - **Response (200 OK)**:
   ```typescript
   {
-    message: "Hasło zostało zresetowane pomyślnie.";
+    message: 'Hasło zostało zresetowane pomyślnie.';
   }
   ```
 - **Response (400 Bad Request)**: Nieprawidłowy token lub hasło
@@ -548,7 +548,7 @@ Wszystkie endpointy autentykacji znajdują się w `src/pages/api/auth/`:
   ```astro
   ---
   if (!Astro.locals.isAuthenticated) {
-    return Astro.redirect("/login?redirect=" + encodeURIComponent(Astro.url.pathname));
+    return Astro.redirect('/login?redirect=' + encodeURIComponent(Astro.url.pathname));
   }
   ---
   ```

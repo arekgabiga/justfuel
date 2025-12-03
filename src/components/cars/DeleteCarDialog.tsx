@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
-import type { CarDetailsDTO, DeleteCarCommand } from "../../types";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import React, { useState, useEffect } from 'react';
+import type { CarDetailsDTO, DeleteCarCommand } from '../../types';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 interface DeleteCarDialogProps {
   car: CarDetailsDTO;
@@ -12,14 +12,14 @@ interface DeleteCarDialogProps {
 }
 
 export const DeleteCarDialog: React.FC<DeleteCarDialogProps> = ({ car, isOpen, onDelete, onCancel }) => {
-  const [confirmationName, setConfirmationName] = useState("");
+  const [confirmationName, setConfirmationName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Reset state when dialog is closed
   useEffect(() => {
     if (!isOpen) {
-      setConfirmationName("");
+      setConfirmationName('');
       setLoading(false);
       setError(null);
     }
@@ -30,13 +30,13 @@ export const DeleteCarDialog: React.FC<DeleteCarDialogProps> = ({ car, isOpen, o
     if (!isOpen || loading) return;
 
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
+      if (e.key === 'Escape') {
         onCancel();
       }
     };
 
-    window.addEventListener("keydown", handleEscape);
-    return () => window.removeEventListener("keydown", handleEscape);
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
   }, [isOpen, loading, onCancel]);
 
   const isConfirmButtonEnabled = confirmationName === car.name && !loading;
@@ -45,7 +45,7 @@ export const DeleteCarDialog: React.FC<DeleteCarDialogProps> = ({ car, isOpen, o
     e.preventDefault();
 
     if (confirmationName !== car.name) {
-      setError("Nazwa potwierdzenia nie pasuje do nazwy samochodu");
+      setError('Nazwa potwierdzenia nie pasuje do nazwy samochodu');
       return;
     }
 
@@ -55,7 +55,7 @@ export const DeleteCarDialog: React.FC<DeleteCarDialogProps> = ({ car, isOpen, o
     try {
       await onDelete({ confirmation_name: confirmationName });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Wystąpił błąd podczas usuwania");
+      setError(err instanceof Error ? err.message : 'Wystąpił błąd podczas usuwania');
     } finally {
       setLoading(false);
     }
@@ -64,7 +64,10 @@ export const DeleteCarDialog: React.FC<DeleteCarDialogProps> = ({ car, isOpen, o
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" data-test-id="delete-car-dialog">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+      data-test-id="delete-car-dialog"
+    >
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6">
         <h2 className="text-2xl font-bold text-red-600 dark:text-red-400 mb-4">Usuń samochód</h2>
 
@@ -97,11 +100,22 @@ export const DeleteCarDialog: React.FC<DeleteCarDialogProps> = ({ car, isOpen, o
           {error && <div className="text-sm text-red-600 dark:text-red-400">{error}</div>}
 
           <div className="flex gap-2 justify-end">
-            <Button type="button" variant="outline" onClick={onCancel} disabled={loading} data-test-id="delete-car-cancel-button">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onCancel}
+              disabled={loading}
+              data-test-id="delete-car-cancel-button"
+            >
               Anuluj
             </Button>
-            <Button type="submit" disabled={!isConfirmButtonEnabled} className="bg-red-600 hover:bg-red-700 text-white" data-test-id="delete-car-confirm-button">
-              {loading ? "Usuwanie..." : "Usuń samochód"}
+            <Button
+              type="submit"
+              disabled={!isConfirmButtonEnabled}
+              className="bg-red-600 hover:bg-red-700 text-white"
+              data-test-id="delete-car-confirm-button"
+            >
+              {loading ? 'Usuwanie...' : 'Usuń samochód'}
             </Button>
           </div>
         </form>

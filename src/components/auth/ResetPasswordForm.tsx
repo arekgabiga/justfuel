@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { AuthError } from "./AuthError";
-import { useResetPasswordForm } from "@/lib/hooks/useResetPasswordForm";
-import { createBrowserClient } from "@supabase/ssr";
-import type { Database } from "../../db/database.types.ts";
+import React, { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { AuthError } from './AuthError';
+import { useResetPasswordForm } from '@/lib/hooks/useResetPasswordForm';
+import { createBrowserClient } from '@supabase/ssr';
+import type { Database } from '../../db/database.types.ts';
 
 interface ResetPasswordFormProps {
   hasValidSession: boolean;
@@ -37,8 +37,8 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
         const hash = window.location.hash.substring(1);
         if (hash) {
           const hashParams = new URLSearchParams(hash);
-          const accessToken = hashParams.get("access_token");
-          const refreshToken = hashParams.get("refresh_token");
+          const accessToken = hashParams.get('access_token');
+          const refreshToken = hashParams.get('refresh_token');
 
           if (accessToken && refreshToken) {
             try {
@@ -57,14 +57,14 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
                 setHasValidSession(true);
                 setSessionError(null);
                 // Clear hash from URL
-                window.history.replaceState(null, "", window.location.pathname);
+                window.history.replaceState(null, '', window.location.pathname);
               } else {
-                throw new Error("Nie udało się ustawić sesji resetującej");
+                throw new Error('Nie udało się ustawić sesji resetującej');
               }
             } catch (error) {
-              console.error("Hash fragment handling error:", error);
+              console.error('Hash fragment handling error:', error);
               setSessionError(
-                error instanceof Error ? error.message : "Token resetowania jest nieprawidłowy lub wygasł"
+                error instanceof Error ? error.message : 'Token resetowania jest nieprawidłowy lub wygasł'
               );
             }
           } else if (!initialHasValidSession && !initialSessionError) {
@@ -72,13 +72,13 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
             // Wait a bit for potential redirect
             setTimeout(() => {
               if (!hasValidSession) {
-                setSessionError("Token resetowania jest nieprawidłowy lub wygasł");
+                setSessionError('Token resetowania jest nieprawidłowy lub wygasł');
               }
             }, 1000);
           }
         } else if (!initialHasValidSession && !initialSessionError) {
           // No hash fragments and no server-side error
-          setSessionError("Token resetowania jest nieprawidłowy lub wygasł");
+          setSessionError('Token resetowania jest nieprawidłowy lub wygasł');
         }
       };
 
@@ -104,7 +104,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
     return (
       <div className="w-full">
         <h1 className="text-2xl font-bold mb-2 text-foreground">Resetowanie hasła</h1>
-        <AuthError message={sessionError || "Token resetowania jest nieprawidłowy lub wygasł"} className="mb-6" />
+        <AuthError message={sessionError || 'Token resetowania jest nieprawidłowy lub wygasł'} className="mb-6" />
         <div className="text-center">
           <a href="/auth/forgot-password" className="text-primary hover:underline font-medium">
             Poproś o nowy link resetujący
@@ -130,14 +130,14 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
             name="password"
             value={formState.password}
             onChange={(e) => handlePasswordChange(e.target.value)}
-            onBlur={() => handleFieldBlur("password")}
+            onBlur={() => handleFieldBlur('password')}
             placeholder="Minimum 6 znaków"
             autoComplete="new-password"
-            aria-invalid={touchedFields.has("password") && !!formErrors.password}
-            aria-describedby={touchedFields.has("password") && formErrors.password ? "password-error" : undefined}
+            aria-invalid={touchedFields.has('password') && !!formErrors.password}
+            aria-describedby={touchedFields.has('password') && formErrors.password ? 'password-error' : undefined}
             required
           />
-          {touchedFields.has("password") && formErrors.password && (
+          {touchedFields.has('password') && formErrors.password && (
             <p id="password-error" className="text-sm text-destructive" role="alert">
               {formErrors.password}
             </p>
@@ -152,16 +152,16 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
             name="confirmPassword"
             value={formState.confirmPassword}
             onChange={(e) => handleConfirmPasswordChange(e.target.value)}
-            onBlur={() => handleFieldBlur("confirmPassword")}
+            onBlur={() => handleFieldBlur('confirmPassword')}
             placeholder="Powtórz hasło"
             autoComplete="new-password"
-            aria-invalid={touchedFields.has("confirmPassword") && !!formErrors.confirmPassword}
+            aria-invalid={touchedFields.has('confirmPassword') && !!formErrors.confirmPassword}
             aria-describedby={
-              touchedFields.has("confirmPassword") && formErrors.confirmPassword ? "confirm-password-error" : undefined
+              touchedFields.has('confirmPassword') && formErrors.confirmPassword ? 'confirm-password-error' : undefined
             }
             required
           />
-          {touchedFields.has("confirmPassword") && formErrors.confirmPassword && (
+          {touchedFields.has('confirmPassword') && formErrors.confirmPassword && (
             <p id="confirm-password-error" className="text-sm text-destructive" role="alert">
               {formErrors.confirmPassword}
             </p>
@@ -170,7 +170,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
 
         <div className="flex flex-col gap-4">
           <Button type="submit" disabled={isSubmitting} className="w-full">
-            {isSubmitting ? "Resetowanie..." : "Zresetuj hasło"}
+            {isSubmitting ? 'Resetowanie...' : 'Zresetuj hasło'}
           </Button>
 
           <div className="text-center">

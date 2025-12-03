@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback } from 'react';
 
 interface ForgotPasswordFormState {
   email: string;
@@ -11,7 +11,7 @@ interface ForgotPasswordFormErrors {
 
 export const useForgotPasswordForm = () => {
   const [formState, setFormState] = useState<ForgotPasswordFormState>({
-    email: "",
+    email: '',
   });
 
   const [formErrors, setFormErrors] = useState<ForgotPasswordFormErrors>({});
@@ -21,11 +21,11 @@ export const useForgotPasswordForm = () => {
 
   const validateEmail = useCallback((email: string): string | undefined => {
     if (!email.trim()) {
-      return "Nieprawidłowy adres e-mail";
+      return 'Nieprawidłowy adres e-mail';
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email.trim())) {
-      return "Nieprawidłowy adres e-mail";
+      return 'Nieprawidłowy adres e-mail';
     }
     return undefined;
   }, []);
@@ -35,18 +35,16 @@ export const useForgotPasswordForm = () => {
       let error: string | undefined;
       const value = values[field];
 
-      if (field === "email") {
+      if (field === 'email') {
         error = validateEmail(value);
       }
 
       setFormErrors((prev) => {
-        const newErrors = { ...prev };
         if (error) {
-          newErrors[field] = error;
-        } else {
-          delete newErrors[field];
+          return { ...prev, [field]: error };
         }
-        return newErrors;
+        const { [field]: _, ...rest } = prev;
+        return rest;
       });
 
       return !error;
@@ -55,14 +53,14 @@ export const useForgotPasswordForm = () => {
   );
 
   const validateAllFields = useCallback((): boolean => {
-    return validateField("email");
+    return validateField('email');
   }, [validateField]);
 
   const handleEmailChange = useCallback(
     (value: string) => {
       setFormState((prev) => ({ ...prev, email: value }));
       const predictedState = { ...formState, email: value };
-      setTouchedFields((prev) => new Set(prev).add("email"));
+      setTouchedFields((prev) => new Set(prev).add('email'));
 
       if (formErrors.email) {
         setFormErrors((prev) => {
@@ -73,7 +71,7 @@ export const useForgotPasswordForm = () => {
       }
 
       setTimeout(() => {
-        validateField("email", predictedState);
+        validateField('email', predictedState);
       }, 0);
     },
     [formState, formErrors, validateField]
@@ -100,10 +98,10 @@ export const useForgotPasswordForm = () => {
       setIsSuccess(false);
 
       try {
-        const response = await fetch("/api/auth/forgot-password", {
-          method: "POST",
+        const response = await fetch('/api/auth/forgot-password', {
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify({
             email: formState.email.trim(),
@@ -114,7 +112,7 @@ export const useForgotPasswordForm = () => {
 
         if (!response.ok) {
           setFormErrors({
-            general: data.error?.message || "Wystąpił błąd podczas wysyłania linku resetującego.",
+            general: data.error?.message || 'Wystąpił błąd podczas wysyłania linku resetującego.',
           });
           setIsSubmitting(false);
           return;
@@ -124,9 +122,9 @@ export const useForgotPasswordForm = () => {
         setIsSuccess(true);
         setIsSubmitting(false);
       } catch (error) {
-        console.error("Error during forgot password:", error);
+        console.error('Error during forgot password:', error);
         setFormErrors({
-          general: "Wystąpił błąd. Spróbuj ponownie.",
+          general: 'Wystąpił błąd. Spróbuj ponownie.',
         });
         setIsSubmitting(false);
       }

@@ -1,4 +1,4 @@
-import { vi } from "vitest";
+import { vi } from 'vitest';
 
 export const loginUser = vi.fn();
 export const registerUser = vi.fn();

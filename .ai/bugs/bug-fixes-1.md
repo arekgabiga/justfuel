@@ -128,8 +128,8 @@ window.location.href = `/cars/${carId}#fillups`;
 // W CarDetailsView.tsx - dodaj obsługę parametru URL
 useEffect(() => {
   const urlParams = new URLSearchParams(window.location.search);
-  const tab = urlParams.get("tab");
-  if (tab === "fillups" || tab === "charts") {
+  const tab = urlParams.get('tab');
+  if (tab === 'fillups' || tab === 'charts') {
     switchMainTab(tab);
   }
 }, []);
@@ -344,35 +344,35 @@ useEffect(() => {
         fetch(`/api/cars/${carId}`, {
           headers: {
             Authorization: `Bearer ${authToken}`,
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
         }),
         fetch(`/api/cars/${carId}/fillups/${fillupId}`, {
           headers: {
             Authorization: `Bearer ${authToken}`,
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
         }),
       ]);
 
       if (!carResponse.ok || !fillupResponse.ok) {
-        throw new Error("Failed to fetch data");
+        throw new Error('Failed to fetch data');
       }
 
       const carData = await carResponse.json();
       const fillupData = await fillupResponse.json();
 
       // Użyj preferencji z samochodu
-      const inputMode = carData.mileage_input_preference || "odometer";
+      const inputMode = carData.mileage_input_preference || 'odometer';
 
       setOriginalFillupData(fillupData);
       setFormState({
-        date: new Date(fillupData.date).toISOString().split("T")[0],
+        date: new Date(fillupData.date).toISOString().split('T')[0],
         fuelAmount: fillupData.fuel_amount.toString(),
         totalPrice: fillupData.total_price.toString(),
         inputMode, // Użyj preferencji z samochodu
-        odometer: fillupData.odometer?.toString() || "",
-        distance: fillupData.distance_traveled?.toString() || "",
+        odometer: fillupData.odometer?.toString() || '',
+        distance: fillupData.distance_traveled?.toString() || '',
       });
       // ... reszta
     } catch (error) {
@@ -838,38 +838,38 @@ W `fillups.service.ts`, operacje wymagające znalezienia poprzedniego tankowania
 
 // W createFillup - zmień:
 const { data: previousFillup, error: previousError } = await supabase
-  .from("fillups")
-  .select("odometer, date")
-  .eq("car_id", carId)
-  .order("date", { ascending: false }) // ✅ Zmienione z "odometer"
+  .from('fillups')
+  .select('odometer, date')
+  .eq('car_id', carId)
+  .order('date', { ascending: false }) // ✅ Zmienione z "odometer"
   .limit(1)
   .maybeSingle();
 
 // W updateFillup - przy aktualizacji z distance, zmień:
 const { data: previousFillup, error: prevError } = await supabase
-  .from("fillups")
-  .select("odometer")
-  .eq("car_id", carId)
-  .lt("date", existingFillup.date) // ✅ Zmienione z .lt("odometer", ...)
-  .order("date", { ascending: false }) // ✅ Zmienione z "odometer"
+  .from('fillups')
+  .select('odometer')
+  .eq('car_id', carId)
+  .lt('date', existingFillup.date) // ✅ Zmienione z .lt("odometer", ...)
+  .order('date', { ascending: false }) // ✅ Zmienione z "odometer"
   .limit(1)
   .maybeSingle();
 
 // W updateFillup - przy przeliczaniu następnych tankowań, zmień:
 const { data: subsequentFillups, error: subsequentError } = await supabase
-  .from("fillups")
-  .select("id, odometer, fuel_amount, total_price, distance_traveled")
-  .eq("car_id", carId)
-  .gt("date", updatedFillup.date) // ✅ Zmienione z .gt("odometer", ...)
-  .order("date", { ascending: true }); // ✅ Zmienione z "odometer"
+  .from('fillups')
+  .select('id, odometer, fuel_amount, total_price, distance_traveled')
+  .eq('car_id', carId)
+  .gt('date', updatedFillup.date) // ✅ Zmienione z .gt("odometer", ...)
+  .order('date', { ascending: true }); // ✅ Zmienione z "odometer"
 
 // W deleteFillup - zmień:
 const { data: subsequentFillups, error: subsequentError } = await supabase
-  .from("fillups")
-  .select("id, odometer, fuel_amount, total_price, distance_traveled, date")
-  .eq("car_id", carId)
-  .gt("date", deletedFillup.date) // ✅ Zmienione z .gt("odometer", ...)
-  .order("date", { ascending: true }); // ✅ Zmienione z "odometer"
+  .from('fillups')
+  .select('id, odometer, fuel_amount, total_price, distance_traveled, date')
+  .eq('car_id', carId)
+  .gt('date', deletedFillup.date) // ✅ Zmienione z .gt("odometer", ...)
+  .order('date', { ascending: true }); // ✅ Zmienione z "odometer"
 ```
 
 **Ważne uwagi:**

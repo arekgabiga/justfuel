@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect } from 'react';
 
 interface ResetPasswordFormState {
   password: string;
@@ -13,8 +13,8 @@ interface ResetPasswordFormErrors {
 
 export const useResetPasswordForm = (token: string | null) => {
   const [formState, setFormState] = useState<ResetPasswordFormState>({
-    password: "",
-    confirmPassword: "",
+    password: '',
+    confirmPassword: '',
   });
 
   const [formErrors, setFormErrors] = useState<ResetPasswordFormErrors>({});
@@ -31,20 +31,20 @@ export const useResetPasswordForm = (token: string | null) => {
 
   const validatePassword = useCallback((password: string): string | undefined => {
     if (!password) {
-      return "Hasło jest wymagane";
+      return 'Hasło jest wymagane';
     }
     if (password.length < 6) {
-      return "Hasło musi mieć minimum 6 znaków";
+      return 'Hasło musi mieć minimum 6 znaków';
     }
     return undefined;
   }, []);
 
   const validateConfirmPassword = useCallback((confirmPassword: string, password: string): string | undefined => {
     if (!confirmPassword) {
-      return "Potwierdzenie hasła jest wymagane";
+      return 'Potwierdzenie hasła jest wymagane';
     }
     if (confirmPassword !== password) {
-      return "Hasła nie są identyczne";
+      return 'Hasła nie są identyczne';
     }
     return undefined;
   }, []);
@@ -54,20 +54,18 @@ export const useResetPasswordForm = (token: string | null) => {
       let error: string | undefined;
       const value = values[field];
 
-      if (field === "password") {
+      if (field === 'password') {
         error = validatePassword(value);
-      } else if (field === "confirmPassword") {
+      } else if (field === 'confirmPassword') {
         error = validateConfirmPassword(value, values.password);
       }
 
       setFormErrors((prev) => {
-        const newErrors = { ...prev };
         if (error) {
-          newErrors[field] = error;
-        } else {
-          delete newErrors[field];
+          return { ...prev, [field]: error };
         }
-        return newErrors;
+        const { [field]: _, ...rest } = prev;
+        return rest;
       });
 
       return !error;
@@ -76,8 +74,8 @@ export const useResetPasswordForm = (token: string | null) => {
   );
 
   const validateAllFields = useCallback((): boolean => {
-    const passwordValid = validateField("password");
-    const confirmPasswordValid = validateField("confirmPassword");
+    const passwordValid = validateField('password');
+    const confirmPasswordValid = validateField('confirmPassword');
     return passwordValid && confirmPasswordValid;
   }, [validateField]);
 
@@ -85,7 +83,7 @@ export const useResetPasswordForm = (token: string | null) => {
     (value: string) => {
       setFormState((prev) => ({ ...prev, password: value }));
       const predictedState = { ...formState, password: value };
-      setTouchedFields((prev) => new Set(prev).add("password"));
+      setTouchedFields((prev) => new Set(prev).add('password'));
 
       if (formErrors.password) {
         setFormErrors((prev) => {
@@ -97,21 +95,21 @@ export const useResetPasswordForm = (token: string | null) => {
 
       // Also validate confirmPassword if it's been touched
       setTimeout(() => {
-        validateField("confirmPassword", predictedState);
+        validateField('confirmPassword', predictedState);
       }, 0);
 
       setTimeout(() => {
-        validateField("password", predictedState);
+        validateField('password', predictedState);
       }, 0);
     },
-    [formState, formErrors, touchedFields, validateField]
+    [formState, formErrors, validateField]
   );
 
   const handleConfirmPasswordChange = useCallback(
     (value: string) => {
       setFormState((prev) => ({ ...prev, confirmPassword: value }));
       const predictedState = { ...formState, confirmPassword: value };
-      setTouchedFields((prev) => new Set(prev).add("confirmPassword"));
+      setTouchedFields((prev) => new Set(prev).add('confirmPassword'));
 
       if (formErrors.confirmPassword) {
         setFormErrors((prev) => {
@@ -122,10 +120,10 @@ export const useResetPasswordForm = (token: string | null) => {
       }
 
       setTimeout(() => {
-        validateField("confirmPassword", predictedState);
+        validateField('confirmPassword', predictedState);
       }, 0);
     },
-    [formState, formErrors, touchedFields, validateField]
+    [formState, formErrors, validateField]
   );
 
   const handleFieldBlur = useCallback(
@@ -149,10 +147,10 @@ export const useResetPasswordForm = (token: string | null) => {
       setTokenError(null);
 
       try {
-        const response = await fetch("/api/auth/reset-password", {
-          method: "POST",
+        const response = await fetch('/api/auth/reset-password', {
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify({
             password: formState.password,
@@ -163,11 +161,11 @@ export const useResetPasswordForm = (token: string | null) => {
 
         if (!response.ok) {
           // Check if it's a token error
-          if (data.error?.code === "INVALID_TOKEN") {
-            setTokenError(data.error.message || "Token resetowania jest nieprawidłowy lub wygasł");
+          if (data.error?.code === 'INVALID_TOKEN') {
+            setTokenError(data.error.message || 'Token resetowania jest nieprawidłowy lub wygasł');
           } else {
             setFormErrors({
-              general: data.error?.message || "Wystąpił błąd podczas resetowania hasła.",
+              general: data.error?.message || 'Wystąpił błąd podczas resetowania hasła.',
             });
           }
           setIsSubmitting(false);
@@ -175,11 +173,11 @@ export const useResetPasswordForm = (token: string | null) => {
         }
 
         // Success - redirect to login page
-        window.location.href = "/auth/login?reset=success";
+        window.location.assign('/auth/login?reset=success');
       } catch (error) {
-        console.error("Error during reset password:", error);
+        console.error('Error during reset password:', error);
         setFormErrors({
-          general: "Wystąpił błąd podczas resetowania hasła. Spróbuj ponownie.",
+          general: 'Wystąpił błąd podczas resetowania hasła. Spróbuj ponownie.',
         });
         setIsSubmitting(false);
       }

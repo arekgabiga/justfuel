@@ -1,10 +1,10 @@
-import React from "react";
-import { ChartTabs } from "./ChartTabs";
-import { ChartContainer } from "./ChartContainer";
-import { EmptyChartState } from "./EmptyChartState";
-import { LoadingState } from "./LoadingState";
-import { ErrorState } from "./ErrorState";
-import type { ChartDataDTO, ChartType } from "../../types";
+import React from 'react';
+import { ChartTabs } from './ChartTabs';
+import { ChartContainer } from './ChartContainer';
+import { EmptyChartState } from './EmptyChartState';
+import { LoadingState } from './LoadingState';
+import { ErrorState } from './ErrorState';
+import type { ChartDataDTO, ChartType } from '../../types';
 
 interface ChartsTabProps {
   chartData: ChartDataDTO | null;
@@ -51,4 +51,3 @@ export const ChartsTab: React.FC<ChartsTabProps> = ({
     </div>
   );
 };
-

@@ -1,13 +1,13 @@
-import React from "react";
-import { useCarDetails } from "../../lib/hooks/useCarDetails";
-import { CarHeader } from "./CarHeader";
-import { TabNavigation } from "./TabNavigation";
-import { FillupsTab } from "./FillupsTab";
-import { ChartsTab } from "./ChartsTab";
-import { EditCarDialog } from "./EditCarDialog";
-import { DeleteCarDialog } from "./DeleteCarDialog";
-import { LoadingState } from "./LoadingState";
-import { ErrorState } from "./ErrorState";
+import React from 'react';
+import { useCarDetails } from '../../lib/hooks/useCarDetails';
+import { CarHeader } from './CarHeader';
+import { TabNavigation } from './TabNavigation';
+import { FillupsTab } from './FillupsTab';
+import { ChartsTab } from './ChartsTab';
+import { EditCarDialog } from './EditCarDialog';
+import { DeleteCarDialog } from './DeleteCarDialog';
+import { LoadingState } from './LoadingState';
+import { ErrorState } from './ErrorState';
 
 interface CarDetailsViewProps {
   carId: string;
@@ -45,14 +45,14 @@ export const CarDetailsView: React.FC<CarDetailsViewProps> = ({ carId }) => {
 
   const handleFillupClick = (fillupId: string) => {
     // Navigate to fillup edit page
-    if (typeof window !== "undefined") {
+    if (typeof window !== 'undefined') {
       window.location.href = `/cars/${carId}/fillups/${fillupId}/edit`;
     }
   };
 
   const handleBackToCars = () => {
-    if (typeof window !== "undefined") {
-      window.location.href = "/";
+    if (typeof window !== 'undefined') {
+      window.location.href = '/';
     }
   };
 
@@ -64,7 +64,7 @@ export const CarDetailsView: React.FC<CarDetailsViewProps> = ({ carId }) => {
     fetchChartData(activeChartTab);
   };
 
-  const handleChartTypeChange = (type: React.SetStateAction<"consumption" | "price_per_liter" | "distance">) => {
+  const handleChartTypeChange = (type: React.SetStateAction<'consumption' | 'price_per_liter' | 'distance'>) => {
     switchChartTab(type);
   };
 
@@ -78,11 +78,10 @@ export const CarDetailsView: React.FC<CarDetailsViewProps> = ({ carId }) => {
 
   // Load chart data when chart tab is selected
   React.useEffect(() => {
-    if (activeMainTab === "charts" && !chartData && !chartLoading) {
+    if (activeMainTab === 'charts' && !chartData && !chartLoading) {
       fetchChartData(activeChartTab);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeMainTab, activeChartTab]);
+  }, [activeMainTab, activeChartTab, chartData, chartLoading, fetchChartData]);
 
   if (loading) {
     return <LoadingState />;
@@ -91,7 +90,7 @@ export const CarDetailsView: React.FC<CarDetailsViewProps> = ({ carId }) => {
   if (error || !car) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <ErrorState error={error || new Error("Samochód nie został znaleziony")} onRetry={handleRetry} />
+        <ErrorState error={error || new Error('Samochód nie został znaleziony')} onRetry={handleRetry} />
       </div>
     );
   }
@@ -104,7 +103,7 @@ export const CarDetailsView: React.FC<CarDetailsViewProps> = ({ carId }) => {
 
       <TabNavigation activeTab={activeMainTab} onTabChange={switchMainTab} />
 
-      {activeMainTab === "fillups" && (
+      {activeMainTab === 'fillups' && (
         <FillupsTab
           car={car}
           fillups={fillups}
@@ -117,7 +116,7 @@ export const CarDetailsView: React.FC<CarDetailsViewProps> = ({ carId }) => {
         />
       )}
 
-      {activeMainTab === "charts" && (
+      {activeMainTab === 'charts' && (
         <ChartsTab
           chartData={chartData}
           activeChartType={activeChartTab}

@@ -26,7 +26,7 @@ export const POST: APIRoute = async ({ request, cookies, url }) => {
         {
           status: 400,
           headers: { 'Content-Type': 'application/json' },
-        },
+        }
       );
     }
 
@@ -56,7 +56,7 @@ export const POST: APIRoute = async ({ request, cookies, url }) => {
       {
         status: 200,
         headers: { 'Content-Type': 'application/json' },
-      },
+      }
     );
   } catch (error) {
     // Handle application-specific errors
@@ -74,7 +74,7 @@ export const POST: APIRoute = async ({ request, cookies, url }) => {
           {
             status: 400,
             headers: { 'Content-Type': 'application/json' },
-          },
+          }
         );
       }
     }
@@ -91,8 +91,7 @@ export const POST: APIRoute = async ({ request, cookies, url }) => {
       {
         status: 500,
         headers: { 'Content-Type': 'application/json' },
-      },
+      }
     );
   }
 };
-

@@ -24,14 +24,10 @@ const LoginForm: React.FC<LoginFormProps> = ({ redirectUrl = '/' }) => {
   return (
     <div className="w-full">
       <h1 className="text-2xl font-bold mb-2 text-foreground">Logowanie</h1>
-      <p className="text-sm text-muted-foreground mb-6">
-        Zaloguj się, aby zarządzać swoimi samochodami
-      </p>
+      <p className="text-sm text-muted-foreground mb-6">Zaloguj się, aby zarządzać swoimi samochodami</p>
 
       <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-        {formErrors.general && (
-          <AuthError message={formErrors.general} />
-        )}
+        {formErrors.general && <AuthError message={formErrors.general} />}
 
         <div className="space-y-2">
           <Label htmlFor="email">Adres e-mail</Label>
@@ -80,30 +76,19 @@ const LoginForm: React.FC<LoginFormProps> = ({ redirectUrl = '/' }) => {
         </div>
 
         <div className="flex flex-col gap-4">
-          <Button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full"
-            data-test-id="login-submit-button"
-          >
+          <Button type="submit" disabled={isSubmitting} className="w-full" data-test-id="login-submit-button">
             {isSubmitting ? 'Logowanie...' : 'Zaloguj się'}
           </Button>
 
           <div className="text-center space-y-2">
             <p className="text-sm text-muted-foreground">
               Nie masz konta?{' '}
-              <a
-                href="/auth/register"
-                className="text-primary hover:underline font-medium"
-              >
+              <a href="/auth/register" className="text-primary hover:underline font-medium">
                 Zarejestruj się
               </a>
             </p>
             <p className="text-sm text-muted-foreground">
-              <a
-                href="/auth/forgot-password"
-                className="text-primary hover:underline font-medium"
-              >
+              <a href="/auth/forgot-password" className="text-primary hover:underline font-medium">
                 Zapomniałeś hasła?
               </a>
             </p>
@@ -115,4 +100,3 @@ const LoginForm: React.FC<LoginFormProps> = ({ redirectUrl = '/' }) => {
 };
 
 export default LoginForm;
-

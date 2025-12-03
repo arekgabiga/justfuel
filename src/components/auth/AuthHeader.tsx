@@ -7,7 +7,7 @@ const AuthHeader: React.FC = () => {
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
-    
+
     try {
       // TODO: Replace with actual API call when backend is implemented
       // const response = await fetch('/api/auth/logout', {
@@ -17,7 +17,7 @@ const AuthHeader: React.FC = () => {
 
       // Placeholder for now - will be implemented with backend
       console.log('Logout attempt');
-      
+
       // Simulate API delay
       await new Promise((resolve) => setTimeout(resolve, 500));
 
@@ -54,4 +54,3 @@ const AuthHeader: React.FC = () => {
 };
 
 export default AuthHeader;
-

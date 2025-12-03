@@ -7,30 +7,30 @@ import type {
   UpdateFillupCommand,
   UpdatedFillupDTO,
   DeleteResponseDTO,
-} from "../../types.ts";
-import type { AppSupabaseClient } from "../../db/supabase.client.ts";
+} from '../../types.ts';
+import type { AppSupabaseClient } from '../../db/supabase.client.ts';
 
 export interface ListFillupsParams {
   limit?: number;
   cursor?: string;
-  sort?: "date" | "odometer";
-  order?: "asc" | "desc";
+  sort?: 'date' | 'odometer';
+  order?: 'asc' | 'desc';
 }
 
 /**
  * Whitelist for sort columns to prevent SQL injection
  * Maps user-provided sort field to actual database column name
  */
-const SORT_COLUMN_WHITELIST: Record<NonNullable<ListFillupsParams["sort"]>, string> = {
-  date: "date",
-  odometer: "odometer",
+const SORT_COLUMN_WHITELIST: Record<NonNullable<ListFillupsParams['sort']>, string> = {
+  date: 'date',
+  odometer: 'odometer',
 };
 
 /**
  * Whitelist for order directions
  * Maps user-provided order to Supabase ascending boolean
  */
-const ORDER_WHITELIST: Record<NonNullable<ListFillupsParams["order"]>, { ascending: boolean }> = {
+const ORDER_WHITELIST: Record<NonNullable<ListFillupsParams['order']>, { ascending: boolean }> = {
   asc: { ascending: true },
   desc: { ascending: false },
 };
@@ -43,7 +43,7 @@ const ORDER_WHITELIST: Record<NonNullable<ListFillupsParams["order"]>, { ascendi
  */
 function encodeCursor(sortValue: string | number, id: string): string {
   const cursorData = JSON.stringify({ s: sortValue, i: id });
-  return Buffer.from(cursorData).toString("base64url");
+  return Buffer.from(cursorData).toString('base64url');
 }
 
 /**
@@ -53,7 +53,7 @@ function encodeCursor(sortValue: string | number, id: string): string {
  */
 function decodeCursor(cursor: string): { s: string | number; i: string } | null {
   try {
-    const decoded = Buffer.from(cursor, "base64url").toString("utf-8");
+    const decoded = Buffer.from(cursor, 'base64url').toString('utf-8');
     return JSON.parse(decoded);
   } catch {
     return null;
@@ -85,8 +85,8 @@ export async function listFillupsByCar(
 ): Promise<PaginatedFillupsResponseDTO> {
   // Extract and validate parameters
   const limit = params.limit ?? 20;
-  const sort = params.sort ?? "date";
-  const order = params.order ?? "desc";
+  const sort = params.sort ?? 'date';
+  const order = params.order ?? 'desc';
   const cursor = params.cursor;
 
   const sortColumn = SORT_COLUMN_WHITELIST[sort];
@@ -97,20 +97,20 @@ export async function listFillupsByCar(
   if (cursor) {
     cursorData = decodeCursor(cursor);
     if (!cursorData) {
-      throw new Error("Invalid cursor format");
+      throw new Error('Invalid cursor format');
     }
   }
 
   // Build the query
   // Note: RLS policies will automatically verify car ownership via user_id
   let fillupsQuery = supabase
-    .from("fillups")
+    .from('fillups')
     .select(
-      "id, car_id, date, fuel_amount, total_price, odometer, distance_traveled, fuel_consumption, price_per_liter"
+      'id, car_id, date, fuel_amount, total_price, odometer, distance_traveled, fuel_consumption, price_per_liter'
     )
-    .eq("car_id", carId)
+    .eq('car_id', carId)
     .order(sortColumn, orderCfg)
-    .order("id", { ascending: true }); // Secondary sort for stable pagination
+    .order('id', { ascending: true }); // Secondary sort for stable pagination
 
   // Apply cursor-based pagination if cursor is provided
   // The composite indexes (car_id, date, id) or (car_id, odometer, id) will be used here
@@ -142,10 +142,10 @@ export async function listFillupsByCar(
   if (!fillups || fillups.length === 0) {
     // Verify car exists and belongs to user
     const { data: car, error: carError } = await supabase
-      .from("cars")
-      .select("id")
-      .eq("id", carId)
-      .eq("user_id", userId)
+      .from('cars')
+      .select('id')
+      .eq('id', carId)
+      .eq('user_id', userId)
       .limit(1)
       .maybeSingle();
 
@@ -154,7 +154,7 @@ export async function listFillupsByCar(
     }
 
     if (!car) {
-      throw new Error("Car not found");
+      throw new Error('Car not found');
     }
 
     // Car exists but has no fillups
@@ -185,9 +185,9 @@ export async function listFillupsByCar(
   let total_count = 0;
   if (!cursor) {
     const { count, error: countError } = await supabase
-      .from("fillups")
-      .select("id", { count: "exact", head: true })
-      .eq("car_id", carId);
+      .from('fillups')
+      .select('id', { count: 'exact', head: true })
+      .eq('car_id', carId);
 
     if (countError) {
       // If count query fails, log but don't fail the request
@@ -248,12 +248,12 @@ export async function getFillupById(
   // Query fillup with both car_id and id filters
   // RLS will automatically ensure the car belongs to the user
   const { data: fillup, error } = await supabase
-    .from("fillups")
+    .from('fillups')
     .select(
-      "id, car_id, date, fuel_amount, total_price, odometer, distance_traveled, fuel_consumption, price_per_liter"
+      'id, car_id, date, fuel_amount, total_price, odometer, distance_traveled, fuel_consumption, price_per_liter'
     )
-    .eq("car_id", carId)
-    .eq("id", fillupId)
+    .eq('car_id', carId)
+    .eq('id', fillupId)
     .maybeSingle();
 
   if (error) {
@@ -327,10 +327,10 @@ export async function createFillup(
 ): Promise<FillupWithWarningsDTO> {
   // First, verify the car exists and belongs to the user
   const { data: car, error: carError } = await supabase
-    .from("cars")
-    .select("id, initial_odometer")
-    .eq("id", carId)
-    .eq("user_id", userId)
+    .from('cars')
+    .select('id, initial_odometer')
+    .eq('id', carId)
+    .eq('user_id', userId)
     .limit(1)
     .maybeSingle();
 
@@ -339,15 +339,15 @@ export async function createFillup(
   }
 
   if (!car) {
-    throw new Error("Car not found or does not belong to user");
+    throw new Error('Car not found or does not belong to user');
   }
 
   // Get the most recent fillup for this car to validate odometer consistency
   const { data: previousFillup, error: previousError } = await supabase
-    .from("fillups")
-    .select("odometer, date")
-    .eq("car_id", carId)
-    .order("date", { ascending: false })
+    .from('fillups')
+    .select('odometer, date')
+    .eq('car_id', carId)
+    .order('date', { ascending: false })
     .limit(1)
     .maybeSingle();
 
@@ -360,7 +360,7 @@ export async function createFillup(
   let distance_traveled: number;
   const warnings: ValidationWarningDTO[] = [];
 
-  if ("odometer" in input && input.odometer !== undefined) {
+  if ('odometer' in input && input.odometer !== undefined) {
     // Input method: odometer reading
     odometer = input.odometer;
 
@@ -370,13 +370,13 @@ export async function createFillup(
       // Validate odometer consistency
       if (distance_traveled < 0) {
         warnings.push({
-          field: "odometer",
-          message: "Stan licznika jest mniejszy niż w poprzednim tankowaniu",
+          field: 'odometer',
+          message: 'Stan licznika jest mniejszy niż w poprzednim tankowaniu',
         });
       } else if (distance_traveled === 0) {
         warnings.push({
-          field: "odometer",
-          message: "Stan licznika jest taki sam jak w poprzednim tankowaniu",
+          field: 'odometer',
+          message: 'Stan licznika jest taki sam jak w poprzednim tankowaniu',
         });
       }
     } else {
@@ -386,12 +386,12 @@ export async function createFillup(
 
       if (distance_traveled < 0) {
         warnings.push({
-          field: "odometer",
-          message: "Stan licznika jest mniejszy niż początkowy stan licznika samochodu",
+          field: 'odometer',
+          message: 'Stan licznika jest mniejszy niż początkowy stan licznika samochodu',
         });
       }
     }
-  } else if ("distance" in input && input.distance !== undefined) {
+  } else if ('distance' in input && input.distance !== undefined) {
     // Input method: distance traveled
     distance_traveled = input.distance;
 
@@ -403,7 +403,7 @@ export async function createFillup(
       odometer = initialOdometer + distance_traveled;
     }
   } else {
-    throw new Error("Either odometer or distance must be provided");
+    throw new Error('Either odometer or distance must be provided');
   }
 
   // Calculate fuel consumption and price per liter
@@ -424,10 +424,10 @@ export async function createFillup(
 
   // Insert the new fillup
   const { data: newFillup, error: insertError } = await supabase
-    .from("fillups")
+    .from('fillups')
     .insert(fillupData)
     .select(
-      "id, car_id, date, fuel_amount, total_price, odometer, distance_traveled, fuel_consumption, price_per_liter"
+      'id, car_id, date, fuel_amount, total_price, odometer, distance_traveled, fuel_consumption, price_per_liter'
     )
     .single();
 
@@ -436,7 +436,7 @@ export async function createFillup(
   }
 
   if (!newFillup) {
-    throw new Error("Failed to create fillup");
+    throw new Error('Failed to create fillup');
   }
 
   // Map to FillupDTO and add warnings
@@ -498,12 +498,12 @@ export async function updateFillup(
 ): Promise<UpdatedFillupDTO> {
   // First, verify the fillup exists and belongs to the user's car
   const { data: existingFillup, error: fillupError } = await supabase
-    .from("fillups")
+    .from('fillups')
     .select(
-      "id, car_id, date, fuel_amount, total_price, odometer, distance_traveled, fuel_consumption, price_per_liter"
+      'id, car_id, date, fuel_amount, total_price, odometer, distance_traveled, fuel_consumption, price_per_liter'
     )
-    .eq("car_id", carId)
-    .eq("id", fillupId)
+    .eq('car_id', carId)
+    .eq('id', fillupId)
     .maybeSingle();
 
   if (fillupError) {
@@ -511,15 +511,15 @@ export async function updateFillup(
   }
 
   if (!existingFillup) {
-    throw new Error("Fillup not found");
+    throw new Error('Fillup not found');
   }
 
   // Get car information for initial odometer reference
   const { data: car, error: carError } = await supabase
-    .from("cars")
-    .select("id, initial_odometer")
-    .eq("id", carId)
-    .eq("user_id", userId)
+    .from('cars')
+    .select('id, initial_odometer')
+    .eq('id', carId)
+    .eq('user_id', userId)
     .limit(1)
     .maybeSingle();
 
@@ -528,7 +528,7 @@ export async function updateFillup(
   }
 
   if (!car) {
-    throw new Error("Car not found");
+    throw new Error('Car not found');
   }
 
   // Prepare update data with only provided fields
@@ -563,12 +563,12 @@ export async function updateFillup(
       // Exclude the current fillup from the query
       const fillupDate = input.date ?? existingFillup.date;
       const { data: previousFillup, error: prevError } = await supabase
-        .from("fillups")
-        .select("odometer, date")
-        .eq("car_id", carId)
-        .neq("id", fillupId)
-        .lt("date", fillupDate)
-        .order("date", { ascending: false })
+        .from('fillups')
+        .select('odometer, date')
+        .eq('car_id', carId)
+        .neq('id', fillupId)
+        .lt('date', fillupDate)
+        .order('date', { ascending: false })
         .limit(1)
         .maybeSingle();
 
@@ -587,13 +587,13 @@ export async function updateFillup(
       // Validate odometer consistency
       if (newDistanceTraveled < 0) {
         warnings.push({
-          field: "odometer",
-          message: "Stan licznika jest mniejszy niż w poprzednim tankowaniu",
+          field: 'odometer',
+          message: 'Stan licznika jest mniejszy niż w poprzednim tankowaniu',
         });
       } else if (newDistanceTraveled === 0) {
         warnings.push({
-          field: "odometer",
-          message: "Stan licznika jest taki sam jak w poprzednim tankowaniu",
+          field: 'odometer',
+          message: 'Stan licznika jest taki sam jak w poprzednim tankowaniu',
         });
       }
     } else if (input.distance !== undefined) {
@@ -605,12 +605,12 @@ export async function updateFillup(
       // Exclude the current fillup from the query
       const fillupDate = input.date ?? existingFillup.date;
       const { data: previousFillup, error: prevError } = await supabase
-        .from("fillups")
-        .select("odometer, date")
-        .eq("car_id", carId)
-        .neq("id", fillupId)
-        .lt("date", fillupDate)
-        .order("date", { ascending: false })
+        .from('fillups')
+        .select('odometer, date')
+        .eq('car_id', carId)
+        .neq('id', fillupId)
+        .lt('date', fillupDate)
+        .order('date', { ascending: false })
         .limit(1)
         .maybeSingle();
 
@@ -626,7 +626,7 @@ export async function updateFillup(
         newOdometer = initialOdometer + newDistanceTraveled;
       }
     } else {
-      throw new Error("Either odometer or distance must be provided");
+      throw new Error('Either odometer or distance must be provided');
     }
 
     updateData.odometer = newOdometer;
@@ -644,12 +644,12 @@ export async function updateFillup(
 
   // Update the fillup
   const { data: updatedFillup, error: updateError } = await supabase
-    .from("fillups")
+    .from('fillups')
     .update(updateData)
-    .eq("id", fillupId)
-    .eq("car_id", carId)
+    .eq('id', fillupId)
+    .eq('car_id', carId)
     .select(
-      "id, car_id, date, fuel_amount, total_price, odometer, distance_traveled, fuel_consumption, price_per_liter"
+      'id, car_id, date, fuel_amount, total_price, odometer, distance_traveled, fuel_consumption, price_per_liter'
     )
     .single();
 
@@ -658,7 +658,7 @@ export async function updateFillup(
   }
 
   if (!updatedFillup) {
-    throw new Error("Failed to update fillup");
+    throw new Error('Failed to update fillup');
   }
 
   // Only the current fillup is updated - no recalculation of other fillups
@@ -721,10 +721,10 @@ export async function deleteFillup(
 ): Promise<DeleteResponseDTO> {
   // First, verify the fillup exists and belongs to the user's car
   const { data: existingFillup, error: fillupError } = await supabase
-    .from("fillups")
-    .select("id, car_id, odometer, date")
-    .eq("car_id", carId)
-    .eq("id", fillupId)
+    .from('fillups')
+    .select('id, car_id, odometer, date')
+    .eq('car_id', carId)
+    .eq('id', fillupId)
     .maybeSingle();
 
   if (fillupError) {
@@ -732,15 +732,15 @@ export async function deleteFillup(
   }
 
   if (!existingFillup) {
-    throw new Error("Fillup not found");
+    throw new Error('Fillup not found');
   }
 
   // Get car information for verification
   const { data: car, error: carError } = await supabase
-    .from("cars")
-    .select("id")
-    .eq("id", carId)
-    .eq("user_id", userId)
+    .from('cars')
+    .select('id')
+    .eq('id', carId)
+    .eq('user_id', userId)
     .limit(1)
     .maybeSingle();
 
@@ -749,25 +749,25 @@ export async function deleteFillup(
   }
 
   if (!car) {
-    throw new Error("Car not found");
+    throw new Error('Car not found');
   }
 
   // Get all fillups that come after this one (later dates)
   // These will need their statistics recalculated
   // Use date for finding subsequent fillups in time, not odometer
   const { data: subsequentFillups, error: subsequentError } = await supabase
-    .from("fillups")
-    .select("id, odometer, fuel_amount, total_price, distance_traveled, date")
-    .eq("car_id", carId)
-    .gt("date", existingFillup.date)
-    .order("date", { ascending: true });
+    .from('fillups')
+    .select('id, odometer, fuel_amount, total_price, distance_traveled, date')
+    .eq('car_id', carId)
+    .gt('date', existingFillup.date)
+    .order('date', { ascending: true });
 
   if (subsequentError) {
     throw new Error(`Failed to fetch subsequent fillups: ${subsequentError.message}`);
   }
 
   // Delete the fillup
-  const { error: deleteError } = await supabase.from("fillups").delete().eq("id", fillupId).eq("car_id", carId);
+  const { error: deleteError } = await supabase.from('fillups').delete().eq('id', fillupId).eq('car_id', carId);
 
   if (deleteError) {
     throw new Error(`Failed to delete fillup: ${deleteError.message}`);
@@ -780,11 +780,11 @@ export async function deleteFillup(
     // Get the fillup that comes before the deleted one (for distance calculation)
     // Use date for finding previous fillup in time, not odometer
     const { data: previousFillup, error: prevError } = await supabase
-      .from("fillups")
-      .select("odometer, date")
-      .eq("car_id", carId)
-      .lt("date", existingFillup.date)
-      .order("date", { ascending: false })
+      .from('fillups')
+      .select('odometer, date')
+      .eq('car_id', carId)
+      .lt('date', existingFillup.date)
+      .order('date', { ascending: false })
       .limit(1)
       .maybeSingle();
 
@@ -817,12 +817,12 @@ export async function deleteFillup(
     // but we can optimize by using prepared statements and error handling
     const updatePromises = updates.map(async (update) => {
       const { error: updateError } = await supabase
-        .from("fillups")
+        .from('fillups')
         .update({
           distance_traveled: update.distance_traveled,
           fuel_consumption: update.fuel_consumption,
         })
-        .eq("id", update.id);
+        .eq('id', update.id);
 
       if (updateError) {
         throw new Error(`Failed to update subsequent fillup ${update.id}: ${updateError.message}`);
@@ -836,13 +836,13 @@ export async function deleteFillup(
   }
 
   // Log successful deletion with performance metrics
-  // eslint-disable-next-line no-console
+
   console.log(
     `[deleteFillup] carId=${carId} fillupId=${fillupId} deletedOdometer=${existingFillup.odometer} subsequentFillups=${subsequentFillups?.length ?? 0} updatedEntries=${updatedEntriesCount}`
   );
 
   return {
-    message: "Fillup deleted successfully",
+    message: 'Fillup deleted successfully',
     updated_entries_count: updatedEntriesCount,
   };
 }

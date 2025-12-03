@@ -106,7 +106,7 @@ Format błędu: `ErrorResponseDTO`:
 1. Walidacja parametrów
    - Dodać `carIdParamSchema` w `src/lib/validation/cars.ts`:
      ```ts
-     import { z } from "zod";
+     import { z } from 'zod';
      export const carIdParamSchema = z.object({ carId: z.string().uuid() });
      ```
 2. Serwis
@@ -145,22 +145,22 @@ Serwis:
 ```ts
 export async function getUserCarWithStats(supabase, carId, opts?): Promise<CarDetailsDTO | null> {
   let q = supabase
-    .from("cars")
-    .select("id, name, initial_odometer, mileage_input_preference, created_at, user_id")
-    .eq("id", carId)
+    .from('cars')
+    .select('id, name, initial_odometer, mileage_input_preference, created_at, user_id')
+    .eq('id', carId)
     .limit(1)
     .single();
-  if (opts?.userId) q = q.eq("user_id", opts.userId);
+  if (opts?.userId) q = q.eq('user_id', opts.userId);
 
   const { data: car, error: carError } = await q;
   if (carError || !car) return null;
 
   const { data: stats } = await supabase
-    .from("car_statistics")
+    .from('car_statistics')
     .select(
-      "car_id,total_fuel_cost,total_fuel_amount,total_distance,average_consumption,average_price_per_liter,fillup_count"
+      'car_id,total_fuel_cost,total_fuel_amount,total_distance,average_consumption,average_price_per_liter,fillup_count'
     )
-    .eq("car_id", car.id)
+    .eq('car_id', car.id)
     .limit(1)
     .maybeSingle();
 
@@ -186,33 +186,33 @@ Endpoint (szkic):
 
 ```ts
 export const GET: APIRoute = async (context) => {
-  const requestId = context.request.headers.get("x-request-id") ?? undefined;
+  const requestId = context.request.headers.get('x-request-id') ?? undefined;
   const supabase = context.locals.supabase;
-  if (!supabase) return json500("Supabase client not available");
+  if (!supabase) return json500('Supabase client not available');
 
-  const authHeader = context.request.headers.get("authorization");
-  const hasBearer = !!authHeader && authHeader.toLowerCase().startsWith("bearer ");
-  const devAuth = import.meta.env.DEV_AUTH_FALLBACK === "true";
-  if (!hasBearer && !devAuth) return json401("Missing or invalid Authorization header");
+  const authHeader = context.request.headers.get('authorization');
+  const hasBearer = !!authHeader && authHeader.toLowerCase().startsWith('bearer ');
+  const devAuth = import.meta.env.DEV_AUTH_FALLBACK === 'true';
+  if (!hasBearer && !devAuth) return json401('Missing or invalid Authorization header');
 
   const paramsParse = carIdParamSchema.safeParse({ carId: context.params.carId });
-  if (!paramsParse.success) return json400("Invalid carId", paramsParse.error);
+  if (!paramsParse.success) return json400('Invalid carId', paramsParse.error);
 
   let userId: string | undefined = undefined;
   if (hasBearer) {
     const token = authHeader!.slice(7);
     const { data, error } = await supabase.auth.getUser(token);
-    if (error || !data?.user?.id) return json401("Invalid token");
+    if (error || !data?.user?.id) return json401('Invalid token');
     userId = data.user.id;
   }
 
   try {
     const car = await getUserCarWithStats(supabase, paramsParse.data.carId, userId ? { userId } : undefined);
-    if (!car) return json404("Car not found");
+    if (!car) return json404('Car not found');
     return new Response(JSON.stringify(car), { status: 200 });
   } catch (e) {
-    console.error(`[GET /api/cars/{carId}] requestId=${requestId ?? "-"}`, e);
-    return json500("Unexpected server error");
+    console.error(`[GET /api/cars/{carId}] requestId=${requestId ?? '-'}`, e);
+    return json500('Unexpected server error');
   }
 };
 ```

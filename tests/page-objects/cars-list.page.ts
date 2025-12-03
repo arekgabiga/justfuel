@@ -1,4 +1,4 @@
-import { Page, Locator } from "@playwright/test";
+import { Page, Locator } from '@playwright/test';
 
 export class CarsListPage {
   readonly page: Page;
@@ -9,11 +9,11 @@ export class CarsListPage {
 
   // Locators
   get addCarButton(): Locator {
-    return this.page.getByTestId("add-car-button");
+    return this.page.getByTestId('add-car-button');
   }
 
   get carsGrid(): Locator {
-    return this.page.getByTestId("cars-grid");
+    return this.page.getByTestId('cars-grid');
   }
 
   carCard(carId: string): Locator {
@@ -30,7 +30,7 @@ export class CarsListPage {
   }
 
   async goto(): Promise<void> {
-    await this.page.goto("/");
+    await this.page.goto('/');
   }
 
   // Validation
@@ -43,6 +43,6 @@ export class CarsListPage {
   }
 
   async getCarStatistics(carId: string): Promise<string> {
-    return (await this.carCard(carId).getByTestId("car-statistics-container").textContent()) || "";
+    return (await this.carCard(carId).getByTestId('car-statistics-container').textContent()) || '';
   }
 }

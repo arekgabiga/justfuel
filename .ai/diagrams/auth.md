@@ -7,6 +7,7 @@
 ### 1. Przepływy autentykacji wymienione w dokumentacji:
 
 **Rejestracja użytkownika (US-001):**
+
 - Użytkownik wchodzi na `/register`
 - Wypełnia formularz (e-mail, hasło, potwierdzenie hasła)
 - Walidacja danych w czasie rzeczywistym
@@ -16,6 +17,7 @@
 - Przekierowanie do `/` (główna strona z listą samochodów)
 
 **Logowanie użytkownika (US-002):**
+
 - Użytkownik wchodzi na `/login` (lub jest przekierowany z chronionej strony)
 - Wypełnia formularz (e-mail, hasło)
 - Walidacja danych
@@ -25,6 +27,7 @@
 - Przekierowanie do `/` lub URL z parametru `redirect`
 
 **Wylogowanie użytkownika (US-003):**
+
 - Użytkownik klika przycisk "Wyloguj"
 - Wywołanie API `/api/auth/logout`
 - Supabase Auth kończy sesję
@@ -32,18 +35,21 @@
 - Przekierowanie do `/login`
 
 **Próba dostępu do chronionej strony:**
+
 - Użytkownik wchodzi na chronioną stronę (np. `/`, `/cars`)
 - Middleware sprawdza autoryzację
 - Jeśli niezalogowany → przekierowanie do `/login?redirect=<current-url>`
 - Jeśli zalogowany → renderowanie strony
 
 **Weryfikacja tokenu w endpointach API:**
+
 - Każdy request do API zawiera token w cookie lub headerze Authorization
 - Endpoint weryfikuje token przez Supabase Auth
 - Jeśli token ważny → przetwarzanie requestu
 - Jeśli token nieważny → zwrócenie 401 Unauthorized
 
 **Odświeżanie tokenu:**
+
 - Access token wygasa po 1 godzinie
 - System automatycznie odświeża token używając refresh token
 - Jeśli refresh token wygasł → wylogowanie i przekierowanie do `/login`
@@ -58,12 +64,14 @@
 ### 3. Procesy weryfikacji i odświeżania tokenów:
 
 **Weryfikacja tokenu:**
+
 - Token pobierany z HTTP-only cookie lub headeru Authorization
 - Weryfikacja przez `supabase.auth.getUser(token)`
 - Jeśli token ważny → użytkownik autoryzowany
 - Jeśli token nieważny/wygasły → błąd 401
 
 **Odświeżanie tokenu:**
+
 - Access token wygasa po 3600 sekund (1 godzina)
 - Refresh token używany do automatycznego odświeżania
 - Implementacja w `useAuth` hook lub middleware
@@ -72,6 +80,7 @@
 ### 4. Opis kroków autentykacji:
 
 **Krok 1 - Rejestracja:**
+
 1. Użytkownik wypełnia formularz rejestracji
 2. Przeglądarka wysyła POST do `/api/auth/register` z danymi
 3. API wywołuje `supabase.auth.signUp()`
@@ -81,6 +90,7 @@
 7. Przekierowanie do strony głównej
 
 **Krok 2 - Logowanie:**
+
 1. Użytkownik wypełnia formularz logowania
 2. Przeglądarka wysyła POST do `/api/auth/login` z danymi
 3. API wywołuje `supabase.auth.signInWithPassword()`
@@ -89,6 +99,7 @@
 6. Przekierowanie do strony głównej lub redirect URL
 
 **Krok 3 - Dostęp do chronionej strony:**
+
 1. Użytkownik próbuje wejść na chronioną stronę
 2. Middleware sprawdza token z cookie
 3. Middleware weryfikuje token przez Supabase
@@ -96,6 +107,7 @@
 5. Jeśli token nieważny → przekierowanie do `/login`
 
 **Krok 4 - Request do API:**
+
 1. Przeglądarka wysyła request do API z tokenem w cookie
 2. Endpoint API pobiera token
 3. Endpoint weryfikuje token przez Supabase
@@ -103,6 +115,7 @@
 5. Jeśli token nieważny → zwrócenie 401
 
 **Krok 5 - Odświeżanie tokenu:**
+
 1. System wykrywa, że access token wygasa
 2. Użycie refresh token do odświeżenia
 3. Wywołanie `supabase.auth.refreshSession()`
@@ -110,6 +123,7 @@
 5. Zapisanie nowego tokenu w cookie
 
 **Krok 6 - Wylogowanie:**
+
 1. Użytkownik klika przycisk "Wyloguj"
 2. Przeglądarka wysyła POST do `/api/auth/logout`
 3. API wywołuje `supabase.auth.signOut()`
@@ -242,4 +256,3 @@ sequenceDiagram
 ```
 
 </mermaid_diagram>
-

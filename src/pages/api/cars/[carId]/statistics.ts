@@ -1,10 +1,10 @@
 export const prerender = false;
 
-import type { APIRoute } from "astro";
-import type { CarStatisticsDTO, ErrorResponseDTO } from "../../../../types.ts";
-import { getCarStatistics } from "../../../../lib/services/cars.service.ts";
-import { carIdParamSchema } from "../../../../lib/validation/cars.ts";
-import { requireAuth } from "../../../../lib/utils/auth.ts";
+import type { APIRoute } from 'astro';
+import type { CarStatisticsDTO, ErrorResponseDTO } from '../../../../types.ts';
+import { getCarStatistics } from '../../../../lib/services/cars.service.ts';
+import { carIdParamSchema } from '../../../../lib/validation/cars.ts';
+import { requireAuth } from '../../../../lib/utils/auth.ts';
 
 /**
  * GET /api/cars/{carId}/statistics
@@ -18,7 +18,7 @@ import { requireAuth } from "../../../../lib/utils/auth.ts";
  * @returns JSON response with CarStatisticsDTO or error
  */
 export const GET: APIRoute = async (context) => {
-  const requestId = context.request.headers.get("x-request-id") ?? undefined;
+  const requestId = context.request.headers.get('x-request-id') ?? undefined;
 
   try {
     // Require authentication
@@ -28,7 +28,7 @@ export const GET: APIRoute = async (context) => {
     const supabase = context.locals.supabase;
     if (!supabase) {
       const body: ErrorResponseDTO = {
-        error: { code: "INTERNAL_ERROR", message: "Supabase client not available" },
+        error: { code: 'INTERNAL_ERROR', message: 'Supabase client not available' },
       };
       return new Response(JSON.stringify(body), { status: 500 });
     }
@@ -38,8 +38,8 @@ export const GET: APIRoute = async (context) => {
     if (!paramsParsed.success) {
       const body: ErrorResponseDTO = {
         error: {
-          code: "BAD_REQUEST",
-          message: "Invalid carId",
+          code: 'BAD_REQUEST',
+          message: 'Invalid carId',
           details: { issues: paramsParsed.error.message },
         },
       };
@@ -47,15 +47,11 @@ export const GET: APIRoute = async (context) => {
     }
 
     // Get car statistics using the service
-    const statistics: CarStatisticsDTO | null = await getCarStatistics(
-      supabase,
-      paramsParsed.data.carId,
-      { userId }
-    );
+    const statistics: CarStatisticsDTO | null = await getCarStatistics(supabase, paramsParsed.data.carId, { userId });
 
     if (!statistics) {
       const body: ErrorResponseDTO = {
-        error: { code: "NOT_FOUND", message: "Car not found" },
+        error: { code: 'NOT_FOUND', message: 'Car not found' },
       };
       return new Response(JSON.stringify(body), { status: 404 });
     }
@@ -63,7 +59,7 @@ export const GET: APIRoute = async (context) => {
     return new Response(JSON.stringify(statistics), {
       status: 200,
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
     });
   } catch (error) {
@@ -71,9 +67,9 @@ export const GET: APIRoute = async (context) => {
     if (error instanceof Response) {
       return error;
     }
-    console.error(`[GET /api/cars/{carId}/statistics] requestId=${requestId ?? "-"}`, error);
+    console.error(`[GET /api/cars/{carId}/statistics] requestId=${requestId ?? '-'}`, error);
     const body: ErrorResponseDTO = {
-      error: { code: "INTERNAL_ERROR", message: "Unexpected server error" },
+      error: { code: 'INTERNAL_ERROR', message: 'Unexpected server error' },
     };
     return new Response(JSON.stringify(body), { status: 500 });
   }

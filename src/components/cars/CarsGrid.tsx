@@ -14,7 +14,10 @@ export const CarsGrid: React.FC<CarsGridProps> = ({ cars, onCarClick, loading = 
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {Array.from({ length: 4 }).map((_, index) => (
-          <div key={index} className="bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 p-6">
+          <div
+            key={index}
+            className="bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 p-6"
+          >
             <Skeleton className="h-6 w-3/4 mb-4" />
             <div className="space-y-3">
               <Skeleton className="h-4 w-full" />
@@ -36,11 +39,7 @@ export const CarsGrid: React.FC<CarsGridProps> = ({ cars, onCarClick, loading = 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" data-test-id="cars-grid">
       {cars.map((car) => (
-        <CarCard
-          key={car.id}
-          car={car}
-          onClick={onCarClick}
-        />
+        <CarCard key={car.id} car={car} onClick={onCarClick} />
       ))}
     </div>
   );

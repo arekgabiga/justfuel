@@ -1,14 +1,13 @@
-import React from "react";
-import { useCarsList } from "../../lib/hooks/useCarsList";
-import { CarsListHeader } from "./CarsListHeader";
-import { CarsGrid } from "./CarsGrid";
-import { EmptyState } from "./EmptyState";
-import { LoadingState } from "./LoadingState";
-import { ErrorState } from "./ErrorState";
+import React from 'react';
+import { useCarsList } from '../../lib/hooks/useCarsList';
+import { CarsListHeader } from './CarsListHeader';
+import { CarsGrid } from './CarsGrid';
+import { EmptyState } from './EmptyState';
+import { LoadingState } from './LoadingState';
+import { ErrorState } from './ErrorState';
 
 const CarsListView: React.FC = () => {
-  const { loading, error, cars, handleCarClick, handleAddCar, handleRetry } =
-    useCarsList();
+  const { loading, error, cars, handleCarClick, handleAddCar, handleRetry } = useCarsList();
 
   // Show loading state
   if (loading) {

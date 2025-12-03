@@ -1,10 +1,10 @@
-import React, { useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useNewCarForm } from "@/lib/hooks/useNewCarForm";
-import { ArrowLeft } from "lucide-react";
+import React, { useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useNewCarForm } from '@/lib/hooks/useNewCarForm';
+import { ArrowLeft } from 'lucide-react';
 
 const NewCarFormView: React.FC = () => {
   const {
@@ -49,7 +49,13 @@ const NewCarFormView: React.FC = () => {
       </header>
 
       {/* Form */}
-      <form onSubmit={handleSubmit} noValidate aria-label="Formularz dodawania nowego samochodu" className="space-y-6" data-test-id="new-car-form">
+      <form
+        onSubmit={handleSubmit}
+        noValidate
+        aria-label="Formularz dodawania nowego samochodu"
+        className="space-y-6"
+        data-test-id="new-car-form"
+      >
         {/* Name field */}
         <div className="space-y-2">
           <Label htmlFor="name" aria-required="true">
@@ -64,28 +70,28 @@ const NewCarFormView: React.FC = () => {
             name="name"
             type="text"
             value={formState.name}
-            onChange={(e) => handleFieldChange("name", e.target.value)}
-            onBlur={() => handleFieldBlur("name")}
+            onChange={(e) => handleFieldChange('name', e.target.value)}
+            onBlur={() => handleFieldBlur('name')}
             placeholder="np. Moje Audi A4"
-            aria-invalid={touchedFields.has("name") && !!formErrors.name}
+            aria-invalid={touchedFields.has('name') && !!formErrors.name}
             aria-describedby={
-              touchedFields.has("name") && formErrors.name
-                ? "name-error name-help"
-                : touchedFields.has("name")
-                  ? "name-help"
+              touchedFields.has('name') && formErrors.name
+                ? 'name-error name-help'
+                : touchedFields.has('name')
+                  ? 'name-help'
                   : undefined
             }
             aria-required="true"
             autoComplete="off"
             disabled={isSubmitting}
-            className={touchedFields.has("name") && formErrors.name ? "border-destructive" : ""}
+            className={touchedFields.has('name') && formErrors.name ? 'border-destructive' : ''}
             data-test-id="car-name-input"
             required
           />
           <p id="name-help" className="sr-only">
             Wprowadź nazwę samochodu (1-100 znaków)
           </p>
-          {touchedFields.has("name") && formErrors.name && (
+          {touchedFields.has('name') && formErrors.name && (
             <p id="name-error" className="text-sm text-destructive mt-1" role="alert" aria-live="polite">
               {formErrors.name}
             </p>
@@ -102,26 +108,26 @@ const NewCarFormView: React.FC = () => {
             min="0"
             step="1"
             value={formState.initialOdometer}
-            onChange={(e) => handleFieldChange("initialOdometer", e.target.value)}
-            onBlur={() => handleFieldBlur("initialOdometer")}
+            onChange={(e) => handleFieldChange('initialOdometer', e.target.value)}
+            onBlur={() => handleFieldBlur('initialOdometer')}
             placeholder="np. 50000"
-            aria-invalid={touchedFields.has("initialOdometer") && !!formErrors.initialOdometer}
+            aria-invalid={touchedFields.has('initialOdometer') && !!formErrors.initialOdometer}
             aria-describedby={
-              touchedFields.has("initialOdometer") && formErrors.initialOdometer
-                ? "initialOdometer-error initialOdometer-help"
-                : touchedFields.has("initialOdometer")
-                  ? "initialOdometer-help"
+              touchedFields.has('initialOdometer') && formErrors.initialOdometer
+                ? 'initialOdometer-error initialOdometer-help'
+                : touchedFields.has('initialOdometer')
+                  ? 'initialOdometer-help'
                   : undefined
             }
             autoComplete="off"
             disabled={isSubmitting}
-            className={touchedFields.has("initialOdometer") && formErrors.initialOdometer ? "border-destructive" : ""}
+            className={touchedFields.has('initialOdometer') && formErrors.initialOdometer ? 'border-destructive' : ''}
             data-test-id="car-initial-odometer-input"
           />
           <p id="initialOdometer-help" className="sr-only">
             Wprowadź początkowy stan licznika w kilometrach (opcjonalne)
           </p>
-          {touchedFields.has("initialOdometer") && formErrors.initialOdometer && (
+          {touchedFields.has('initialOdometer') && formErrors.initialOdometer && (
             <p id="initialOdometer-error" className="text-sm text-destructive mt-1" role="alert" aria-live="polite">
               {formErrors.initialOdometer}
             </p>
@@ -139,7 +145,7 @@ const NewCarFormView: React.FC = () => {
           <Select
             value={formState.mileageInputPreference}
             onValueChange={(value) => {
-              handleFieldChange("mileageInputPreference", value);
+              handleFieldChange('mileageInputPreference', value);
             }}
             disabled={isSubmitting}
           >
@@ -149,16 +155,16 @@ const NewCarFormView: React.FC = () => {
               aria-invalid={!!formErrors.mileageInputPreference}
               aria-describedby={
                 formErrors.mileageInputPreference
-                  ? "mileageInputPreference-error mileageInputPreference-help"
-                  : touchedFields.has("mileageInputPreference")
-                    ? "mileageInputPreference-help"
+                  ? 'mileageInputPreference-error mileageInputPreference-help'
+                  : touchedFields.has('mileageInputPreference')
+                    ? 'mileageInputPreference-help'
                     : undefined
               }
               aria-required="true"
               className={
-                touchedFields.has("mileageInputPreference") && formErrors.mileageInputPreference
-                  ? "border-destructive"
-                  : ""
+                touchedFields.has('mileageInputPreference') && formErrors.mileageInputPreference
+                  ? 'border-destructive'
+                  : ''
               }
               data-test-id="car-mileage-preference-select"
             >
@@ -172,7 +178,7 @@ const NewCarFormView: React.FC = () => {
           <p id="mileageInputPreference-help" className="sr-only">
             Wybierz jak będziesz wprowadzać przebieg: stan licznika lub przejechany dystans
           </p>
-          {touchedFields.has("mileageInputPreference") && formErrors.mileageInputPreference && (
+          {touchedFields.has('mileageInputPreference') && formErrors.mileageInputPreference && (
             <p
               id="mileageInputPreference-error"
               className="text-sm text-destructive mt-1"
@@ -204,10 +210,10 @@ const NewCarFormView: React.FC = () => {
             size="lg"
             className="flex-1 sm:flex-none min-w-[120px]"
             aria-busy={isSubmitting}
-            aria-describedby={isSubmitting ? "submitting-status" : undefined}
+            aria-describedby={isSubmitting ? 'submitting-status' : undefined}
             data-test-id="save-car-button"
           >
-            {isSubmitting ? "Zapisywanie..." : "Zapisz"}
+            {isSubmitting ? 'Zapisywanie...' : 'Zapisz'}
           </Button>
           {isSubmitting && (
             <span id="submitting-status" className="sr-only">

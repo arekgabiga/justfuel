@@ -10,12 +10,12 @@ interface ConfirmEmailProps {
   supabaseKey?: string;
 }
 
-const ConfirmEmail: React.FC<ConfirmEmailProps> = ({ 
-  status: initialStatus, 
-  message: initialMessage, 
+const ConfirmEmail: React.FC<ConfirmEmailProps> = ({
+  status: initialStatus,
+  message: initialMessage,
   redirectTo,
   supabaseUrl,
-  supabaseKey
+  supabaseKey,
 }) => {
   const [status, setStatus] = useState(initialStatus);
   const [message, setMessage] = useState(initialMessage);
@@ -25,7 +25,7 @@ const ConfirmEmail: React.FC<ConfirmEmailProps> = ({
     if (initialStatus === 'success') {
       // Clear query parameters and hash from URL
       window.history.replaceState(null, '', window.location.pathname);
-      
+
       // Redirect after a short delay
       const timer = setTimeout(() => {
         window.location.href = redirectTo;
@@ -47,7 +47,7 @@ const ConfirmEmail: React.FC<ConfirmEmailProps> = ({
           if (accessToken && refreshToken) {
             try {
               const supabase = createBrowserClient<Database>(supabaseUrl, supabaseKey);
-              
+
               const { data, error } = await supabase.auth.setSession({
                 access_token: accessToken,
                 refresh_token: refreshToken,
@@ -111,12 +111,7 @@ const ConfirmEmail: React.FC<ConfirmEmailProps> = ({
               stroke="currentColor"
               viewBox="0 0 24 24"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M5 13l4 4L19 7"
-              />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
             <p className="text-sm text-green-600 dark:text-green-400">{message}</p>
           </div>
@@ -130,27 +125,16 @@ const ConfirmEmail: React.FC<ConfirmEmailProps> = ({
               stroke="currentColor"
               viewBox="0 0 24 24"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
             <div className="flex-1">
               <p className="text-sm text-red-600 dark:text-red-400">{message}</p>
               <div className="mt-4">
-                <a
-                  href="/auth/register"
-                  className="text-primary hover:underline font-medium text-sm"
-                >
+                <a href="/auth/register" className="text-primary hover:underline font-medium text-sm">
                   Zarejestruj się ponownie
                 </a>
                 {' lub '}
-                <a
-                  href="/auth/login"
-                  className="text-primary hover:underline font-medium text-sm"
-                >
+                <a href="/auth/login" className="text-primary hover:underline font-medium text-sm">
                   Zaloguj się
                 </a>
               </div>
@@ -163,4 +147,3 @@ const ConfirmEmail: React.FC<ConfirmEmailProps> = ({
 };
 
 export default ConfirmEmail;
-

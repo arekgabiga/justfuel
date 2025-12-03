@@ -330,15 +330,15 @@ export type UpdatedFillupDTO = FillupDTO & {
 ```typescript
 export type FillupDTO = Pick<
   Fillup,
-  | "id"
-  | "car_id"
-  | "date"
-  | "fuel_amount"
-  | "total_price"
-  | "odometer"
-  | "distance_traveled"
-  | "fuel_consumption"
-  | "price_per_liter"
+  | 'id'
+  | 'car_id'
+  | 'date'
+  | 'fuel_amount'
+  | 'total_price'
+  | 'odometer'
+  | 'distance_traveled'
+  | 'fuel_consumption'
+  | 'price_per_liter'
 >;
 ```
 
@@ -372,7 +372,7 @@ interface EditFillupFormState {
   date: string; // Format: YYYY-MM-DD
   fuelAmount: string; // String for editing, converted to number
   totalPrice: string; // String for editing, converted to number
-  inputMode: "odometer" | "distance";
+  inputMode: 'odometer' | 'distance';
   odometer: string; // String, optional when mode = odometer
   distance: string; // String, optional when mode = distance
 }
@@ -438,7 +438,7 @@ interface UseEditFillupFormReturn {
   originalFillupData: FillupDTO | null;
   handleFieldChange: (field: keyof EditFillupFormState, value: string) => void;
   handleFieldBlur: (field: keyof EditFillupFormState) => void;
-  handleModeToggle: (mode: "odometer" | "distance") => void;
+  handleModeToggle: (mode: 'odometer' | 'distance') => void;
   handleSubmit: (e: React.FormEvent) => Promise<void>;
   handleCancel: () => void;
   handleSkipCountdown: () => void;

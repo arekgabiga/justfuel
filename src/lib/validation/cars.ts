@@ -1,9 +1,9 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 export const listCarsQuerySchema = z
   .object({
-    sort: z.enum(["name", "created_at"]).optional().default("name"),
-    order: z.enum(["asc", "desc"]).optional().default("asc"),
+    sort: z.enum(['name', 'created_at']).optional().default('name'),
+    order: z.enum(['asc', 'desc']).optional().default('asc'),
   })
   .strict();
 
@@ -29,7 +29,7 @@ export const createCarCommandSchema = z
   .object({
     name: z.string().trim().min(1).max(100),
     initial_odometer: z.number().int().nonnegative().optional(),
-    mileage_input_preference: z.enum(["odometer", "distance"]),
+    mileage_input_preference: z.enum(['odometer', 'distance']),
   })
   .strict();
 
@@ -42,11 +42,11 @@ export type CreateCarCommandInput = z.infer<typeof createCarCommandSchema>;
 export const updateCarCommandSchema = z
   .object({
     name: z.string().trim().min(1).max(100).optional(),
-    mileage_input_preference: z.enum(["odometer", "distance"]).optional(),
+    mileage_input_preference: z.enum(['odometer', 'distance']).optional(),
   })
   .strict()
   .refine((data) => Object.keys(data).length > 0, {
-    message: "At least one field must be provided for update",
+    message: 'At least one field must be provided for update',
   });
 
 export type UpdateCarCommandInput = z.infer<typeof updateCarCommandSchema>;

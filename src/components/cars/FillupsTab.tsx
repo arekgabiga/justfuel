@@ -1,7 +1,7 @@
-import React from "react";
-import type { FillupDTO, PaginationDTO, CarDetailsDTO } from "../../types";
-import { FillupsListView } from "./FillupsListView";
-import { AddFillupButton } from "./AddFillupButton";
+import React from 'react';
+import type { FillupDTO, PaginationDTO, CarDetailsDTO } from '../../types';
+import { FillupsListView } from './FillupsListView';
+import { AddFillupButton } from './AddFillupButton';
 
 interface FillupsTabProps {
   car: CarDetailsDTO;
@@ -45,4 +45,3 @@ export const FillupsTab: React.FC<FillupsTabProps> = ({
     </>
   );
 };
-

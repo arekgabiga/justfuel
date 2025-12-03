@@ -154,7 +154,7 @@ ErrorResponseDTO {
 interface NewCarFormState {
   name: string;
   initialOdometer: string; // string bo może być puste
-  mileageInputPreference: "odometer" | "distance";
+  mileageInputPreference: 'odometer' | 'distance';
 }
 ```
 
@@ -254,11 +254,11 @@ Komponent `NewCarFormView` zarządza stanem lokalnym przy użyciu hooka `useStat
 **Implementacja fetch**:
 
 ```typescript
-const response = await fetch("/api/cars", {
-  method: "POST",
+const response = await fetch('/api/cars', {
+  method: 'POST',
   headers: {
     Authorization: `Bearer ${token}`,
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   },
   body: JSON.stringify({
     name: formState.name.trim(),

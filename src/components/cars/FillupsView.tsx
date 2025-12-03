@@ -1,10 +1,10 @@
-import React from "react";
-import { useFillupsView } from "../../lib/hooks/useFillupsView";
-import { FillupsListView } from "./FillupsListView";
-import { AddFillupButton } from "./AddFillupButton";
-import { CarHeader } from "./CarHeader";
-import { ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import React from 'react';
+import { useFillupsView } from '../../lib/hooks/useFillupsView';
+import { FillupsListView } from './FillupsListView';
+import { AddFillupButton } from './AddFillupButton';
+import { CarHeader } from './CarHeader';
+import { ArrowLeft } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface FillupsViewProps {
   carId: string;

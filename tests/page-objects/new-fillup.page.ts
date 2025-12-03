@@ -1,10 +1,10 @@
-import { Page, Locator } from "@playwright/test";
+import type { Page, Locator } from '@playwright/test';
 
 export interface NewFillupFormData {
   date: string;
   fuelAmount: string;
   totalPrice: string;
-  inputMode: "odometer" | "distance";
+  inputMode: 'odometer' | 'distance';
   odometer?: string;
   distance?: string;
 }
@@ -20,47 +20,47 @@ export class NewFillupPage {
 
   // Locators
   get form(): Locator {
-    return this.page.getByTestId("new-fillup-form");
+    return this.page.getByTestId('new-fillup-form');
   }
 
   get dateInput(): Locator {
-    return this.page.getByTestId("fillup-date-input");
+    return this.page.getByTestId('fillup-date-input');
   }
 
   get fuelAmountInput(): Locator {
-    return this.page.getByTestId("fillup-fuel-amount-input");
+    return this.page.getByTestId('fillup-fuel-amount-input');
   }
 
   get totalPriceInput(): Locator {
-    return this.page.getByTestId("fillup-total-price-input");
+    return this.page.getByTestId('fillup-total-price-input');
   }
 
   get inputModeSelect(): Locator {
-    return this.page.getByTestId("fillup-input-mode-select");
+    return this.page.getByTestId('fillup-input-mode-select');
   }
 
   get odometerInput(): Locator {
-    return this.page.getByTestId("fillup-odometer-input");
+    return this.page.getByTestId('fillup-odometer-input');
   }
 
   get distanceInput(): Locator {
-    return this.page.getByTestId("fillup-distance-input");
+    return this.page.getByTestId('fillup-distance-input');
   }
 
   get warningsContainer(): Locator {
-    return this.page.getByTestId("fillup-warnings-container");
+    return this.page.getByTestId('fillup-warnings-container');
   }
 
   get saveButton(): Locator {
-    return this.page.getByTestId("save-fillup-button");
+    return this.page.getByTestId('save-fillup-button');
   }
 
   get cancelButton(): Locator {
-    return this.page.getByTestId("cancel-fillup-button");
+    return this.page.getByTestId('cancel-fillup-button');
   }
 
   get backLink(): Locator {
-    return this.page.getByTestId("back-to-car-details-link");
+    return this.page.getByTestId('back-to-car-details-link');
   }
 
   // Actions
@@ -79,10 +79,10 @@ export class NewFillupPage {
     await this.selectInputMode(data.inputMode);
 
     // Fill mode-specific field
-    if (data.inputMode === "odometer" && data.odometer) {
+    if (data.inputMode === 'odometer' && data.odometer) {
       await this.odometerInput.fill(data.odometer);
       await this.odometerInput.blur();
-    } else if (data.inputMode === "distance" && data.distance) {
+    } else if (data.inputMode === 'distance' && data.distance) {
       await this.distanceInput.fill(data.distance);
       await this.distanceInput.blur();
     }
@@ -91,31 +91,31 @@ export class NewFillupPage {
     await this.page.waitForTimeout(100);
   }
 
-  async selectInputMode(mode: "odometer" | "distance"): Promise<void> {
+  async selectInputMode(mode: 'odometer' | 'distance'): Promise<void> {
     // Focus the select trigger
     await this.inputModeSelect.focus();
-    
+
     // Press Space or Enter to open the dropdown
-    await this.inputModeSelect.press("Enter");
-    
+    await this.inputModeSelect.press('Enter');
+
     // Wait a bit for the dropdown to open
     await this.page.waitForTimeout(100);
-    
-    // Use Arrow keys to navigate: ArrowDown selects "Przejechany dystans", ArrowUp selects "Stan licznika" 
-    if (mode === "distance") {
-      await this.page.keyboard.press("ArrowDown");
+
+    // Use Arrow keys to navigate: ArrowDown selects "Przejechany dystans", ArrowUp selects "Stan licznika"
+    if (mode === 'distance') {
+      await this.page.keyboard.press('ArrowDown');
     } else {
-      await this.page.keyboard.press("ArrowUp");
+      await this.page.keyboard.press('ArrowUp');
     }
-    
+
     // Press Enter to confirm selection
-    await this.page.keyboard.press("Enter");
-    
+    await this.page.keyboard.press('Enter');
+
     // Wait for the mode-specific input to appear
-    if (mode === "odometer") {
-      await this.odometerInput.waitFor({ state: "visible" });
+    if (mode === 'odometer') {
+      await this.odometerInput.waitFor({ state: 'visible' });
     } else {
-      await this.distanceInput.waitFor({ state: "visible" });
+      await this.distanceInput.waitFor({ state: 'visible' });
     }
   }
 
@@ -149,11 +149,11 @@ export class NewFillupPage {
       return [];
     }
 
-    const warningElements = await this.warningsContainer.locator("li").all();
+    const warningElements = await this.warningsContainer.locator('li').all();
     const warnings: string[] = [];
 
     for (const element of warningElements) {
-      warnings.push((await element.textContent()) || "");
+      warnings.push((await element.textContent()) || '');
     }
 
     return warnings;

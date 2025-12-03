@@ -1,22 +1,22 @@
-import { renderHook, act, waitFor } from "@testing-library/react";
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { useCarDetails } from "../useCarDetails";
+import { renderHook, act, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { useCarDetails } from '../useCarDetails';
 
-describe("useCarDetails", () => {
+describe('useCarDetails', () => {
   const mockFetch = vi.fn();
   const originalLocation = window.location;
-  const carId = "car-123";
+  const carId = 'car-123';
   const mockCarData = {
     id: carId,
-    name: "Test Car",
+    name: 'Test Car',
     statistics: {},
   };
   const mockFillupsData = {
-    fillups: [{ id: "fillup-1", date: "2023-01-01" }],
-    pagination: { next_cursor: "cursor-1", has_more: true, total_count: 10 },
+    fillups: [{ id: 'fillup-1', date: '2023-01-01' }],
+    pagination: { next_cursor: 'cursor-1', has_more: true, total_count: 10 },
   };
   const mockChartData = {
-    type: "consumption",
+    type: 'consumption',
     data: [],
     average: 5.5,
     metadata: { count: 0, min: 0, max: 0 },
@@ -25,7 +25,7 @@ describe("useCarDetails", () => {
   beforeEach(() => {
     global.fetch = mockFetch;
     delete (window as any).location;
-    window.location = { ...originalLocation, href: "", search: "" };
+    window.location = { ...originalLocation, href: '', search: '' };
 
     // Mock localStorage
     const localStorageMock = {
@@ -33,7 +33,7 @@ describe("useCarDetails", () => {
       setItem: vi.fn(),
       clear: vi.fn(),
     };
-    Object.defineProperty(window, "localStorage", { value: localStorageMock });
+    Object.defineProperty(window, 'localStorage', { value: localStorageMock });
   });
 
   afterEach(() => {
@@ -41,9 +41,9 @@ describe("useCarDetails", () => {
     window.location = originalLocation;
   });
 
-  describe("Initialization", () => {
-    it("should fetch car details on mount", async () => {
-      vi.mocked(localStorage.getItem).mockReturnValue("fake-token");
+  describe('Initialization', () => {
+    it('should fetch car details on mount', async () => {
+      vi.mocked(localStorage.getItem).mockReturnValue('fake-token');
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: 200,
@@ -62,12 +62,12 @@ describe("useCarDetails", () => {
       expect(result.current.error).toBeNull();
     });
 
-    it("should handle fetch error", async () => {
-      vi.mocked(localStorage.getItem).mockReturnValue("fake-token");
+    it('should handle fetch error', async () => {
+      vi.mocked(localStorage.getItem).mockReturnValue('fake-token');
       mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 404,
-        json: async () => ({ error: { message: "Not found" } }),
+        json: async () => ({ error: { message: 'Not found' } }),
       });
 
       const { result } = renderHook(() => useCarDetails(carId));
@@ -76,13 +76,13 @@ describe("useCarDetails", () => {
         expect(result.current.loading).toBe(false);
       });
 
-      expect(result.current.error?.message).toBe("Samochód nie został znaleziony");
+      expect(result.current.error?.message).toBe('Samochód nie został znaleziony');
     });
   });
 
-  describe("Tab Management & Data Loading", () => {
+  describe('Tab Management & Data Loading', () => {
     beforeEach(() => {
-      vi.mocked(localStorage.getItem).mockReturnValue("fake-token");
+      vi.mocked(localStorage.getItem).mockReturnValue('fake-token');
       // Mock car fetch
       mockFetch.mockResolvedValueOnce({
         ok: true,
@@ -91,7 +91,7 @@ describe("useCarDetails", () => {
       });
     });
 
-    it("should fetch fillups when active tab is fillups", async () => {
+    it('should fetch fillups when active tab is fillups', async () => {
       // Mock fillups fetch
       mockFetch.mockResolvedValueOnce({
         ok: true,
@@ -113,7 +113,7 @@ describe("useCarDetails", () => {
       expect(result.current.fillups).toEqual(mockFillupsData.fillups);
     });
 
-    it("should fetch charts when switching to charts tab", async () => {
+    it('should fetch charts when switching to charts tab', async () => {
       // Mock fillups fetch (initial load)
       mockFetch.mockResolvedValueOnce({
         ok: true,
@@ -135,7 +135,7 @@ describe("useCarDetails", () => {
       });
 
       act(() => {
-        result.current.switchMainTab("charts");
+        result.current.switchMainTab('charts');
       });
 
       await waitFor(() => {
@@ -144,14 +144,14 @@ describe("useCarDetails", () => {
     });
   });
 
-  describe("Pagination", () => {
+  describe('Pagination', () => {
     beforeEach(() => {
-      vi.mocked(localStorage.getItem).mockReturnValue("fake-token");
+      vi.mocked(localStorage.getItem).mockReturnValue('fake-token');
       mockFetch.mockResolvedValueOnce({ ok: true, status: 200, json: async () => mockCarData });
       mockFetch.mockResolvedValueOnce({ ok: true, status: 200, json: async () => mockFillupsData });
     });
 
-    it("should load more fillups", async () => {
+    it('should load more fillups', async () => {
       const { result } = renderHook(() => useCarDetails(carId));
 
       await waitFor(() => {
@@ -160,7 +160,7 @@ describe("useCarDetails", () => {
 
       // Mock next page fetch
       const nextFillups = {
-        fillups: [{ id: "fillup-2", date: "2022-12-31" }],
+        fillups: [{ id: 'fillup-2', date: '2022-12-31' }],
         pagination: { next_cursor: null, has_more: false, total_count: 10 },
       };
       mockFetch.mockResolvedValueOnce({
@@ -179,8 +179,8 @@ describe("useCarDetails", () => {
     });
   });
 
-  describe("Dialogs", () => {
-    it("should toggle edit dialog", () => {
+  describe('Dialogs', () => {
+    it('should toggle edit dialog', () => {
       const { result } = renderHook(() => useCarDetails(carId));
 
       act(() => {
@@ -194,7 +194,7 @@ describe("useCarDetails", () => {
       expect(result.current.editDialogOpen).toBe(false);
     });
 
-    it("should toggle delete dialog", () => {
+    it('should toggle delete dialog', () => {
       const { result } = renderHook(() => useCarDetails(carId));
 
       act(() => {

@@ -1,14 +1,14 @@
 ---
-import Layout from "../../../layouts/Layout.astro";
-import { FillupsView } from "../../../components/cars/FillupsView";
+import Layout from '../../../layouts/Layout.astro';
+import { FillupsView } from '../../../components/cars/FillupsView';
 
-const title = "Historia Tankowań - JustFuel";
-const description = "Historia tankowań dla samochodu";
+const title = 'Historia Tankowań - JustFuel';
+const description = 'Historia tankowań dla samochodu';
 
 const carId = Astro.params.carId;
 
 if (!carId) {
-  return Astro.redirect("/cars");
+  return Astro.redirect('/cars');
 }
 ---
 

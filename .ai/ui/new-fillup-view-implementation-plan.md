@@ -347,7 +347,7 @@ interface NewFillupFormState {
   date: string; // Format: YYYY-MM-DD
   fuelAmount: string; // String dla edycji, konwersja na number
   totalPrice: string; // String dla edycji, konwersja na number
-  inputMode: "odometer" | "distance";
+  inputMode: 'odometer' | 'distance';
   odometer: string; // String, opcjonalne gdy tryb = odometer
   distance: string; // String, opcjonalne gdy tryb = distance
 }
@@ -386,12 +386,12 @@ Zarządzanie stanem realizowane jest przez custom hook `useNewFillupForm`.
 
 ```typescript
 const [formState, setFormState] = useState<NewFillupFormState>({
-  date: "", // Format: YYYY-MM-DD, domyślnie dziś
-  fuelAmount: "",
-  totalPrice: "",
-  inputMode: "odometer", // Domyślnie odometer
-  odometer: "",
-  distance: "",
+  date: '', // Format: YYYY-MM-DD, domyślnie dziś
+  fuelAmount: '',
+  totalPrice: '',
+  inputMode: 'odometer', // Domyślnie odometer
+  odometer: '',
+  distance: '',
 });
 
 const [formErrors, setFormErrors] = useState<NewFillupFormErrors>({});
@@ -540,7 +540,7 @@ const prepareRequestBody = (state: NewFillupFormState): CreateFillupCommand => {
     total_price: parseFloat(state.totalPrice),
   };
 
-  if (state.inputMode === "odometer") {
+  if (state.inputMode === 'odometer') {
     return {
       ...baseData,
       odometer: parseInt(state.odometer, 10),
@@ -555,10 +555,10 @@ const prepareRequestBody = (state: NewFillupFormState): CreateFillupCommand => {
 
 // Wysłanie requestu
 const response = await fetch(`/api/cars/${carId}/fillups`, {
-  method: "POST",
+  method: 'POST',
   headers: {
     Authorization: `Bearer ${token}`,
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   },
   body: JSON.stringify(requestBody),
 });

@@ -50,4 +50,3 @@ const LogoutButton: React.FC = () => {
 };
 
 export default LogoutButton;
-

@@ -137,7 +137,7 @@ Walidacja (zod):
 export const createCarCommandSchema = z.object({
   name: z.string().trim().min(1).max(100),
   initial_odometer: z.number().int().nonnegative().optional(),
-  mileage_input_preference: z.enum(["odometer", "distance"]),
+  mileage_input_preference: z.enum(['odometer', 'distance']),
 });
 ```
 
@@ -150,13 +150,13 @@ export async function createCar(
   input: CreateCarCommand
 ): Promise<CarDetailsDTO> {
   const { data, error } = await supabase
-    .from("cars")
+    .from('cars')
     .insert({ user_id: userId, ...input })
-    .select("id, name, initial_odometer, mileage_input_preference, created_at")
+    .select('id, name, initial_odometer, mileage_input_preference, created_at')
     .single();
   if (error) {
-    if (error.code === "23505" || /duplicate key/i.test(error.message)) {
-      throw new ConflictError("Car name already exists");
+    if (error.code === '23505' || /duplicate key/i.test(error.message)) {
+      throw new ConflictError('Car name already exists');
     }
     throw error;
   }
@@ -182,20 +182,20 @@ Endpoint:
 
 ```ts
 export const POST: APIRoute = async (context) => {
-  const requestId = context.request.headers.get("x-request-id") ?? undefined;
+  const requestId = context.request.headers.get('x-request-id') ?? undefined;
   const supabase = context.locals.supabase;
-  if (!supabase) return json500("Supabase client not available");
+  if (!supabase) return json500('Supabase client not available');
 
-  const authHeader = context.request.headers.get("authorization");
-  const devAuthFallbackEnabled = import.meta.env.DEV_AUTH_FALLBACK === "true";
-  const hasBearer = !!authHeader && authHeader.toLowerCase().startsWith("bearer ");
-  if (!hasBearer && !devAuthFallbackEnabled) return json401("Missing or invalid Authorization header");
+  const authHeader = context.request.headers.get('authorization');
+  const devAuthFallbackEnabled = import.meta.env.DEV_AUTH_FALLBACK === 'true';
+  const hasBearer = !!authHeader && authHeader.toLowerCase().startsWith('bearer ');
+  if (!hasBearer && !devAuthFallbackEnabled) return json401('Missing or invalid Authorization header');
 
   let userId: string | undefined;
   if (hasBearer) {
     const token = authHeader!.slice(7);
     const { data, error } = await supabase.auth.getUser(token);
-    if (error || !data?.user?.id) return json401("Invalid token");
+    if (error || !data?.user?.id) return json401('Invalid token');
     userId = data.user.id;
   } else {
     userId = DEFAULT_USER_ID;
@@ -203,15 +203,15 @@ export const POST: APIRoute = async (context) => {
 
   const raw = await context.request.json().catch(() => undefined);
   const parsed = createCarCommandSchema.safeParse(raw);
-  if (!parsed.success) return json400("Invalid body", { issues: parsed.error.message });
+  if (!parsed.success) return json400('Invalid body', { issues: parsed.error.message });
 
   try {
     const result = await createCar(supabase, userId!, parsed.data);
     return new Response(JSON.stringify(result), { status: 201 });
   } catch (err: any) {
-    if (err?.name === "ConflictError") return json409("Car name already exists for this user");
-    console.error(`[POST /api/cars] requestId=${requestId ?? "-"}`, err);
-    return json500("Unexpected server error");
+    if (err?.name === 'ConflictError') return json409('Car name already exists for this user');
+    console.error(`[POST /api/cars] requestId=${requestId ?? '-'}`, err);
+    return json500('Unexpected server error');
   }
 };
 ```

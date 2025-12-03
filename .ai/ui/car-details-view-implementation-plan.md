@@ -348,7 +348,7 @@ interface CarDetailsDTO {
   id: string; // UUID samochodu
   name: string; // Nazwa samochodu (min 1, max 100)
   initial_odometer: number | null; // Początkowy stan licznika
-  mileage_input_preference: "odometer" | "distance"; // Preferencja wprowadzania przebiegu
+  mileage_input_preference: 'odometer' | 'distance'; // Preferencja wprowadzania przebiegu
   created_at: string; // ISO 8601 timestamp utworzenia
   statistics: {
     total_fuel_cost: number; // Łączny koszt paliwa
@@ -394,7 +394,7 @@ interface PaginatedFillupsResponseDTO {
 
 ```typescript
 interface ChartDataDTO {
-  type: "consumption" | "price_per_liter" | "distance"; // Typ wykresu
+  type: 'consumption' | 'price_per_liter' | 'distance'; // Typ wykresu
   data: ChartDataPointDTO[]; // Punkty danych
   average: number; // Średnia wartość
   metadata: {
@@ -420,7 +420,7 @@ interface ChartDataPointDTO {
 ```typescript
 interface UpdateCarCommand {
   name?: string; // Opcjonalna nowa nazwa
-  mileage_input_preference?: "odometer" | "distance"; // Opcjonalna nowa preferencja
+  mileage_input_preference?: 'odometer' | 'distance'; // Opcjonalna nowa preferencja
 }
 ```
 
@@ -467,7 +467,7 @@ interface CarDetailsState {
   car: CarDetailsDTO | null;
   loading: boolean;
   error: Error | null;
-  activeMainTab: "fillups" | "charts";
+  activeMainTab: 'fillups' | 'charts';
   activeChartTab: ChartType;
   editDialogOpen: boolean;
   deleteDialogOpen: boolean;

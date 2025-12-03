@@ -35,4 +35,3 @@ export const AuthSuccess: React.FC<AuthSuccessProps> = ({ message, onDismiss, cl
     </div>
   );
 };
-

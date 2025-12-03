@@ -1,5 +1,5 @@
-import React from "react";
-import type { FillupDTO } from "../../types";
+import React from 'react';
+import type { FillupDTO } from '../../types';
 
 interface FillupCardProps {
   fillup: FillupDTO;
@@ -10,15 +10,15 @@ interface FillupCardProps {
 export const FillupCard: React.FC<FillupCardProps> = ({ fillup, averageConsumption, onClick }) => {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString("pl-PL", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
+    return date.toLocaleDateString('pl-PL', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
     });
   };
 
   const formatNumber = (value: number | null | undefined) => {
-    if (value === null || value === undefined) return "N/A";
+    if (value === null || value === undefined) return 'N/A';
     return value.toFixed(2);
   };
 
@@ -26,7 +26,7 @@ export const FillupCard: React.FC<FillupCardProps> = ({ fillup, averageConsumpti
   // Uses 7 color levels according to percentage deviation from average
   const getConsumptionColor = (consumption: number | null | undefined, avg: number) => {
     if (!consumption || avg === 0 || !isFinite(consumption) || !isFinite(avg)) {
-      return "text-gray-600 dark:text-gray-400";
+      return 'text-gray-600 dark:text-gray-400';
     }
 
     // Calculate percentage deviation from average
@@ -34,36 +34,36 @@ export const FillupCard: React.FC<FillupCardProps> = ({ fillup, averageConsumpti
 
     // EKSTREMALNIE NISKIE: Significantly better than average (deviation <= -15%)
     if (deviation <= -15) {
-      return "text-green-800 dark:text-green-300 font-semibold";
+      return 'text-green-800 dark:text-green-300 font-semibold';
     }
 
     // BARDZO NISKIE: Clearly better than average (-15% < deviation <= -8%)
     if (deviation <= -8) {
-      return "text-green-600 dark:text-green-400 font-semibold";
+      return 'text-green-600 dark:text-green-400 font-semibold';
     }
 
     // LEKKO NISKIE: Slightly better than average (-8% < deviation < 0%)
     if (deviation < 0) {
-      return "text-lime-500 dark:text-lime-400";
+      return 'text-lime-500 dark:text-lime-400';
     }
 
     // NEUTRALNE: Result within normal range (0% <= deviation < 5%)
     if (deviation < 5) {
-      return "text-yellow-600 dark:text-yellow-400";
+      return 'text-yellow-600 dark:text-yellow-400';
     }
 
     // LEKKO WYSOKIE: Slightly worse than average (5% <= deviation < 10%)
     if (deviation < 10) {
-      return "text-orange-600 dark:text-orange-400";
+      return 'text-orange-600 dark:text-orange-400';
     }
 
     // BARDZO WYSOKIE: Clearly worse than average (10% <= deviation < 20%)
     if (deviation < 20) {
-      return "text-red-600 dark:text-red-400 font-semibold";
+      return 'text-red-600 dark:text-red-400 font-semibold';
     }
 
     // EKSTREMALNIE WYSOKIE: Significantly worse than average (deviation >= 20%)
-    return "text-red-800 dark:text-red-300 font-semibold";
+    return 'text-red-800 dark:text-red-300 font-semibold';
   };
 
   return (
@@ -73,7 +73,7 @@ export const FillupCard: React.FC<FillupCardProps> = ({ fillup, averageConsumpti
       role="button"
       tabIndex={0}
       onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
+        if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           onClick();
         }

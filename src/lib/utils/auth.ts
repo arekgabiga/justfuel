@@ -1,7 +1,7 @@
-import type { APIRoute } from "astro";
-import type { User } from "@supabase/supabase-js";
-import { createSupabaseServerInstance } from "../../db/supabase.client.ts";
-import { getCurrentUser } from "../services/auth.service.ts";
+import type { APIRoute } from 'astro';
+import type { User } from '@supabase/supabase-js';
+import { createSupabaseServerInstance } from '../../db/supabase.client.ts';
+import { getCurrentUser } from '../services/auth.service.ts';
 
 /**
  * Gets the authenticated user from the request context
@@ -27,13 +27,13 @@ export async function requireAuth(context: Parameters<APIRoute>[0]): Promise<Use
     throw new Response(
       JSON.stringify({
         error: {
-          code: "UNAUTHORIZED",
-          message: "Wymagana autoryzacja",
+          code: 'UNAUTHORIZED',
+          message: 'Wymagana autoryzacja',
         },
       }),
       {
         status: 401,
-        headers: { "Content-Type": "application/json" },
+        headers: { 'Content-Type': 'application/json' },
       }
     );
   }

@@ -1,20 +1,20 @@
-import React, { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useNewFillupForm } from "@/lib/hooks/useNewFillupForm";
-import { AlertTriangle, ArrowLeft } from "lucide-react";
-import type { ValidationWarningDTO, CarDetailsDTO } from "@/types";
+import React, { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useNewFillupForm } from '@/lib/hooks/useNewFillupForm';
+import { AlertTriangle, ArrowLeft } from 'lucide-react';
+import type { ValidationWarningDTO, CarDetailsDTO } from '@/types';
 
 interface NewFillupViewProps {
   carId: string;
-  initialInputMode?: "odometer" | "distance";
+  initialInputMode?: 'odometer' | 'distance';
 }
 
-const NewFillupView: React.FC<NewFillupViewProps> = ({ carId, initialInputMode = "odometer" }) => {
-  const [carPreference, setCarPreference] = useState<"odometer" | "distance" | null>(null);
-  const [carName, setCarName] = useState<string>("");
+const NewFillupView: React.FC<NewFillupViewProps> = ({ carId, initialInputMode = 'odometer' }) => {
+  const [carPreference, setCarPreference] = useState<'odometer' | 'distance' | null>(null);
+  const [carName, setCarName] = useState<string>('');
 
   // Fetch car name and preference first
   useEffect(() => {
@@ -22,14 +22,14 @@ const NewFillupView: React.FC<NewFillupViewProps> = ({ carId, initialInputMode =
       try {
         const response = await fetch(`/api/cars/${carId}`, {
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
-          credentials: "include",
+          credentials: 'include',
         });
         if (response.ok) {
           const carData: CarDetailsDTO = await response.json();
           // Use car's saved preference if available, otherwise use prop default
-          setCarPreference((carData.mileage_input_preference as "odometer" | "distance") || initialInputMode);
+          setCarPreference((carData.mileage_input_preference as 'odometer' | 'distance') || initialInputMode);
           setCarName(carData.name);
         } else {
           // If API call fails, use prop default
@@ -85,7 +85,7 @@ const NewFillupView: React.FC<NewFillupViewProps> = ({ carId, initialInputMode =
       <header>
         <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Dodaj Nowe Tankowanie</h1>
         <p className="text-gray-600 dark:text-gray-400 mt-2">
-          {carName ? `Dla pojazdu: ${carName}` : "Wypełnij formularz, aby dodać nowe tankowanie"}
+          {carName ? `Dla pojazdu: ${carName}` : 'Wypełnij formularz, aby dodać nowe tankowanie'}
         </p>
       </header>
       {/* Form */}
@@ -110,26 +110,26 @@ const NewFillupView: React.FC<NewFillupViewProps> = ({ carId, initialInputMode =
             name="date"
             type="date"
             value={formState.date}
-            onChange={(e) => handleFieldChange("date", e.target.value)}
-            onBlur={() => handleFieldBlur("date")}
-            aria-invalid={touchedFields.has("date") && !!formErrors.date}
+            onChange={(e) => handleFieldChange('date', e.target.value)}
+            onBlur={() => handleFieldBlur('date')}
+            aria-invalid={touchedFields.has('date') && !!formErrors.date}
             aria-describedby={
-              touchedFields.has("date") && formErrors.date
-                ? "date-error date-help"
-                : touchedFields.has("date")
-                  ? "date-help"
+              touchedFields.has('date') && formErrors.date
+                ? 'date-error date-help'
+                : touchedFields.has('date')
+                  ? 'date-help'
                   : undefined
             }
             aria-required="true"
             disabled={isSubmitting}
-            className={touchedFields.has("date") && formErrors.date ? "border-destructive" : ""}
+            className={touchedFields.has('date') && formErrors.date ? 'border-destructive' : ''}
             data-test-id="fillup-date-input"
             required
           />
           <p id="date-help" className="sr-only">
             Wprowadź datę tankowania
           </p>
-          {touchedFields.has("date") && formErrors.date && (
+          {touchedFields.has('date') && formErrors.date && (
             <p id="date-error" className="text-sm text-destructive mt-1" role="alert" aria-live="polite">
               {formErrors.date}
             </p>
@@ -151,28 +151,28 @@ const NewFillupView: React.FC<NewFillupViewProps> = ({ carId, initialInputMode =
             min="0"
             step="0.01"
             value={formState.fuelAmount}
-            onChange={(e) => handleFieldChange("fuelAmount", e.target.value)}
-            onBlur={() => handleFieldBlur("fuelAmount")}
+            onChange={(e) => handleFieldChange('fuelAmount', e.target.value)}
+            onBlur={() => handleFieldBlur('fuelAmount')}
             placeholder="np. 45.5"
-            aria-invalid={touchedFields.has("fuelAmount") && !!formErrors.fuelAmount}
+            aria-invalid={touchedFields.has('fuelAmount') && !!formErrors.fuelAmount}
             aria-describedby={
-              touchedFields.has("fuelAmount") && formErrors.fuelAmount
-                ? "fuelAmount-error fuelAmount-help"
-                : touchedFields.has("fuelAmount")
-                  ? "fuelAmount-help"
+              touchedFields.has('fuelAmount') && formErrors.fuelAmount
+                ? 'fuelAmount-error fuelAmount-help'
+                : touchedFields.has('fuelAmount')
+                  ? 'fuelAmount-help'
                   : undefined
             }
             aria-required="true"
             autoComplete="off"
             disabled={isSubmitting}
-            className={touchedFields.has("fuelAmount") && formErrors.fuelAmount ? "border-destructive" : ""}
+            className={touchedFields.has('fuelAmount') && formErrors.fuelAmount ? 'border-destructive' : ''}
             data-test-id="fillup-fuel-amount-input"
             required
           />
           <p id="fuelAmount-help" className="sr-only">
             Wprowadź ilość zatankowanego paliwa w litrach
           </p>
-          {touchedFields.has("fuelAmount") && formErrors.fuelAmount && (
+          {touchedFields.has('fuelAmount') && formErrors.fuelAmount && (
             <p id="fuelAmount-error" className="text-sm text-destructive mt-1" role="alert" aria-live="polite">
               {formErrors.fuelAmount}
             </p>
@@ -194,28 +194,28 @@ const NewFillupView: React.FC<NewFillupViewProps> = ({ carId, initialInputMode =
             min="0"
             step="0.01"
             value={formState.totalPrice}
-            onChange={(e) => handleFieldChange("totalPrice", e.target.value)}
-            onBlur={() => handleFieldBlur("totalPrice")}
+            onChange={(e) => handleFieldChange('totalPrice', e.target.value)}
+            onBlur={() => handleFieldBlur('totalPrice')}
             placeholder="np. 227.5"
-            aria-invalid={touchedFields.has("totalPrice") && !!formErrors.totalPrice}
+            aria-invalid={touchedFields.has('totalPrice') && !!formErrors.totalPrice}
             aria-describedby={
-              touchedFields.has("totalPrice") && formErrors.totalPrice
-                ? "totalPrice-error totalPrice-help"
-                : touchedFields.has("totalPrice")
-                  ? "totalPrice-help"
+              touchedFields.has('totalPrice') && formErrors.totalPrice
+                ? 'totalPrice-error totalPrice-help'
+                : touchedFields.has('totalPrice')
+                  ? 'totalPrice-help'
                   : undefined
             }
             aria-required="true"
             autoComplete="off"
             disabled={isSubmitting}
-            className={touchedFields.has("totalPrice") && formErrors.totalPrice ? "border-destructive" : ""}
+            className={touchedFields.has('totalPrice') && formErrors.totalPrice ? 'border-destructive' : ''}
             data-test-id="fillup-total-price-input"
             required
           />
           <p id="totalPrice-help" className="sr-only">
             Wprowadź całkowitą cenę tankowania w PLN
           </p>
-          {touchedFields.has("totalPrice") && formErrors.totalPrice && (
+          {touchedFields.has('totalPrice') && formErrors.totalPrice && (
             <p id="totalPrice-error" className="text-sm text-destructive mt-1" role="alert" aria-live="polite">
               {formErrors.totalPrice}
             </p>
@@ -233,7 +233,7 @@ const NewFillupView: React.FC<NewFillupViewProps> = ({ carId, initialInputMode =
           <Select
             key={formState.inputMode} // Force re-mount when value changes
             value={formState.inputMode}
-            onValueChange={(value: "odometer" | "distance") => {
+            onValueChange={(value: 'odometer' | 'distance') => {
               handleModeToggle(value);
             }}
             disabled={isSubmitting}
@@ -244,13 +244,13 @@ const NewFillupView: React.FC<NewFillupViewProps> = ({ carId, initialInputMode =
               aria-invalid={!!formErrors.inputMode}
               aria-describedby={
                 formErrors.inputMode
-                  ? "inputMode-error inputMode-help"
-                  : touchedFields.has("inputMode")
-                    ? "inputMode-help"
+                  ? 'inputMode-error inputMode-help'
+                  : touchedFields.has('inputMode')
+                    ? 'inputMode-help'
                     : undefined
               }
               aria-required="true"
-              className={touchedFields.has("inputMode") && formErrors.inputMode ? "border-destructive" : ""}
+              className={touchedFields.has('inputMode') && formErrors.inputMode ? 'border-destructive' : ''}
               data-test-id="fillup-input-mode-select"
             >
               <SelectValue placeholder="Wybierz tryb" />
@@ -263,7 +263,7 @@ const NewFillupView: React.FC<NewFillupViewProps> = ({ carId, initialInputMode =
           <p id="inputMode-help" className="sr-only">
             Wybierz czy podajesz stan licznika czy przejechany dystans
           </p>
-          {touchedFields.has("inputMode") && formErrors.inputMode && (
+          {touchedFields.has('inputMode') && formErrors.inputMode && (
             <p id="inputMode-error" className="text-sm text-destructive mt-1" role="alert" aria-live="polite">
               {formErrors.inputMode}
             </p>
@@ -271,7 +271,7 @@ const NewFillupView: React.FC<NewFillupViewProps> = ({ carId, initialInputMode =
         </div>
 
         {/* Conditional fields based on input mode */}
-        {formState.inputMode === "odometer" && (
+        {formState.inputMode === 'odometer' && (
           <div className="space-y-2">
             <Label htmlFor="odometer" aria-required="true">
               Stan licznika
@@ -286,28 +286,28 @@ const NewFillupView: React.FC<NewFillupViewProps> = ({ carId, initialInputMode =
               min="0"
               step="1"
               value={formState.odometer}
-              onChange={(e) => handleFieldChange("odometer", e.target.value)}
-              onBlur={() => handleFieldBlur("odometer")}
+              onChange={(e) => handleFieldChange('odometer', e.target.value)}
+              onBlur={() => handleFieldBlur('odometer')}
               placeholder="np. 55000"
-              aria-invalid={touchedFields.has("odometer") && !!formErrors.odometer}
+              aria-invalid={touchedFields.has('odometer') && !!formErrors.odometer}
               aria-describedby={
-                touchedFields.has("odometer") && formErrors.odometer
-                  ? "odometer-error odometer-help"
-                  : touchedFields.has("odometer")
-                    ? "odometer-help"
+                touchedFields.has('odometer') && formErrors.odometer
+                  ? 'odometer-error odometer-help'
+                  : touchedFields.has('odometer')
+                    ? 'odometer-help'
                     : undefined
               }
               aria-required="true"
               autoComplete="off"
               disabled={isSubmitting}
-              className={touchedFields.has("odometer") && formErrors.odometer ? "border-destructive" : ""}
+              className={touchedFields.has('odometer') && formErrors.odometer ? 'border-destructive' : ''}
               data-test-id="fillup-odometer-input"
               required
             />
             <p id="odometer-help" className="sr-only">
               Wprowadź aktualny stan licznika w kilometrach
             </p>
-            {touchedFields.has("odometer") && formErrors.odometer && (
+            {touchedFields.has('odometer') && formErrors.odometer && (
               <p id="odometer-error" className="text-sm text-destructive mt-1" role="alert" aria-live="polite">
                 {formErrors.odometer}
               </p>
@@ -315,7 +315,7 @@ const NewFillupView: React.FC<NewFillupViewProps> = ({ carId, initialInputMode =
           </div>
         )}
 
-        {formState.inputMode === "distance" && (
+        {formState.inputMode === 'distance' && (
           <div className="space-y-2">
             <Label htmlFor="distance" aria-required="true">
               Dystans (km)
@@ -330,28 +330,28 @@ const NewFillupView: React.FC<NewFillupViewProps> = ({ carId, initialInputMode =
               min="0"
               step="0.01"
               value={formState.distance}
-              onChange={(e) => handleFieldChange("distance", e.target.value)}
-              onBlur={() => handleFieldBlur("distance")}
+              onChange={(e) => handleFieldChange('distance', e.target.value)}
+              onBlur={() => handleFieldBlur('distance')}
               placeholder="np. 500"
-              aria-invalid={touchedFields.has("distance") && !!formErrors.distance}
+              aria-invalid={touchedFields.has('distance') && !!formErrors.distance}
               aria-describedby={
-                touchedFields.has("distance") && formErrors.distance
-                  ? "distance-error distance-help"
-                  : touchedFields.has("distance")
-                    ? "distance-help"
+                touchedFields.has('distance') && formErrors.distance
+                  ? 'distance-error distance-help'
+                  : touchedFields.has('distance')
+                    ? 'distance-help'
                     : undefined
               }
               aria-required="true"
               autoComplete="off"
               disabled={isSubmitting}
-              className={touchedFields.has("distance") && formErrors.distance ? "border-destructive" : ""}
+              className={touchedFields.has('distance') && formErrors.distance ? 'border-destructive' : ''}
               data-test-id="fillup-distance-input"
               required
             />
             <p id="distance-help" className="sr-only">
               Wprowadź przejechany dystans od ostatniego tankowania w kilometrach
             </p>
-            {touchedFields.has("distance") && formErrors.distance && (
+            {touchedFields.has('distance') && formErrors.distance && (
               <p id="distance-error" className="text-sm text-destructive mt-1" role="alert" aria-live="polite">
                 {formErrors.distance}
               </p>
@@ -416,10 +416,10 @@ const NewFillupView: React.FC<NewFillupViewProps> = ({ carId, initialInputMode =
             size="lg"
             className="flex-1 sm:flex-none min-w-[120px]"
             aria-busy={isSubmitting}
-            aria-describedby={isSubmitting ? "submitting-status" : undefined}
+            aria-describedby={isSubmitting ? 'submitting-status' : undefined}
             data-test-id="save-fillup-button"
           >
-            {isSubmitting ? "Zapisywanie..." : "Zapisz"}
+            {isSubmitting ? 'Zapisywanie...' : 'Zapisz'}
           </Button>
           {isSubmitting && (
             <span id="submitting-status" className="sr-only">

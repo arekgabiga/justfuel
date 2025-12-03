@@ -1,14 +1,14 @@
 ---
-import Layout from "../../../layouts/Layout.astro";
-import EditCarView from "../../../components/cars/EditCarView";
+import Layout from '../../../layouts/Layout.astro';
+import EditCarView from '../../../components/cars/EditCarView';
 
-const title = "Edytuj Samochód - JustFuel";
-const description = "Edytuj dane samochodu";
+const title = 'Edytuj Samochód - JustFuel';
+const description = 'Edytuj dane samochodu';
 
 const carId = Astro.params.carId;
 
 if (!carId) {
-  return Astro.redirect("/cars");
+  return Astro.redirect('/cars');
 }
 ---
 

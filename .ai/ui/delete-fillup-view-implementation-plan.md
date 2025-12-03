@@ -199,15 +199,15 @@ export interface ErrorResponseDTO {
 ```typescript
 export type FillupDTO = Pick<
   Fillup,
-  | "id"
-  | "car_id"
-  | "date"
-  | "fuel_amount"
-  | "total_price"
-  | "odometer"
-  | "distance_traveled"
-  | "fuel_consumption"
-  | "price_per_liter"
+  | 'id'
+  | 'car_id'
+  | 'date'
+  | 'fuel_amount'
+  | 'total_price'
+  | 'odometer'
+  | 'distance_traveled'
+  | 'fuel_consumption'
+  | 'price_per_liter'
 >;
 ```
 
@@ -379,13 +379,13 @@ const handleDeleteConfirm = useCallback(async () => {
   const timeoutId = setTimeout(() => abortController.abort(), REQUEST_TIMEOUT);
 
   try {
-    const token = localStorage.getItem("auth_token");
+    const token = localStorage.getItem('auth_token');
     if (!token) {
-      throw new Error("Wymagana autoryzacja");
+      throw new Error('Wymagana autoryzacja');
     }
 
     const response = await fetch(`/api/cars/${carId}/fillups/${fillupId}`, {
-      method: "DELETE",
+      method: 'DELETE',
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -396,15 +396,15 @@ const handleDeleteConfirm = useCallback(async () => {
 
     if (!response.ok) {
       if (response.status === 401) {
-        if (typeof window !== "undefined") {
-          window.location.href = "/login";
+        if (typeof window !== 'undefined') {
+          window.location.href = '/login';
         }
         return;
       }
 
       if (response.status === 404) {
         // Przekierowanie do listy tankowań
-        if (typeof window !== "undefined") {
+        if (typeof window !== 'undefined') {
           window.location.href = `/cars/${carId}/fillups`;
         }
         return;
@@ -420,7 +420,7 @@ const handleDeleteConfirm = useCallback(async () => {
     // Można wykorzystać toast notification lub komunikat przed przekierowaniem
 
     // Przekierowanie do listy tankowań
-    if (typeof window !== "undefined") {
+    if (typeof window !== 'undefined') {
       window.location.href = `/cars/${carId}/fillups`;
     }
   } catch (error) {

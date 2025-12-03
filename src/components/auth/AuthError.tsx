@@ -35,4 +35,3 @@ export const AuthError: React.FC<AuthErrorProps> = ({ message, onDismiss, classN
     </div>
   );
 };
-

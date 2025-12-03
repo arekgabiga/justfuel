@@ -1,11 +1,11 @@
 export const prerender = false;
 
-import type { APIRoute } from "astro";
-import { listFillupsQuerySchema, createFillupRequestSchema } from "../../../../lib/validation/fillups.ts";
-import { carIdParamSchema } from "../../../../lib/validation/cars.ts";
-import { listFillupsByCar, createFillup } from "../../../../lib/services/fillups.service.ts";
-import { requireAuth } from "../../../../lib/utils/auth.ts";
-import type { ErrorResponseDTO, CreateFillupCommand } from "../../../../types.ts";
+import type { APIRoute } from 'astro';
+import { listFillupsQuerySchema, createFillupRequestSchema } from '../../../../lib/validation/fillups.ts';
+import { carIdParamSchema } from '../../../../lib/validation/cars.ts';
+import { listFillupsByCar, createFillup } from '../../../../lib/services/fillups.service.ts';
+import { requireAuth } from '../../../../lib/utils/auth.ts';
+import type { ErrorResponseDTO, CreateFillupCommand } from '../../../../types.ts';
 
 /**
  * GET /api/cars/{carId}/fillups
@@ -26,7 +26,7 @@ import type { ErrorResponseDTO, CreateFillupCommand } from "../../../../types.ts
  * - 500: Internal Server Error
  */
 export const GET: APIRoute = async (context) => {
-  const requestId = context.request.headers.get("x-request-id") ?? undefined;
+  const requestId = context.request.headers.get('x-request-id') ?? undefined;
 
   try {
     // Require authentication
@@ -37,13 +37,13 @@ export const GET: APIRoute = async (context) => {
     if (!supabase) {
       const errorResponse: ErrorResponseDTO = {
         error: {
-          code: "INTERNAL_ERROR",
-          message: "Supabase client not available",
+          code: 'INTERNAL_ERROR',
+          message: 'Supabase client not available',
         },
       };
       return new Response(JSON.stringify(errorResponse), {
         status: 500,
-        headers: { "Content-Type": "application/json" },
+        headers: { 'Content-Type': 'application/json' },
       });
     }
 
@@ -57,14 +57,14 @@ export const GET: APIRoute = async (context) => {
     if (!carIdValidation.success) {
       const errorResponse: ErrorResponseDTO = {
         error: {
-          code: "INVALID_CAR_ID",
-          message: "Invalid car ID format",
+          code: 'INVALID_CAR_ID',
+          message: 'Invalid car ID format',
           details: { issues: carIdValidation.error.message },
         },
       };
       return new Response(JSON.stringify(errorResponse), {
         status: 400,
-        headers: { "Content-Type": "application/json" },
+        headers: { 'Content-Type': 'application/json' },
       });
     }
 
@@ -80,14 +80,14 @@ export const GET: APIRoute = async (context) => {
     if (!queryValidation.success) {
       const errorResponse: ErrorResponseDTO = {
         error: {
-          code: "INVALID_QUERY_PARAMS",
-          message: "Invalid query parameters",
+          code: 'INVALID_QUERY_PARAMS',
+          message: 'Invalid query parameters',
           details: { issues: queryValidation.error.message },
         },
       };
       return new Response(JSON.stringify(errorResponse), {
         status: 400,
-        headers: { "Content-Type": "application/json" },
+        headers: { 'Content-Type': 'application/json' },
       });
     }
 
@@ -104,7 +104,7 @@ export const GET: APIRoute = async (context) => {
     // 5. Return success response
     return new Response(JSON.stringify(result), {
       status: 200,
-      headers: { "Content-Type": "application/json" },
+      headers: { 'Content-Type': 'application/json' },
     });
   } catch (error) {
     // Handle auth errors (thrown by requireAuth)
@@ -114,47 +114,47 @@ export const GET: APIRoute = async (context) => {
     // Handle known errors
     if (error instanceof Error) {
       // Invalid cursor format error
-      if (error.message === "Invalid cursor format") {
+      if (error.message === 'Invalid cursor format') {
         const errorResponse: ErrorResponseDTO = {
           error: {
-            code: "INVALID_CURSOR",
-            message: "Invalid pagination cursor",
+            code: 'INVALID_CURSOR',
+            message: 'Invalid pagination cursor',
           },
         };
         return new Response(JSON.stringify(errorResponse), {
           status: 400,
-          headers: { "Content-Type": "application/json" },
+          headers: { 'Content-Type': 'application/json' },
         });
       }
 
       // Car not found error
-      if (error.message === "Car not found") {
+      if (error.message === 'Car not found') {
         const errorResponse: ErrorResponseDTO = {
           error: {
-            code: "CAR_NOT_FOUND",
-            message: "Car not found or does not belong to user",
+            code: 'CAR_NOT_FOUND',
+            message: 'Car not found or does not belong to user',
           },
         };
         return new Response(JSON.stringify(errorResponse), {
           status: 404,
-          headers: { "Content-Type": "application/json" },
+          headers: { 'Content-Type': 'application/json' },
         });
       }
 
       // Log unexpected errors for debugging
-      console.error(`[GET /api/cars/[carId]/fillups] requestId=${requestId ?? "-"}`, error);
+      console.error(`[GET /api/cars/[carId]/fillups] requestId=${requestId ?? '-'}`, error);
     }
 
     // Generic server error response
     const errorResponse: ErrorResponseDTO = {
       error: {
-        code: "INTERNAL_SERVER_ERROR",
-        message: "An unexpected error occurred",
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'An unexpected error occurred',
       },
     };
     return new Response(JSON.stringify(errorResponse), {
       status: 500,
-      headers: { "Content-Type": "application/json" },
+      headers: { 'Content-Type': 'application/json' },
     });
   }
 };
@@ -179,7 +179,7 @@ export const GET: APIRoute = async (context) => {
  * - 500: Internal Server Error
  */
 export const POST: APIRoute = async (context) => {
-  const requestId = context.request.headers.get("x-request-id") ?? undefined;
+  const requestId = context.request.headers.get('x-request-id') ?? undefined;
 
   try {
     // Require authentication
@@ -190,13 +190,13 @@ export const POST: APIRoute = async (context) => {
     if (!supabase) {
       const errorResponse: ErrorResponseDTO = {
         error: {
-          code: "INTERNAL_ERROR",
-          message: "Supabase client not available",
+          code: 'INTERNAL_ERROR',
+          message: 'Supabase client not available',
         },
       };
       return new Response(JSON.stringify(errorResponse), {
         status: 500,
-        headers: { "Content-Type": "application/json" },
+        headers: { 'Content-Type': 'application/json' },
       });
     }
 
@@ -210,14 +210,14 @@ export const POST: APIRoute = async (context) => {
     if (!carIdValidation.success) {
       const errorResponse: ErrorResponseDTO = {
         error: {
-          code: "INVALID_CAR_ID",
-          message: "Invalid car ID format",
+          code: 'INVALID_CAR_ID',
+          message: 'Invalid car ID format',
           details: { issues: carIdValidation.error.message },
         },
       };
       return new Response(JSON.stringify(errorResponse), {
         status: 400,
-        headers: { "Content-Type": "application/json" },
+        headers: { 'Content-Type': 'application/json' },
       });
     }
 
@@ -230,13 +230,13 @@ export const POST: APIRoute = async (context) => {
     } catch {
       const errorResponse: ErrorResponseDTO = {
         error: {
-          code: "INVALID_JSON",
-          message: "Invalid JSON in request body",
+          code: 'INVALID_JSON',
+          message: 'Invalid JSON in request body',
         },
       };
       return new Response(JSON.stringify(errorResponse), {
         status: 400,
-        headers: { "Content-Type": "application/json" },
+        headers: { 'Content-Type': 'application/json' },
       });
     }
 
@@ -245,14 +245,14 @@ export const POST: APIRoute = async (context) => {
     if (!bodyValidation.success) {
       const errorResponse: ErrorResponseDTO = {
         error: {
-          code: "INVALID_REQUEST_BODY",
-          message: "Invalid request body",
+          code: 'INVALID_REQUEST_BODY',
+          message: 'Invalid request body',
           details: { issues: bodyValidation.error.message },
         },
       };
       return new Response(JSON.stringify(errorResponse), {
         status: 400,
-        headers: { "Content-Type": "application/json" },
+        headers: { 'Content-Type': 'application/json' },
       });
     }
 
@@ -263,13 +263,13 @@ export const POST: APIRoute = async (context) => {
 
     // Log successful creation
     console.log(
-      `[POST /api/cars/[carId]/fillups] requestId=${requestId ?? "-"} carId=${carId} fillupId=${result.id} warnings=${result.warnings?.length ?? 0}`
+      `[POST /api/cars/[carId]/fillups] requestId=${requestId ?? '-'} carId=${carId} fillupId=${result.id} warnings=${result.warnings?.length ?? 0}`
     );
 
     // 5. Return success response
     return new Response(JSON.stringify(result), {
       status: 201,
-      headers: { "Content-Type": "application/json" },
+      headers: { 'Content-Type': 'application/json' },
     });
   } catch (error) {
     // Handle auth errors (thrown by requireAuth)
@@ -279,33 +279,33 @@ export const POST: APIRoute = async (context) => {
     // Handle known errors
     if (error instanceof Error) {
       // Car not found error
-      if (error.message === "Car not found or does not belong to user") {
+      if (error.message === 'Car not found or does not belong to user') {
         const errorResponse: ErrorResponseDTO = {
           error: {
-            code: "CAR_NOT_FOUND",
-            message: "Car not found or does not belong to user",
+            code: 'CAR_NOT_FOUND',
+            message: 'Car not found or does not belong to user',
           },
         };
         return new Response(JSON.stringify(errorResponse), {
           status: 404,
-          headers: { "Content-Type": "application/json" },
+          headers: { 'Content-Type': 'application/json' },
         });
       }
 
       // Log unexpected errors for debugging
-      console.error(`[POST /api/cars/[carId]/fillups] requestId=${requestId ?? "-"}`, error);
+      console.error(`[POST /api/cars/[carId]/fillups] requestId=${requestId ?? '-'}`, error);
     }
 
     // Generic server error response
     const errorResponse: ErrorResponseDTO = {
       error: {
-        code: "INTERNAL_SERVER_ERROR",
-        message: "An unexpected error occurred",
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'An unexpected error occurred',
       },
     };
     return new Response(JSON.stringify(errorResponse), {
       status: 500,
-      headers: { "Content-Type": "application/json" },
+      headers: { 'Content-Type': 'application/json' },
     });
   }
 };

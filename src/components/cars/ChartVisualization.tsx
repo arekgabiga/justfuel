@@ -1,21 +1,11 @@
-import React, { useMemo } from "react";
-import {
-  LineChart,
-  Line,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
-import type { ChartDataDTO, ChartType, ChartDataPointDTO } from "../../types";
+import React, { useMemo } from 'react';
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import type { ChartDataDTO, ChartType, ChartDataPointDTO } from '../../types';
 
 interface ChartVisualizationProps {
   chartData: ChartDataDTO;
   chartType: ChartType;
-  "aria-describedby"?: string;
+  'aria-describedby'?: string;
 }
 
 /**
@@ -36,10 +26,10 @@ const CustomTooltip = ({ active, payload }: any) => {
       if (isNaN(date.getTime())) {
         return dateString;
       }
-      return date.toLocaleDateString("pl-PL", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
+      return date.toLocaleDateString('pl-PL', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
       });
     } catch {
       return dateString;
@@ -49,14 +39,14 @@ const CustomTooltip = ({ active, payload }: any) => {
   // Format value with appropriate unit
   const getLabelAndUnit = (type: string): { label: string; unit: string; decimals: number } => {
     switch (type) {
-      case "consumption":
-        return { label: "Spalanie", unit: "L/100km", decimals: 2 };
-      case "price_per_liter":
-        return { label: "Cena za litr", unit: "zł", decimals: 2 };
-      case "distance":
-        return { label: "Dystans", unit: "km", decimals: 0 };
+      case 'consumption':
+        return { label: 'Spalanie', unit: 'L/100km', decimals: 2 };
+      case 'price_per_liter':
+        return { label: 'Cena za litr', unit: 'zł', decimals: 2 };
+      case 'distance':
+        return { label: 'Dystans', unit: 'km', decimals: 0 };
       default:
-        return { label: "Wartość", unit: "", decimals: 2 };
+        return { label: 'Wartość', unit: '', decimals: 2 };
     }
   };
 
@@ -65,16 +55,12 @@ const CustomTooltip = ({ active, payload }: any) => {
 
   return (
     <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-3">
-      <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">
-        {formatDate(data.date)}
-      </p>
+      <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">{formatDate(data.date)}</p>
       <div className="space-y-1">
         <p className="text-sm text-gray-700 dark:text-gray-300">
           <span className="font-medium">{label}:</span> {value.toFixed(decimals)} {unit}
         </p>
-        <p className="text-xs text-gray-500 dark:text-gray-400">
-          Licznik: {data.odometer.toLocaleString("pl-PL")} km
-        </p>
+        <p className="text-xs text-gray-500 dark:text-gray-400">Licznik: {data.odometer.toLocaleString('pl-PL')} km</p>
       </div>
     </div>
   );
@@ -89,10 +75,10 @@ const formatXAxisDate = (dateString: string): string => {
     if (isNaN(date.getTime())) {
       return dateString;
     }
-    return date.toLocaleDateString("pl-PL", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
+    return date.toLocaleDateString('pl-PL', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
     });
   } catch {
     return dateString;
@@ -104,11 +90,11 @@ const formatXAxisDate = (dateString: string): string => {
  */
 const formatYAxisValue = (value: number, chartType: ChartType): string => {
   switch (chartType) {
-    case "consumption":
+    case 'consumption':
       return `${value.toFixed(1)} L/100km`;
-    case "price_per_liter":
+    case 'price_per_liter':
       return `${value.toFixed(2)} zł`;
-    case "distance":
+    case 'distance':
       return `${Math.round(value)} km`;
     default:
       return value.toFixed(2);
@@ -122,7 +108,7 @@ const formatYAxisValue = (value: number, chartType: ChartType): string => {
 export const ChartVisualization: React.FC<ChartVisualizationProps> = ({
   chartData,
   chartType,
-  "aria-describedby": ariaDescribedBy,
+  'aria-describedby': ariaDescribedBy,
 }) => {
   // Prepare data for chart - reverse to show chronological order (oldest to newest)
   const chartDataPoints = useMemo(() => {
@@ -134,11 +120,7 @@ export const ChartVisualization: React.FC<ChartVisualizationProps> = ({
     return [...chartData.data]
       .filter((point) => {
         return (
-          point.value != null &&
-          !isNaN(point.value) &&
-          point.date &&
-          point.odometer != null &&
-          !isNaN(point.odometer)
+          point.value != null && !isNaN(point.value) && point.date && point.odometer != null && !isNaN(point.odometer)
         );
       })
       .reverse()
@@ -152,25 +134,25 @@ export const ChartVisualization: React.FC<ChartVisualizationProps> = ({
   // Get Y-axis label based on chart type
   const getYAxisLabel = (type: ChartType): string => {
     switch (type) {
-      case "consumption":
-        return "L/100km";
-      case "price_per_liter":
-        return "zł";
-      case "distance":
-        return "km";
+      case 'consumption':
+        return 'L/100km';
+      case 'price_per_liter':
+        return 'zł';
+      case 'distance':
+        return 'km';
       default:
-        return "";
+        return '';
     }
   };
 
   // Get chart description for accessibility
   const getChartDescription = (type: ChartType, dataPoints: number): string => {
     switch (type) {
-      case "consumption":
+      case 'consumption':
         return `Wykres liniowy przedstawiający spalanie w czasie. Zawiera ${dataPoints} punktów danych pokazujących wartości spalania w litrach na 100 kilometrów.`;
-      case "price_per_liter":
+      case 'price_per_liter':
         return `Wykres liniowy przedstawiający cenę paliwa za litr w czasie. Zawiera ${dataPoints} punktów danych pokazujących ceny w złotych.`;
-      case "distance":
+      case 'distance':
         return `Wykres słupkowy przedstawiający dystans między tankowaniami w czasie. Zawiera ${dataPoints} punktów danych pokazujących dystanse w kilometrach.`;
       default:
         return `Wykres zawierający ${dataPoints} punktów danych.`;
@@ -190,12 +172,12 @@ export const ChartVisualization: React.FC<ChartVisualizationProps> = ({
     },
   };
 
-  if (chartType === "distance") {
+  if (chartType === 'distance') {
     // Bar chart for distance
     return (
       <div
         className="w-full"
-        style={{ minHeight: "300px" }}
+        style={{ minHeight: '300px' }}
         role="img"
         aria-label={chartDescription}
         aria-describedby={ariaDescribedBy}
@@ -212,16 +194,11 @@ export const ChartVisualization: React.FC<ChartVisualizationProps> = ({
               height={80}
             />
             <YAxis
-              label={{ value: getYAxisLabel(chartType), angle: -90, position: "insideLeft" }}
+              label={{ value: getYAxisLabel(chartType), angle: -90, position: 'insideLeft' }}
               className="text-xs fill-gray-600 dark:fill-gray-400"
             />
             <Tooltip content={<CustomTooltip />} />
-            <Bar
-              dataKey="value"
-              fill="#3b82f6"
-              radius={[4, 4, 0, 0]}
-              className="hover:opacity-80"
-            />
+            <Bar dataKey="value" fill="#3b82f6" radius={[4, 4, 0, 0]} className="hover:opacity-80" />
           </BarChart>
         </ResponsiveContainer>
       </div>
@@ -232,7 +209,7 @@ export const ChartVisualization: React.FC<ChartVisualizationProps> = ({
   return (
     <div
       className="w-full"
-      style={{ minHeight: "300px" }}
+      style={{ minHeight: '300px' }}
       role="img"
       aria-label={chartDescription}
       aria-describedby={ariaDescribedBy}
@@ -249,7 +226,7 @@ export const ChartVisualization: React.FC<ChartVisualizationProps> = ({
             height={80}
           />
           <YAxis
-            label={{ value: getYAxisLabel(chartType), angle: -90, position: "insideLeft" }}
+            label={{ value: getYAxisLabel(chartType), angle: -90, position: 'insideLeft' }}
             className="text-xs fill-gray-600 dark:fill-gray-400"
           />
           <Tooltip content={<CustomTooltip />} />
@@ -258,7 +235,7 @@ export const ChartVisualization: React.FC<ChartVisualizationProps> = ({
             dataKey="value"
             stroke="#3b82f6"
             strokeWidth={2}
-            dot={{ fill: "#3b82f6", r: 4 }}
+            dot={{ fill: '#3b82f6', r: 4 }}
             activeDot={{ r: 6 }}
           />
         </LineChart>
@@ -266,4 +243,3 @@ export const ChartVisualization: React.FC<ChartVisualizationProps> = ({
     </div>
   );
 };
-

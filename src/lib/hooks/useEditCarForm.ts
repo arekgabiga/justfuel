@@ -1,11 +1,11 @@
-import { useState, useCallback, useRef, useEffect } from "react";
-import type { UpdateCarCommand, CarDetailsDTO, ErrorResponseDTO, DeleteCarCommand } from "../../types";
+import { useState, useCallback, useRef, useEffect } from 'react';
+import type { UpdateCarCommand, CarDetailsDTO, ErrorResponseDTO, DeleteCarCommand } from '../../types';
 
 const REQUEST_TIMEOUT = 10000; // 10 seconds
 
 interface EditCarFormState {
   name: string;
-  mileageInputPreference: "odometer" | "distance";
+  mileageInputPreference: 'odometer' | 'distance';
 }
 
 interface EditCarFormErrors {
@@ -25,8 +25,8 @@ interface UseEditCarFormProps {
 
 export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
   const [formState, setFormState] = useState<EditCarFormState>({
-    name: "",
-    mileageInputPreference: "odometer",
+    name: '',
+    mileageInputPreference: 'odometer',
   });
 
   const [originalCarData, setOriginalCarData] = useState<CarDetailsDTO | null>(null);
@@ -46,25 +46,25 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
     const loadCarData = async () => {
       try {
         // Get auth token - try multiple sources
-        const authToken = localStorage.getItem("auth_token");
+        const authToken = localStorage.getItem('auth_token');
         const cookieToken = document.cookie
-          .split("; ")
-          .find((row) => row.startsWith("auth_token="))
-          ?.split("=")[1];
-        const devToken = localStorage.getItem("dev_token");
+          .split('; ')
+          .find((row) => row.startsWith('auth_token='))
+          ?.split('=')[1];
+        const devToken = localStorage.getItem('dev_token');
 
         const token = authToken || cookieToken || devToken;
 
-        console.log("[useEditCarForm] Auth tokens:", {
-          localStorage_auth_token: authToken ? "exists" : "missing",
-          cookie_auth_token: cookieToken ? "exists" : "missing",
-          localStorage_dev_token: devToken ? "exists" : "missing",
-          final_token: token ? `${token.substring(0, 20)}...` : "missing",
+        console.log('[useEditCarForm] Auth tokens:', {
+          localStorage_auth_token: authToken ? 'exists' : 'missing',
+          cookie_auth_token: cookieToken ? 'exists' : 'missing',
+          localStorage_dev_token: devToken ? 'exists' : 'missing',
+          final_token: token ? `${token.substring(0, 20)}...` : 'missing',
         });
 
         // Build headers - only include Authorization if we have a valid token
         const headers: Record<string, string> = {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         };
 
         if (token) {
@@ -72,26 +72,26 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
         }
 
         const response = await fetch(`/api/cars/${carId}`, {
-          method: "GET",
+          method: 'GET',
           headers,
         });
 
-        console.log("[useEditCarForm] API response:", response.status, response.statusText);
+        console.log('[useEditCarForm] API response:', response.status, response.statusText);
 
         if (!response.ok) {
           if (response.status === 401) {
-            console.error("[useEditCarForm] Unauthorized - NOT redirecting (showing error instead)");
+            console.error('[useEditCarForm] Unauthorized - NOT redirecting (showing error instead)');
             // Don't redirect, show error instead
             setFormErrors({
-              submit: "Brak autoryzacji. Ustaw token w localStorage (/dev/set-token) lub włącz DEV_AUTH_FALLBACK=true",
+              submit: 'Brak autoryzacji. Ustaw token w localStorage (/dev/set-token) lub włącz DEV_AUTH_FALLBACK=true',
             });
             setIsLoading(false);
             return;
           } else if (response.status === 404) {
-            setFormErrors({ submit: "Samochód nie został znaleziony" });
+            setFormErrors({ submit: 'Samochód nie został znaleziony' });
             setTimeout(() => {
-              if (typeof window !== "undefined") {
-                window.location.href = "/cars";
+              if (typeof window !== 'undefined') {
+                window.location.href = '/cars';
               }
             }, 3000);
             setIsLoading(false);
@@ -105,7 +105,7 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
         }
 
         const carData: CarDetailsDTO = await response.json();
-        console.log("[useEditCarForm] Car loaded:", carData?.name);
+        console.log('[useEditCarForm] Car loaded:', carData?.name);
 
         setOriginalCarData(carData);
         setFormState({
@@ -119,15 +119,15 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
           nameInputRef.current?.focus();
         }, 100);
       } catch (error) {
-        console.error("Error loading car data:", error);
+        console.error('Error loading car data:', error);
         if (error instanceof Error) {
-          if (error.message.includes("Failed to fetch") || error.message.includes("NetworkError")) {
-            setFormErrors({ submit: "Nie udało się pobrać danych. Sprawdź połączenie internetowe." });
+          if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+            setFormErrors({ submit: 'Nie udało się pobrać danych. Sprawdź połączenie internetowe.' });
           } else {
             setFormErrors({ submit: error.message });
           }
         } else {
-          setFormErrors({ submit: "Nie udało się załadować danych samochodu" });
+          setFormErrors({ submit: 'Nie udało się załadować danych samochodu' });
         }
         setIsLoading(false);
       }
@@ -140,20 +140,20 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
   const validateName = useCallback((name: string): string | undefined => {
     const trimmed = name.trim();
     if (!trimmed) {
-      return "Nazwa jest wymagana";
+      return 'Nazwa jest wymagana';
     }
     if (trimmed.length < 1) {
-      return "Nazwa nie może być pusta";
+      return 'Nazwa nie może być pusta';
     }
     if (trimmed.length > 100) {
-      return "Nazwa może mieć maksymalnie 100 znaków";
+      return 'Nazwa może mieć maksymalnie 100 znaków';
     }
     return undefined;
   }, []);
 
   const validateMileagePreference = useCallback((preference: string): string | undefined => {
-    if (preference !== "odometer" && preference !== "distance") {
-      return "Wybierz preferencję wprowadzania przebiegu";
+    if (preference !== 'odometer' && preference !== 'distance') {
+      return 'Wybierz preferencję wprowadzania przebiegu';
     }
     return undefined;
   }, []);
@@ -180,7 +180,7 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
   // Helper function to get user-friendly error message
   const getErrorMessage = useCallback((status: number, errorData?: ErrorResponseDTO): string => {
     if (!errorData) {
-      return "Wystąpił nieoczekiwany błąd";
+      return 'Wystąpił nieoczekiwany błąd';
     }
 
     const code = errorData.error.code;
@@ -188,24 +188,24 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
 
     switch (status) {
       case 400:
-        return message || "Nieprawidłowe dane formularza";
+        return message || 'Nieprawidłowe dane formularza';
       case 401:
-        return "Wymagana autoryzacja";
+        return 'Wymagana autoryzacja';
       case 403:
-        return "Brak uprawnień";
+        return 'Brak uprawnień';
       case 404:
-        return "Samochód nie został znaleziony";
+        return 'Samochód nie został znaleziony';
       case 409:
-        return message || "Konflikt danych";
+        return message || 'Konflikt danych';
       case 422:
-        return message || "Nieprawidłowe dane";
+        return message || 'Nieprawidłowe dane';
       case 429:
-        return "Zbyt wiele żądań. Spróbuj ponownie za chwilę";
+        return 'Zbyt wiele żądań. Spróbuj ponownie za chwilę';
       case 500:
       case 502:
       case 503:
       case 504:
-        return "Wystąpił błąd serwera. Spróbuj ponownie później";
+        return 'Wystąpił błąd serwera. Spróbuj ponownie później';
       default:
         return message || `Wystąpił błąd (status: ${status})`;
     }
@@ -217,20 +217,18 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
       let error: string | undefined;
       const value = values[field];
 
-      if (field === "name") {
+      if (field === 'name') {
         error = validateName(value as string);
-      } else if (field === "mileageInputPreference") {
+      } else if (field === 'mileageInputPreference') {
         error = validateMileagePreference(value as string);
       }
 
       setFormErrors((prev) => {
-        const newErrors = { ...prev };
         if (error) {
-          newErrors[field] = error;
-        } else {
-          delete newErrors[field];
+          return { ...prev, [field]: error };
         }
-        return newErrors;
+        const { [field]: _, ...rest } = prev;
+        return rest;
       });
 
       return !error;
@@ -240,8 +238,8 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
 
   // Validate all fields
   const validateAllFields = useCallback((): boolean => {
-    const nameValid = validateField("name");
-    const preferenceValid = validateField("mileageInputPreference");
+    const nameValid = validateField('name');
+    const preferenceValid = validateField('mileageInputPreference');
 
     // Focus first invalid field
     if (!nameValid) {
@@ -282,20 +280,18 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
       }
 
       // Clear field error when user starts typing
-      if (formErrors[field]) {
-        setFormErrors((prev) => {
-          const newErrors = { ...prev };
-          delete newErrors[field];
-          return newErrors;
-        });
-      }
+      setFormErrors((prev) => {
+        if (!prev[field]) return prev;
+        const { [field]: _, ...rest } = prev;
+        return rest;
+      });
 
       // Real-time validation for critical fields (run async to not block input)
       setTimeout(() => {
         validateField(field, newState);
       }, 0);
     },
-    [formState, formErrors, touchedFields, validateField]
+    [formState, validateField, formErrors.submit]
   );
 
   // Handle field blur (additional validation)
@@ -314,7 +310,7 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
 
       // Check if any changes were made
       if (!hasChanges()) {
-        setFormErrors({ submit: "Nie wprowadzono żadnych zmian" });
+        setFormErrors({ submit: 'Nie wprowadzono żadnych zmian' });
         return;
       }
 
@@ -330,12 +326,12 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
 
       try {
         // Get auth token - try multiple sources
-        const authToken = localStorage.getItem("auth_token");
+        const authToken = localStorage.getItem('auth_token');
         const cookieToken = document.cookie
-          .split("; ")
-          .find((row) => row.startsWith("auth_token="))
-          ?.split("=")[1];
-        const devToken = localStorage.getItem("dev_token");
+          .split('; ')
+          .find((row) => row.startsWith('auth_token='))
+          ?.split('=')[1];
+        const devToken = localStorage.getItem('dev_token');
 
         const token = authToken || cookieToken || devToken;
 
@@ -354,30 +350,30 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
         }
 
         if (!hasAnyChanges) {
-          setFormErrors({ submit: "Nie wprowadzono żadnych zmian" });
+          setFormErrors({ submit: 'Nie wprowadzono żadnych zmian' });
           setIsSubmitting(false);
           return;
         }
 
         // Build headers - only include Authorization if we have a valid token
         const headers: Record<string, string> = {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         };
 
         if (token) {
           headers.Authorization = `Bearer ${token}`;
         }
 
-        console.log("[useEditCarForm] Sending PATCH request to:", `/api/cars/${carId}`);
-        console.log("[useEditCarForm] Request body:", requestBody);
-        console.log("[useEditCarForm] Headers:", {
+        console.log('[useEditCarForm] Sending PATCH request to:', `/api/cars/${carId}`);
+        console.log('[useEditCarForm] Request body:', requestBody);
+        console.log('[useEditCarForm] Headers:', {
           ...headers,
-          Authorization: headers.Authorization ? "***" : undefined,
+          Authorization: headers.Authorization ? '***' : undefined,
         });
 
         // API call with timeout
         const fetchRequest = abortableFetch(`/api/cars/${carId}`, {
-          method: "PATCH",
+          method: 'PATCH',
           headers,
           body: JSON.stringify(requestBody),
         });
@@ -386,7 +382,7 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
 
         const response = await fetchRequest.ready;
 
-        console.log("[useEditCarForm] PATCH API response:", response.status, response.statusText);
+        console.log('[useEditCarForm] PATCH API response:', response.status, response.statusText);
 
         if (!response.ok) {
           let errorData: ErrorResponseDTO | undefined;
@@ -395,7 +391,7 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
             errorData = await response.json();
           } catch {
             errorData = {
-              error: { code: "INTERNAL_ERROR", message: "Nieznany błąd" },
+              error: { code: 'INTERNAL_ERROR', message: 'Nieznany błąd' },
             };
           }
 
@@ -408,11 +404,11 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
             if (errorData && errorData.error.details?.issues) {
               const issues = errorData.error.details.issues as string;
 
-              if (issues.toLowerCase().includes("name") || issues.toLowerCase().includes("trim")) {
-                errors.name = "Nieprawidłowa nazwa samochodu";
+              if (issues.toLowerCase().includes('name') || issues.toLowerCase().includes('trim')) {
+                errors.name = 'Nieprawidłowa nazwa samochodu';
               }
-              if (issues.toLowerCase().includes("preference") || issues.toLowerCase().includes("mileage")) {
-                errors.mileageInputPreference = "Nieprawidłowa preferencja";
+              if (issues.toLowerCase().includes('preference') || issues.toLowerCase().includes('mileage')) {
+                errors.mileageInputPreference = 'Nieprawidłowa preferencja';
               }
             }
 
@@ -425,7 +421,7 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
             nameInputRef.current?.focus();
           } else if (response.status === 401) {
             // Unauthorized - check if we should redirect or show error
-            console.error("[useEditCarForm] Unauthorized on submit");
+            console.error('[useEditCarForm] Unauthorized on submit');
 
             // If no token was sent, it means DEV_AUTH_FALLBACK should handle it
             // But if we got 401, either fallback is not enabled or token was invalid
@@ -433,14 +429,14 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
               // No token - should have used DEV_AUTH_FALLBACK
               setFormErrors({
                 submit:
-                  "Brak autoryzacji. Ustaw token w localStorage (/dev/set-token) lub włącz DEV_AUTH_FALLBACK=true w pliku .env",
+                  'Brak autoryzacji. Ustaw token w localStorage (/dev/set-token) lub włącz DEV_AUTH_FALLBACK=true w pliku .env',
               });
             } else {
               // Token was invalid - redirect to login
-              setFormErrors({ submit: "Wymagana autoryzacja. Przekierowywanie..." });
-              if (typeof window !== "undefined") {
+              setFormErrors({ submit: 'Wymagana autoryzacja. Przekierowywanie...' });
+              if (typeof window !== 'undefined') {
                 setTimeout(() => {
-                  window.location.href = "/login";
+                  window.location.href = '/login';
                 }, 2000);
               }
             }
@@ -448,17 +444,17 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
             return;
           } else if (response.status === 404) {
             // Not found - redirect to cars list
-            setFormErrors({ submit: "Samochód nie został znaleziony" });
-            if (typeof window !== "undefined") {
+            setFormErrors({ submit: 'Samochód nie został znaleziony' });
+            if (typeof window !== 'undefined') {
               setTimeout(() => {
-                window.location.href = "/cars";
+                window.location.href = '/cars';
               }, 3000);
             }
           } else if (response.status === 409) {
             // Conflict - car name already exists
             setFormErrors({
-              name: "Samochód o tej nazwie już istnieje. Wybierz inną nazwę.",
-              submit: "Nazwa samochodu musi być unikalna",
+              name: 'Samochód o tej nazwie już istnieje. Wybierz inną nazwę.',
+              submit: 'Nazwa samochodu musi być unikalna',
             });
             nameInputRef.current?.focus();
           } else {
@@ -479,31 +475,31 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
           setFormErrors({});
           setIsSubmitting(false);
 
-          if (typeof window !== "undefined") {
+          if (typeof window !== 'undefined') {
             // Small delay to let user see success state
             setTimeout(() => {
               window.location.href = `/cars/${carId}`;
             }, 300);
           }
         } catch (parseError) {
-          console.error("Error parsing response:", parseError);
-          setFormErrors({ submit: "Nie udało się przetworzyć odpowiedzi serwera" });
+          console.error('Error parsing response:', parseError);
+          setFormErrors({ submit: 'Nie udało się przetworzyć odpowiedzi serwera' });
           setIsSubmitting(false);
         }
       } catch (error) {
         // Handle different error types
-        console.error("Error updating car:", error);
+        console.error('Error updating car:', error);
 
-        let errorMessage = "Wystąpił błąd serwera. Spróbuj ponownie później.";
+        let errorMessage = 'Wystąpił błąd serwera. Spróbuj ponownie później.';
 
         if (error instanceof Error) {
           // Check for AbortError (timeout)
-          if (error.name === "AbortError" || error.message.includes("aborted")) {
-            errorMessage = "Przekroczono limit czasu połączenia. Spróbuj ponownie.";
-          } else if (error.message.includes("Failed to fetch") || error.message.includes("NetworkError")) {
-            errorMessage = "Nie udało się połączyć z serwerem. Sprawdź połączenie internetowe.";
-          } else if (error.message.includes("timeout")) {
-            errorMessage = "Przekroczono limit czasu połączenia. Spróbuj ponownie.";
+          if (error.name === 'AbortError' || error.message.includes('aborted')) {
+            errorMessage = 'Przekroczono limit czasu połączenia. Spróbuj ponownie.';
+          } else if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+            errorMessage = 'Nie udało się połączyć z serwerem. Sprawdź połączenie internetowe.';
+          } else if (error.message.includes('timeout')) {
+            errorMessage = 'Przekroczono limit czasu połączenia. Spróbuj ponownie.';
           }
         }
 
@@ -521,7 +517,7 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
 
   // Handle cancel
   const handleCancel = useCallback(() => {
-    if (typeof window !== "undefined") {
+    if (typeof window !== 'undefined') {
       window.location.href = `/cars/${carId}`;
     }
   }, [carId]);
@@ -548,30 +544,30 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
 
       try {
         // Get auth token - try multiple sources
-        const authToken = localStorage.getItem("auth_token");
+        const authToken = localStorage.getItem('auth_token');
         const cookieToken = document.cookie
-          .split("; ")
-          .find((row) => row.startsWith("auth_token="))
-          ?.split("=")[1];
-        const devToken = localStorage.getItem("dev_token");
+          .split('; ')
+          .find((row) => row.startsWith('auth_token='))
+          ?.split('=')[1];
+        const devToken = localStorage.getItem('dev_token');
 
         const token = authToken || cookieToken || devToken;
 
         // Build headers - only include Authorization if we have a valid token
         const headers: Record<string, string> = {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         };
 
         if (token) {
           headers.Authorization = `Bearer ${token}`;
         }
 
-        console.log("[useEditCarForm] Sending DELETE request to:", `/api/cars/${carId}`);
-        console.log("[useEditCarForm] Request body:", data);
+        console.log('[useEditCarForm] Sending DELETE request to:', `/api/cars/${carId}`);
+        console.log('[useEditCarForm] Request body:', data);
 
         // API call with timeout
         const fetchRequest = abortableFetch(`/api/cars/${carId}`, {
-          method: "DELETE",
+          method: 'DELETE',
           headers,
           body: JSON.stringify(data),
         });
@@ -580,7 +576,7 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
 
         const response = await fetchRequest.ready;
 
-        console.log("[useEditCarForm] DELETE API response:", response.status, response.statusText);
+        console.log('[useEditCarForm] DELETE API response:', response.status, response.statusText);
 
         if (!response.ok) {
           let errorData: ErrorResponseDTO | undefined;
@@ -589,7 +585,7 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
             errorData = await response.json();
           } catch {
             errorData = {
-              error: { code: "INTERNAL_ERROR", message: "Nieznany błąd" },
+              error: { code: 'INTERNAL_ERROR', message: 'Nieznany błąd' },
             };
           }
 
@@ -597,35 +593,35 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
           let errorMessage: string;
           if (response.status === 400) {
             // Validation errors - incorrect confirmation name
-            errorMessage = errorData?.error.message || "Nazwa potwierdzenia nie pasuje do nazwy samochodu";
+            errorMessage = errorData?.error.message || 'Nazwa potwierdzenia nie pasuje do nazwy samochodu';
             setDeleteError(errorMessage);
           } else if (response.status === 401) {
             // Unauthorized
             if (!token) {
               errorMessage =
-                "Brak autoryzacji. Ustaw token w localStorage (/dev/set-token) lub włącz DEV_AUTH_FALLBACK=true";
+                'Brak autoryzacji. Ustaw token w localStorage (/dev/set-token) lub włącz DEV_AUTH_FALLBACK=true';
               setDeleteError(errorMessage);
             } else {
-              errorMessage = "Wymagana autoryzacja. Przekierowywanie...";
+              errorMessage = 'Wymagana autoryzacja. Przekierowywanie...';
               setDeleteError(errorMessage);
-              if (typeof window !== "undefined") {
+              if (typeof window !== 'undefined') {
                 setTimeout(() => {
-                  window.location.href = "/login";
+                  window.location.href = '/login';
                 }, 2000);
               }
             }
           } else if (response.status === 404) {
             // Not found
-            errorMessage = "Samochód nie został znaleziony";
+            errorMessage = 'Samochód nie został znaleziony';
             setDeleteError(errorMessage);
-            if (typeof window !== "undefined") {
+            if (typeof window !== 'undefined') {
               setTimeout(() => {
-                window.location.href = "/cars";
+                window.location.href = '/cars';
               }, 3000);
             }
           } else if (response.status === 500) {
             // Server error
-            errorMessage = "Wystąpił błąd serwera. Spróbuj ponownie później";
+            errorMessage = 'Wystąpił błąd serwera. Spróbuj ponownie później';
             setDeleteError(errorMessage);
           } else {
             // Other errors
@@ -641,32 +637,32 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
         try {
           await response.json(); // Consume response body
 
-          if (typeof window !== "undefined") {
-            window.location.href = "/cars";
+          if (typeof window !== 'undefined') {
+            window.location.href = '/cars';
           }
         } catch (parseError) {
-          console.error("[useEditCarForm] Error parsing response:", parseError);
+          console.error('[useEditCarForm] Error parsing response:', parseError);
           // Even if parsing fails, redirect if status was OK
-          if (typeof window !== "undefined") {
-            window.location.href = "/cars";
+          if (typeof window !== 'undefined') {
+            window.location.href = '/cars';
           }
         }
       } catch (error) {
         // Handle different error types
-        console.error("[useEditCarForm] Error deleting car:", error);
+        console.error('[useEditCarForm] Error deleting car:', error);
 
         // Only set error if it hasn't been set yet (to preserve specific error messages from above)
         if (!deleteError) {
-          let errorMessage = "Wystąpił błąd serwera. Spróbuj ponownie później.";
+          let errorMessage = 'Wystąpił błąd serwera. Spróbuj ponownie później.';
 
           if (error instanceof Error) {
             // Check for AbortError (timeout)
-            if (error.name === "AbortError" || error.message.includes("aborted")) {
-              errorMessage = "Przekroczono limit czasu połączenia. Spróbuj ponownie.";
-            } else if (error.message.includes("Failed to fetch") || error.message.includes("NetworkError")) {
-              errorMessage = "Nie udało się połączyć z serwerem. Sprawdź połączenie internetowe.";
-            } else if (error.message.includes("timeout")) {
-              errorMessage = "Przekroczono limit czasu połączenia. Spróbuj ponownie.";
+            if (error.name === 'AbortError' || error.message.includes('aborted')) {
+              errorMessage = 'Przekroczono limit czasu połączenia. Spróbuj ponownie.';
+            } else if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+              errorMessage = 'Nie udało się połączyć z serwerem. Sprawdź połączenie internetowe.';
+            } else if (error.message.includes('timeout')) {
+              errorMessage = 'Przekroczono limit czasu połączenia. Spróbuj ponownie.';
             } else {
               // Re-throw the error to preserve the message
               throw error;
@@ -684,7 +680,7 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
         }
       }
     },
-    [carId, abortableFetch, getErrorMessage]
+    [carId, abortableFetch, getErrorMessage, deleteError]
   );
 
   return {

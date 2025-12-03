@@ -1,11 +1,11 @@
 export const prerender = false;
 
-import type { APIRoute } from "astro";
-import type { ErrorResponseDTO } from "../../../../types.ts";
-import { getChartData } from "../../../../lib/services/charts.service.ts";
-import { chartQuerySchema } from "../../../../lib/validation/charts.ts";
-import { carIdParamSchema } from "../../../../lib/validation/cars.ts";
-import { requireAuth } from "../../../../lib/utils/auth.ts";
+import type { APIRoute } from 'astro';
+import type { ErrorResponseDTO } from '../../../../types.ts';
+import { getChartData } from '../../../../lib/services/charts.service.ts';
+import { chartQuerySchema } from '../../../../lib/validation/charts.ts';
+import { carIdParamSchema } from '../../../../lib/validation/cars.ts';
+import { requireAuth } from '../../../../lib/utils/auth.ts';
 
 /**
  * GET /api/cars/{carId}/charts
@@ -29,7 +29,7 @@ import { requireAuth } from "../../../../lib/utils/auth.ts";
  * - 500: Internal Server Error
  */
 export const GET: APIRoute = async (context) => {
-  const requestId = context.request.headers.get("x-request-id") ?? undefined;
+  const requestId = context.request.headers.get('x-request-id') ?? undefined;
 
   try {
     // Require authentication
@@ -40,13 +40,13 @@ export const GET: APIRoute = async (context) => {
     if (!supabase) {
       const errorResponse: ErrorResponseDTO = {
         error: {
-          code: "INTERNAL_ERROR",
-          message: "Supabase client not available",
+          code: 'INTERNAL_ERROR',
+          message: 'Supabase client not available',
         },
       };
       return new Response(JSON.stringify(errorResponse), {
         status: 500,
-        headers: { "Content-Type": "application/json" },
+        headers: { 'Content-Type': 'application/json' },
       });
     }
 
@@ -60,14 +60,14 @@ export const GET: APIRoute = async (context) => {
     if (!carIdValidation.success) {
       const errorResponse: ErrorResponseDTO = {
         error: {
-          code: "INVALID_CAR_ID",
-          message: "Invalid car ID format",
+          code: 'INVALID_CAR_ID',
+          message: 'Invalid car ID format',
           details: { issues: carIdValidation.error.message },
         },
       };
       return new Response(JSON.stringify(errorResponse), {
         status: 400,
-        headers: { "Content-Type": "application/json" },
+        headers: { 'Content-Type': 'application/json' },
       });
     }
 
@@ -83,14 +83,14 @@ export const GET: APIRoute = async (context) => {
     if (!queryValidation.success) {
       const errorResponse: ErrorResponseDTO = {
         error: {
-          code: "INVALID_QUERY_PARAMS",
-          message: "Invalid query parameters",
+          code: 'INVALID_QUERY_PARAMS',
+          message: 'Invalid query parameters',
           details: { issues: queryValidation.error.message },
         },
       };
       return new Response(JSON.stringify(errorResponse), {
         status: 400,
-        headers: { "Content-Type": "application/json" },
+        headers: { 'Content-Type': 'application/json' },
       });
     }
 
@@ -102,20 +102,20 @@ export const GET: APIRoute = async (context) => {
     if (!chartData) {
       const errorResponse: ErrorResponseDTO = {
         error: {
-          code: "CAR_NOT_FOUND",
-          message: "Car not found or does not belong to user",
+          code: 'CAR_NOT_FOUND',
+          message: 'Car not found or does not belong to user',
         },
       };
       return new Response(JSON.stringify(errorResponse), {
         status: 404,
-        headers: { "Content-Type": "application/json" },
+        headers: { 'Content-Type': 'application/json' },
       });
     }
 
     // 5. Return success response
     return new Response(JSON.stringify(chartData), {
       status: 200,
-      headers: { "Content-Type": "application/json" },
+      headers: { 'Content-Type': 'application/json' },
     });
   } catch (error) {
     // Handle auth errors (thrown by requireAuth)
@@ -125,20 +125,20 @@ export const GET: APIRoute = async (context) => {
     // Handle known errors
     if (error instanceof Error) {
       // Log unexpected errors for debugging
-      // eslint-disable-next-line no-console
-      console.error(`[GET /api/cars/{carId}/charts] requestId=${requestId ?? "-"}`, error);
+
+      console.error(`[GET /api/cars/{carId}/charts] requestId=${requestId ?? '-'}`, error);
     }
 
     // Generic server error response
     const errorResponse: ErrorResponseDTO = {
       error: {
-        code: "INTERNAL_SERVER_ERROR",
-        message: "An unexpected error occurred",
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'An unexpected error occurred',
       },
     };
     return new Response(JSON.stringify(errorResponse), {
       status: 500,
-      headers: { "Content-Type": "application/json" },
+      headers: { 'Content-Type': 'application/json' },
     });
   }
 };

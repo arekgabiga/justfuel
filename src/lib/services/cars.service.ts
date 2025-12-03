@@ -7,20 +7,20 @@ import type {
   UpdateCarCommand,
   DeleteCarCommand,
   DeleteResponseDTO,
-} from "../../types.ts";
-import type { AppSupabaseClient } from "../../db/supabase.client.ts";
+} from '../../types.ts';
+import type { AppSupabaseClient } from '../../db/supabase.client.ts';
 
 export interface ListCarsParams {
-  sort?: "name" | "created_at";
-  order?: "asc" | "desc";
+  sort?: 'name' | 'created_at';
+  order?: 'asc' | 'desc';
 }
 
-const SORT_COLUMN_WHITELIST: Record<NonNullable<ListCarsParams["sort"]>, string> = {
-  name: "name",
-  created_at: "created_at",
+const SORT_COLUMN_WHITELIST: Record<NonNullable<ListCarsParams['sort']>, string> = {
+  name: 'name',
+  created_at: 'created_at',
 };
 
-const ORDER_WHITELIST: Record<NonNullable<ListCarsParams["order"]>, { ascending: boolean }> = {
+const ORDER_WHITELIST: Record<NonNullable<ListCarsParams['order']>, { ascending: boolean }> = {
   asc: { ascending: true },
   desc: { ascending: false },
 };
@@ -30,19 +30,19 @@ export async function listUserCarsWithStats(
   params: ListCarsParams,
   options?: { userId?: string }
 ): Promise<CarWithStatisticsDTO[]> {
-  const sort = params.sort ?? "name";
-  const order = params.order ?? "asc";
+  const sort = params.sort ?? 'name';
+  const order = params.order ?? 'asc';
 
   const sortColumn = SORT_COLUMN_WHITELIST[sort];
   const orderCfg = ORDER_WHITELIST[order];
 
   let carsQuery = supabase
-    .from("cars")
-    .select("id, name, initial_odometer, mileage_input_preference")
+    .from('cars')
+    .select('id, name, initial_odometer, mileage_input_preference')
     .order(sortColumn, orderCfg);
 
   if (options?.userId) {
-    carsQuery = carsQuery.eq("user_id", options.userId);
+    carsQuery = carsQuery.eq('user_id', options.userId);
   }
 
   const { data: cars, error: carsError } = await carsQuery;
@@ -57,11 +57,11 @@ export async function listUserCarsWithStats(
   const carIds = cars.map((c) => c.id);
 
   const { data: statsRows, error: statsError } = await supabase
-    .from("car_statistics")
+    .from('car_statistics')
     .select(
-      "car_id,total_fuel_cost,total_fuel_amount,total_distance,average_consumption,average_price_per_liter,fillup_count"
+      'car_id,total_fuel_cost,total_fuel_amount,total_distance,average_consumption,average_price_per_liter,fillup_count'
     )
-    .in("car_id", carIds);
+    .in('car_id', carIds);
 
   if (statsError) {
     throw new Error(`Failed to fetch car statistics: ${statsError.message}`);
@@ -71,12 +71,12 @@ export async function listUserCarsWithStats(
     string,
     Pick<
       CarStatisticsView,
-      | "total_fuel_cost"
-      | "total_fuel_amount"
-      | "total_distance"
-      | "average_consumption"
-      | "average_price_per_liter"
-      | "fillup_count"
+      | 'total_fuel_cost'
+      | 'total_fuel_amount'
+      | 'total_distance'
+      | 'average_consumption'
+      | 'average_price_per_liter'
+      | 'fillup_count'
     >
   >();
 
@@ -119,18 +119,18 @@ export async function getUserCarWithStats(
   options?: { userId?: string }
 ): Promise<CarDetailsDTO | null> {
   let carQuery = supabase
-    .from("cars")
-    .select("id, name, initial_odometer, mileage_input_preference, created_at, user_id")
-    .eq("id", carId);
+    .from('cars')
+    .select('id, name, initial_odometer, mileage_input_preference, created_at, user_id')
+    .eq('id', carId);
 
   if (options?.userId) {
-    carQuery = carQuery.eq("user_id", options.userId);
+    carQuery = carQuery.eq('user_id', options.userId);
   }
 
   const { data: car, error: carError } = await carQuery.limit(1).maybeSingle();
   if (carError) {
     // Return null on not found; throw on other errors
-    if (carError.code === "PGRST116" /* No rows returned */ || carError.details?.includes("Results contain 0 rows")) {
+    if (carError.code === 'PGRST116' /* No rows returned */ || carError.details?.includes('Results contain 0 rows')) {
       return null;
     }
     return null;
@@ -141,11 +141,11 @@ export async function getUserCarWithStats(
   }
 
   const { data: statsRow, error: statsError } = await supabase
-    .from("car_statistics")
+    .from('car_statistics')
     .select(
-      "car_id,total_fuel_cost,total_fuel_amount,total_distance,average_consumption,average_price_per_liter,fillup_count"
+      'car_id,total_fuel_cost,total_fuel_amount,total_distance,average_consumption,average_price_per_liter,fillup_count'
     )
-    .eq("car_id", car.id)
+    .eq('car_id', car.id)
     .limit(1)
     .maybeSingle();
 
@@ -184,7 +184,7 @@ export async function getUserCarWithStats(
 export class ConflictError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = "ConflictError";
+    this.name = 'ConflictError';
   }
 }
 
@@ -203,9 +203,9 @@ export async function createCar(
 ): Promise<CarDetailsDTO> {
   // Insert new car with user_id to ensure RLS compliance
   const { data, error } = await supabase
-    .from("cars")
+    .from('cars')
     .insert({ user_id: userId, ...input })
-    .select("id, name, initial_odometer, mileage_input_preference, created_at")
+    .select('id, name, initial_odometer, mileage_input_preference, created_at')
     .single();
 
   if (error) {
@@ -215,14 +215,14 @@ export async function createCar(
       message: string;
     }
     const supaErr = error as SupabaseErrorLike;
-    if (supaErr.code === "23505" || /duplicate key/i.test(supaErr.message)) {
-      throw new ConflictError("Car name already exists");
+    if (supaErr.code === '23505' || /duplicate key/i.test(supaErr.message)) {
+      throw new ConflictError('Car name already exists');
     }
     throw error;
   }
 
   if (!data) {
-    throw new Error("Failed to insert car");
+    throw new Error('Failed to insert car');
   }
 
   // Return car details with zeroed statistics (no fillups yet)
@@ -264,10 +264,10 @@ export async function updateCar(
 ): Promise<CarDetailsDTO> {
   // First, verify the car exists and belongs to the user
   const { data: existingCar, error: fetchError } = await supabase
-    .from("cars")
-    .select("id, name, user_id")
-    .eq("id", carId)
-    .eq("user_id", userId)
+    .from('cars')
+    .select('id, name, user_id')
+    .eq('id', carId)
+    .eq('user_id', userId)
     .limit(1)
     .maybeSingle();
 
@@ -276,17 +276,17 @@ export async function updateCar(
   }
 
   if (!existingCar) {
-    throw new Error("Car not found or does not belong to user");
+    throw new Error('Car not found or does not belong to user');
   }
 
   // Check for name uniqueness if name is being updated
   if (input.name && input.name !== existingCar.name) {
     const { data: duplicateCar, error: duplicateError } = await supabase
-      .from("cars")
-      .select("id")
-      .eq("user_id", userId)
-      .eq("name", input.name)
-      .neq("id", carId)
+      .from('cars')
+      .select('id')
+      .eq('user_id', userId)
+      .eq('name', input.name)
+      .neq('id', carId)
       .limit(1)
       .maybeSingle();
 
@@ -295,17 +295,17 @@ export async function updateCar(
     }
 
     if (duplicateCar) {
-      throw new ConflictError("Car name already exists");
+      throw new ConflictError('Car name already exists');
     }
   }
 
   // Update the car
   const { data, error } = await supabase
-    .from("cars")
+    .from('cars')
     .update(input)
-    .eq("id", carId)
-    .eq("user_id", userId)
-    .select("id, name, initial_odometer, mileage_input_preference, created_at")
+    .eq('id', carId)
+    .eq('user_id', userId)
+    .select('id, name, initial_odometer, mileage_input_preference, created_at')
     .single();
 
   if (error) {
@@ -315,23 +315,23 @@ export async function updateCar(
       message: string;
     }
     const supaErr = error as SupabaseErrorLike;
-    if (supaErr.code === "23505" || /duplicate key/i.test(supaErr.message)) {
-      throw new ConflictError("Car name already exists");
+    if (supaErr.code === '23505' || /duplicate key/i.test(supaErr.message)) {
+      throw new ConflictError('Car name already exists');
     }
     throw new Error(`Failed to update car: ${error.message}`);
   }
 
   if (!data) {
-    throw new Error("Failed to update car");
+    throw new Error('Failed to update car');
   }
 
   // Fetch current statistics for the updated car
   const { data: statsRow, error: statsError } = await supabase
-    .from("car_statistics")
+    .from('car_statistics')
     .select(
-      "car_id,total_fuel_cost,total_fuel_amount,total_distance,average_consumption,average_price_per_liter,fillup_count"
+      'car_id,total_fuel_cost,total_fuel_amount,total_distance,average_consumption,average_price_per_liter,fillup_count'
     )
-    .eq("car_id", data.id)
+    .eq('car_id', data.id)
     .limit(1)
     .maybeSingle();
 
@@ -379,10 +379,10 @@ export async function deleteCar(
 ): Promise<DeleteResponseDTO> {
   // First, verify the car exists and belongs to the user
   const { data: existingCar, error: fetchError } = await supabase
-    .from("cars")
-    .select("id, name, user_id")
-    .eq("id", carId)
-    .eq("user_id", userId)
+    .from('cars')
+    .select('id, name, user_id')
+    .eq('id', carId)
+    .eq('user_id', userId)
     .limit(1)
     .maybeSingle();
 
@@ -391,23 +391,23 @@ export async function deleteCar(
   }
 
   if (!existingCar) {
-    throw new Error("Car not found");
+    throw new Error('Car not found');
   }
 
   // Verify confirmation name matches the actual car name
   if (input.confirmation_name !== existingCar.name) {
-    throw new Error("Confirmation name does not match car name");
+    throw new Error('Confirmation name does not match car name');
   }
 
   // Delete the car (cascade delete will handle fillups automatically)
-  const { error: deleteError } = await supabase.from("cars").delete().eq("id", carId).eq("user_id", userId);
+  const { error: deleteError } = await supabase.from('cars').delete().eq('id', carId).eq('user_id', userId);
 
   if (deleteError) {
     throw new Error(`Failed to delete car: ${deleteError.message}`);
   }
 
   return {
-    message: "Car and all associated fillups deleted successfully",
+    message: 'Car and all associated fillups deleted successfully',
   };
 }
 
@@ -437,7 +437,7 @@ export async function getCarStatistics(
   // Optimized: Single query to get car verification, statistics, and latest fillup
   // This reduces database round-trips from 3 to 1
   let query = supabase
-    .from("cars")
+    .from('cars')
     .select(
       `id,
       user_id,
@@ -455,12 +455,12 @@ export async function getCarStatistics(
         odometer
       )`
     )
-    .eq("id", carId)
-    .order("date", { referencedTable: "fillups", ascending: false })
-    .limit(1, { referencedTable: "fillups" });
+    .eq('id', carId)
+    .order('date', { referencedTable: 'fillups', ascending: false })
+    .limit(1, { referencedTable: 'fillups' });
 
   if (options?.userId) {
-    query = query.eq("user_id", options.userId);
+    query = query.eq('user_id', options.userId);
   }
 
   const { data, error } = await query.limit(1).maybeSingle();

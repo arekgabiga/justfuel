@@ -295,7 +295,7 @@ interface ErrorStateProps {
 **ChartType:**
 
 ```typescript
-export type ChartType = "consumption" | "price_per_liter" | "distance";
+export type ChartType = 'consumption' | 'price_per_liter' | 'distance';
 ```
 
 **Opis:** Enum określający typ wykresu - spalanie, cena za litr lub dystans.

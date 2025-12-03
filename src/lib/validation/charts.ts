@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 // ----------------------------------------------------------------------------
 // Chart query params validation
@@ -10,9 +10,9 @@ import { z } from "zod";
  */
 export const chartQuerySchema = z
   .object({
-    type: z.enum(["consumption", "price_per_liter", "distance"]),
-    start_date: z.string().datetime({ message: "Start date must be a valid ISO 8601 timestamp" }).optional(),
-    end_date: z.string().datetime({ message: "End date must be a valid ISO 8601 timestamp" }).optional(),
+    type: z.enum(['consumption', 'price_per_liter', 'distance']),
+    start_date: z.string().datetime({ message: 'Start date must be a valid ISO 8601 timestamp' }).optional(),
+    end_date: z.string().datetime({ message: 'End date must be a valid ISO 8601 timestamp' }).optional(),
     limit: z
       .string()
       .optional()
@@ -31,8 +31,8 @@ export const chartQuerySchema = z
       return true;
     },
     {
-      message: "Start date must be before or equal to end date",
-      path: ["start_date"],
+      message: 'Start date must be before or equal to end date',
+      path: ['start_date'],
     }
   );
 

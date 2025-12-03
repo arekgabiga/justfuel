@@ -1,5 +1,5 @@
-import React from "react";
-import type { ChartType, ChartMetadataDTO } from "../../types";
+import React from 'react';
+import type { ChartType, ChartMetadataDTO } from '../../types';
 
 interface ChartHeaderProps {
   chartType: ChartType;
@@ -15,24 +15,24 @@ export const ChartHeader: React.FC<ChartHeaderProps> = ({ chartType, average, me
   // Get chart title and unit based on type
   const getChartTitle = (type: ChartType): string => {
     switch (type) {
-      case "consumption":
-        return "Spalanie (L/100km)";
-      case "price_per_liter":
-        return "Cena za litr (zł)";
-      case "distance":
-        return "Dystans (km)";
+      case 'consumption':
+        return 'Spalanie (L/100km)';
+      case 'price_per_liter':
+        return 'Cena za litr (zł)';
+      case 'distance':
+        return 'Dystans (km)';
       default:
-        return "Wykres";
+        return 'Wykres';
     }
   };
 
   // Get decimal places for formatting based on chart type
   const getDecimalPlaces = (type: ChartType): number => {
     switch (type) {
-      case "consumption":
-      case "price_per_liter":
+      case 'consumption':
+      case 'price_per_liter':
         return 2;
-      case "distance":
+      case 'distance':
         return 0;
       default:
         return 2;
@@ -44,16 +44,12 @@ export const ChartHeader: React.FC<ChartHeaderProps> = ({ chartType, average, me
 
   return (
     <div className="mb-6">
-      <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-        {getChartTitle(chartType)}
-      </h3>
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">{getChartTitle(chartType)}</h3>
 
       <div id={statsId} className="grid grid-cols-2 sm:grid-cols-4 gap-4" role="region" aria-label="Statystyki wykresu">
         <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3">
           <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">Średnia</div>
-          <div className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-            {average.toFixed(decimalPlaces)}
-          </div>
+          <div className="text-lg font-semibold text-gray-900 dark:text-gray-100">{average.toFixed(decimalPlaces)}</div>
         </div>
 
         <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3">
@@ -72,12 +68,9 @@ export const ChartHeader: React.FC<ChartHeaderProps> = ({ chartType, average, me
 
         <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3">
           <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">Liczba punktów</div>
-          <div className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-            {metadata.count}
-          </div>
+          <div className="text-lg font-semibold text-gray-900 dark:text-gray-100">{metadata.count}</div>
         </div>
       </div>
     </div>
   );
 };
-

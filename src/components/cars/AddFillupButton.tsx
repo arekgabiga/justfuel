@@ -1,6 +1,6 @@
-import React from "react";
-import { Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import React from 'react';
+import { Plus } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface AddFillupButtonProps {
   onClick: () => void;
@@ -14,4 +14,3 @@ export const AddFillupButton: React.FC<AddFillupButtonProps> = ({ onClick }) => 
     </Button>
   );
 };
-

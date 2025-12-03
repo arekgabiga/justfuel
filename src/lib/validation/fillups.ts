@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 // ----------------------------------------------------------------------------
 // Query params validation
@@ -16,8 +16,8 @@ export const listFillupsQuerySchema = z
       .transform((val) => (val ? parseInt(val, 10) : 20))
       .pipe(z.number().int().min(1).max(100)),
     cursor: z.string().optional(),
-    sort: z.enum(["date", "odometer"]).optional().default("date"),
-    order: z.enum(["asc", "desc"]).optional().default("desc"),
+    sort: z.enum(['date', 'odometer']).optional().default('date'),
+    order: z.enum(['asc', 'desc']).optional().default('desc'),
   })
   .strict();
 
@@ -51,16 +51,16 @@ export type FillupIdParamInput = z.infer<typeof fillupIdParamSchema>;
  */
 export const createFillupRequestSchema = z
   .object({
-    date: z.string().datetime({ message: "Date must be a valid ISO 8601 timestamp" }),
-    fuel_amount: z.number().positive({ message: "Fuel amount must be positive" }),
-    total_price: z.number().positive({ message: "Total price must be positive" }),
-    odometer: z.number().int().min(0, { message: "Odometer must be a non-negative integer" }).optional(),
-    distance: z.number().positive({ message: "Distance must be positive" }).optional(),
+    date: z.string().datetime({ message: 'Date must be a valid ISO 8601 timestamp' }),
+    fuel_amount: z.number().positive({ message: 'Fuel amount must be positive' }),
+    total_price: z.number().positive({ message: 'Total price must be positive' }),
+    odometer: z.number().int().min(0, { message: 'Odometer must be a non-negative integer' }).optional(),
+    distance: z.number().positive({ message: 'Distance must be positive' }).optional(),
   })
   .strict()
   .refine((data) => (data.odometer !== undefined) !== (data.distance !== undefined), {
-    message: "Either odometer or distance must be provided, but not both",
-    path: ["odometer", "distance"],
+    message: 'Either odometer or distance must be provided, but not both',
+    path: ['odometer', 'distance'],
   });
 
 export type CreateFillupRequestInput = z.infer<typeof createFillupRequestSchema>;
@@ -74,11 +74,11 @@ export type CreateFillupRequestInput = z.infer<typeof createFillupRequestSchema>
  */
 export const updateFillupRequestSchema = z
   .object({
-    date: z.string().datetime({ message: "Date must be a valid ISO 8601 timestamp" }).optional(),
-    fuel_amount: z.number().positive({ message: "Fuel amount must be positive" }).optional(),
-    total_price: z.number().positive({ message: "Total price must be positive" }).optional(),
-    odometer: z.number().int().min(0, { message: "Odometer must be a non-negative integer" }).optional(),
-    distance: z.number().positive({ message: "Distance must be positive" }).optional(),
+    date: z.string().datetime({ message: 'Date must be a valid ISO 8601 timestamp' }).optional(),
+    fuel_amount: z.number().positive({ message: 'Fuel amount must be positive' }).optional(),
+    total_price: z.number().positive({ message: 'Total price must be positive' }).optional(),
+    odometer: z.number().int().min(0, { message: 'Odometer must be a non-negative integer' }).optional(),
+    distance: z.number().positive({ message: 'Distance must be positive' }).optional(),
   })
   .strict()
   .refine(
@@ -90,8 +90,8 @@ export const updateFillupRequestSchema = z
       return true;
     },
     {
-      message: "Odometer and distance cannot be provided at the same time",
-      path: ["odometer", "distance"],
+      message: 'Odometer and distance cannot be provided at the same time',
+      path: ['odometer', 'distance'],
     }
   );
 

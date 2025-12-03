@@ -1,10 +1,10 @@
-import React from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { AuthError } from "./AuthError";
-import { AuthSuccess } from "./AuthSuccess";
-import { useRegisterForm } from "@/lib/hooks/useRegisterForm";
+import React from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { AuthError } from './AuthError';
+import { AuthSuccess } from './AuthSuccess';
+import { useRegisterForm } from '@/lib/hooks/useRegisterForm';
 
 const RegisterForm: React.FC = () => {
   const {
@@ -69,14 +69,14 @@ const RegisterForm: React.FC = () => {
             name="email"
             value={formState.email}
             onChange={(e) => handleEmailChange(e.target.value)}
-            onBlur={() => handleFieldBlur("email")}
+            onBlur={() => handleFieldBlur('email')}
             placeholder="twoj@email.pl"
             autoComplete="email"
-            aria-invalid={touchedFields.has("email") && !!formErrors.email}
-            aria-describedby={touchedFields.has("email") && formErrors.email ? "email-error" : undefined}
+            aria-invalid={touchedFields.has('email') && !!formErrors.email}
+            aria-describedby={touchedFields.has('email') && formErrors.email ? 'email-error' : undefined}
             required
           />
-          {touchedFields.has("email") && formErrors.email && (
+          {touchedFields.has('email') && formErrors.email && (
             <p id="email-error" className="text-sm text-destructive" role="alert">
               {formErrors.email}
             </p>
@@ -91,14 +91,14 @@ const RegisterForm: React.FC = () => {
             name="password"
             value={formState.password}
             onChange={(e) => handlePasswordChange(e.target.value)}
-            onBlur={() => handleFieldBlur("password")}
+            onBlur={() => handleFieldBlur('password')}
             placeholder="Minimum 6 znaków"
             autoComplete="new-password"
-            aria-invalid={touchedFields.has("password") && !!formErrors.password}
-            aria-describedby={touchedFields.has("password") && formErrors.password ? "password-error" : undefined}
+            aria-invalid={touchedFields.has('password') && !!formErrors.password}
+            aria-describedby={touchedFields.has('password') && formErrors.password ? 'password-error' : undefined}
             required
           />
-          {touchedFields.has("password") && formErrors.password && (
+          {touchedFields.has('password') && formErrors.password && (
             <p id="password-error" className="text-sm text-destructive" role="alert">
               {formErrors.password}
             </p>
@@ -113,16 +113,16 @@ const RegisterForm: React.FC = () => {
             name="confirmPassword"
             value={formState.confirmPassword}
             onChange={(e) => handleConfirmPasswordChange(e.target.value)}
-            onBlur={() => handleFieldBlur("confirmPassword")}
+            onBlur={() => handleFieldBlur('confirmPassword')}
             placeholder="Powtórz hasło"
             autoComplete="new-password"
-            aria-invalid={touchedFields.has("confirmPassword") && !!formErrors.confirmPassword}
+            aria-invalid={touchedFields.has('confirmPassword') && !!formErrors.confirmPassword}
             aria-describedby={
-              touchedFields.has("confirmPassword") && formErrors.confirmPassword ? "confirm-password-error" : undefined
+              touchedFields.has('confirmPassword') && formErrors.confirmPassword ? 'confirm-password-error' : undefined
             }
             required
           />
-          {touchedFields.has("confirmPassword") && formErrors.confirmPassword && (
+          {touchedFields.has('confirmPassword') && formErrors.confirmPassword && (
             <p id="confirm-password-error" className="text-sm text-destructive" role="alert">
               {formErrors.confirmPassword}
             </p>
@@ -131,11 +131,11 @@ const RegisterForm: React.FC = () => {
 
         <div className="flex flex-col gap-4">
           <Button type="submit" disabled={isSubmitting} className="w-full">
-            {isSubmitting ? "Rejestrowanie..." : "Zarejestruj się"}
+            {isSubmitting ? 'Rejestrowanie...' : 'Zarejestruj się'}
           </Button>
 
           <p className="text-center text-sm text-muted-foreground">
-            Masz już konto?{" "}
+            Masz już konto?{' '}
             <a href="/auth/login" className="text-primary hover:underline font-medium">
               Zaloguj się
             </a>

@@ -1,13 +1,13 @@
 export const prerender = false;
 
-import type { APIRoute } from "astro";
-import type { ListResponseDTO, ErrorResponseDTO, CarDetailsDTO } from "../../types.ts";
-import { listUserCarsWithStats, createCar, ConflictError } from "../../lib/services/cars.service.ts";
-import { listCarsQuerySchema, createCarCommandSchema } from "../../lib/validation/cars.ts";
-import { requireAuth } from "../../lib/utils/auth.ts";
+import type { APIRoute } from 'astro';
+import type { ListResponseDTO, ErrorResponseDTO, CarDetailsDTO } from '../../types.ts';
+import { listUserCarsWithStats, createCar, ConflictError } from '../../lib/services/cars.service.ts';
+import { listCarsQuerySchema, createCarCommandSchema } from '../../lib/validation/cars.ts';
+import { requireAuth } from '../../lib/utils/auth.ts';
 
 export const GET: APIRoute = async (context) => {
-  const requestId = context.request.headers.get("x-request-id") ?? undefined;
+  const requestId = context.request.headers.get('x-request-id') ?? undefined;
 
   try {
     // Require authentication
@@ -17,7 +17,7 @@ export const GET: APIRoute = async (context) => {
     const supabase = context.locals.supabase;
     if (!supabase) {
       const body: ErrorResponseDTO = {
-        error: { code: "INTERNAL_ERROR", message: "Supabase client not available" },
+        error: { code: 'INTERNAL_ERROR', message: 'Supabase client not available' },
       };
       return new Response(JSON.stringify(body), { status: 500 });
     }
@@ -28,7 +28,7 @@ export const GET: APIRoute = async (context) => {
     const parsed = listCarsQuerySchema.safeParse(rawParams);
     if (!parsed.success) {
       const body: ErrorResponseDTO = {
-        error: { code: "BAD_REQUEST", message: "Invalid query parameters", details: { issues: parsed.error.message } },
+        error: { code: 'BAD_REQUEST', message: 'Invalid query parameters', details: { issues: parsed.error.message } },
       };
       return new Response(JSON.stringify(body), { status: 400 });
     }
@@ -43,9 +43,9 @@ export const GET: APIRoute = async (context) => {
     if (error instanceof Response) {
       return error;
     }
-    console.error(`[GET /api/cars] requestId=${requestId ?? "-"}`, error);
+    console.error(`[GET /api/cars] requestId=${requestId ?? '-'}`, error);
     const body: ErrorResponseDTO = {
-      error: { code: "INTERNAL_ERROR", message: "Unexpected server error" },
+      error: { code: 'INTERNAL_ERROR', message: 'Unexpected server error' },
     };
     return new Response(JSON.stringify(body), { status: 500 });
   }
@@ -64,7 +64,7 @@ export const GET: APIRoute = async (context) => {
  * - 500 Internal Server Error: Unexpected server error
  */
 export const POST: APIRoute = async (context) => {
-  const requestId = context.request.headers.get("x-request-id") ?? undefined;
+  const requestId = context.request.headers.get('x-request-id') ?? undefined;
 
   try {
     // Require authentication
@@ -75,7 +75,7 @@ export const POST: APIRoute = async (context) => {
     const supabase = context.locals.supabase;
     if (!supabase) {
       const body: ErrorResponseDTO = {
-        error: { code: "INTERNAL_ERROR", message: "Supabase client not available" },
+        error: { code: 'INTERNAL_ERROR', message: 'Supabase client not available' },
       };
       return new Response(JSON.stringify(body), { status: 500 });
     }
@@ -85,7 +85,7 @@ export const POST: APIRoute = async (context) => {
     const parsed = createCarCommandSchema.safeParse(rawBody);
     if (!parsed.success) {
       const body: ErrorResponseDTO = {
-        error: { code: "BAD_REQUEST", message: "Invalid body", details: { issues: parsed.error.message } },
+        error: { code: 'BAD_REQUEST', message: 'Invalid body', details: { issues: parsed.error.message } },
       };
       return new Response(JSON.stringify(body), { status: 400 });
     }
@@ -101,14 +101,14 @@ export const POST: APIRoute = async (context) => {
     // Handle specific error types
     if (err instanceof ConflictError) {
       const body: ErrorResponseDTO = {
-        error: { code: "CONFLICT", message: "Car name already exists for this user" },
+        error: { code: 'CONFLICT', message: 'Car name already exists for this user' },
       };
       return new Response(JSON.stringify(body), { status: 409 });
     }
     // Log unexpected errors and return 500
-    console.error(`[POST /api/cars] requestId=${requestId ?? "-"}`, err);
+    console.error(`[POST /api/cars] requestId=${requestId ?? '-'}`, err);
     const body: ErrorResponseDTO = {
-      error: { code: "INTERNAL_ERROR", message: "Unexpected server error" },
+      error: { code: 'INTERNAL_ERROR', message: 'Unexpected server error' },
     };
     return new Response(JSON.stringify(body), { status: 500 });
   }

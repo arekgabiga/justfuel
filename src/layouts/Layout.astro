@@ -1,13 +1,13 @@
 ---
-import "../styles/global.css";
-import LogoutButton from "../components/auth/LogoutButton.tsx";
+import '../styles/global.css';
+import LogoutButton from '../components/auth/LogoutButton.tsx';
 
 interface Props {
   title?: string;
   description?: string;
 }
 
-const { title = "JustFuel", description = "Zarządzaj swoimi samochodami i śledź zużycie paliwa" } = Astro.props;
+const { title = 'JustFuel', description = 'Zarządzaj swoimi samochodami i śledź zużycie paliwa' } = Astro.props;
 
 // Check authentication state
 const isAuthenticated = Astro.locals.isAuthenticated ?? false;
@@ -25,27 +25,29 @@ const user = Astro.locals.user;
     <title>{title}</title>
   </head>
   <body class="min-h-screen bg-background">
-    {isAuthenticated ? (
-      <header class="w-full border-b border-border bg-background">
-        <div class="container mx-auto flex items-center justify-between px-4 py-4">
-          <a
-            href="/"
-            class="text-xl font-bold text-primary hover:text-primary/90 transition-colors"
-            aria-label="JustFuel - Strona główna"
-          >
-            JustFuel
-          </a>
-          <nav class="flex items-center gap-4">
-            {user?.email ? (
-              <span class="text-sm text-muted-foreground" aria-label={`Zalogowany jako ${user.email}`}>
-                {user.email}
-              </span>
-            ) : null}
-            <LogoutButton client:load />
-          </nav>
-        </div>
-      </header>
-    ) : null}
+    {
+      isAuthenticated ? (
+        <header class="w-full border-b border-border bg-background">
+          <div class="container mx-auto flex items-center justify-between px-4 py-4">
+            <a
+              href="/"
+              class="text-xl font-bold text-primary hover:text-primary/90 transition-colors"
+              aria-label="JustFuel - Strona główna"
+            >
+              JustFuel
+            </a>
+            <nav class="flex items-center gap-4">
+              {user?.email ? (
+                <span class="text-sm text-muted-foreground" aria-label={`Zalogowany jako ${user.email}`}>
+                  {user.email}
+                </span>
+              ) : null}
+              <LogoutButton client:load />
+            </nav>
+          </div>
+        </header>
+      ) : null
+    }
     <slot />
   </body>
 </html>

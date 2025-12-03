@@ -1,8 +1,8 @@
-import React from "react";
-import type { CarDetailsDTO } from "../../types";
-import { CarNameDisplay } from "./CarNameDisplay";
-import { Button } from "@/components/ui/button";
-import { Edit2, Trash2, ArrowLeft } from "lucide-react";
+import React from 'react';
+import type { CarDetailsDTO } from '../../types';
+import { CarNameDisplay } from './CarNameDisplay';
+import { Button } from '@/components/ui/button';
+import { Edit2, Trash2, ArrowLeft } from 'lucide-react';
 
 interface CarHeaderProps {
   car?: CarDetailsDTO;
@@ -15,14 +15,14 @@ interface CarHeaderProps {
 
 export const CarHeader: React.FC<CarHeaderProps> = ({ car, carName, onBack, showActions = true, onEdit, onDelete }) => {
   const handleEditClick = () => {
-    if (car && typeof window !== "undefined") {
+    if (car && typeof window !== 'undefined') {
       window.location.href = `/cars/${car.id}/edit`;
     } else if (onEdit) {
       onEdit();
     }
   };
 
-  const displayName = car?.name || carName || "";
+  const displayName = car?.name || carName || '';
 
   return (
     <div className="space-y-6" data-test-id="car-header">
@@ -42,7 +42,13 @@ export const CarHeader: React.FC<CarHeaderProps> = ({ car, carName, onBack, show
         {showActions && (
           <div className="flex items-center gap-2">
             {onEdit && (
-              <Button onClick={handleEditClick} variant="outline" size="sm" className="flex items-center gap-2" data-test-id="car-edit-button">
+              <Button
+                onClick={handleEditClick}
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-2"
+                data-test-id="car-edit-button"
+              >
                 <Edit2 className="h-4 w-4" />
                 Edytuj
               </Button>

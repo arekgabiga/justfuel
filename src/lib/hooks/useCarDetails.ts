@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from 'react';
 import type {
   CarDetailsDTO,
   FillupDTO,
@@ -9,13 +9,13 @@ import type {
   UpdateCarCommand,
   DeleteCarCommand,
   ErrorResponseDTO,
-} from "../../types";
+} from '../../types';
 
 interface CarDetailsState {
   car: CarDetailsDTO | null;
   loading: boolean;
   error: Error | null;
-  activeMainTab: "fillups" | "charts";
+  activeMainTab: 'fillups' | 'charts';
   activeChartTab: ChartType;
   editDialogOpen: boolean;
   deleteDialogOpen: boolean;
@@ -33,8 +33,8 @@ export const useCarDetails = (carId: string) => {
     car: null,
     loading: true,
     error: null,
-    activeMainTab: "fillups",
-    activeChartTab: "consumption",
+    activeMainTab: 'fillups',
+    activeChartTab: 'consumption',
     editDialogOpen: false,
     deleteDialogOpen: false,
     fillups: [],
@@ -53,7 +53,7 @@ export const useCarDetails = (carId: string) => {
   // Fetch car details
   const fetchCarDetails = useCallback(async () => {
     if (!carId) {
-      setState((prev) => ({ ...prev, loading: false, error: new Error("Brak ID samochodu") }));
+      setState((prev) => ({ ...prev, loading: false, error: new Error('Brak ID samochodu') }));
       return;
     }
 
@@ -65,9 +65,9 @@ export const useCarDetails = (carId: string) => {
     try {
       const response = await fetch(`/api/cars/${carId}`, {
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-        credentials: "include",
+        credentials: 'include',
       });
 
       if (!response.ok) {
@@ -75,7 +75,7 @@ export const useCarDetails = (carId: string) => {
           setState((prev) => ({
             ...prev,
             loading: false,
-            error: new Error("Wymagana autoryzacja. Zaloguj się ponownie."),
+            error: new Error('Wymagana autoryzacja. Zaloguj się ponownie.'),
           }));
           return;
         }
@@ -84,7 +84,7 @@ export const useCarDetails = (carId: string) => {
           setState((prev) => ({
             ...prev,
             loading: false,
-            error: new Error("Samochód nie został znaleziony"),
+            error: new Error('Samochód nie został znaleziony'),
           }));
           return;
         }
@@ -102,12 +102,12 @@ export const useCarDetails = (carId: string) => {
         error: null,
       }));
     } catch (error) {
-      let errorMessage = "Nieznany błąd";
+      let errorMessage = 'Nieznany błąd';
       if (error instanceof Error) {
-        if (error.message.includes("Failed to fetch") || error.message.includes("NetworkError")) {
-          errorMessage = "Nie udało się pobrać danych. Sprawdź połączenie internetowe.";
-        } else if (error.message.includes("timeout")) {
-          errorMessage = "Przekroczono limit czasu połączenia. Spróbuj ponownie.";
+        if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+          errorMessage = 'Nie udało się pobrać danych. Sprawdź połączenie internetowe.';
+        } else if (error.message.includes('timeout')) {
+          errorMessage = 'Przekroczono limit czasu połączenia. Spróbuj ponownie.';
         } else {
           errorMessage = error.message;
         }
@@ -133,20 +133,20 @@ export const useCarDetails = (carId: string) => {
 
       try {
         const params = new URLSearchParams({
-          limit: "20",
-          sort: "date",
-          order: "desc",
+          limit: '20',
+          sort: 'date',
+          order: 'desc',
         });
 
         if (cursor) {
-          params.append("cursor", cursor);
+          params.append('cursor', cursor);
         }
 
         const response = await fetch(`/api/cars/${carId}/fillups?${params}`, {
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
-          credentials: "include",
+          credentials: 'include',
         });
 
         if (!response.ok) {
@@ -159,7 +159,7 @@ export const useCarDetails = (carId: string) => {
             setState((prev) => ({
               ...prev,
               fillupsLoading: false,
-              fillupsError: new Error("Samochód nie został znaleziony"),
+              fillupsError: new Error('Samochód nie został znaleziony'),
             }));
             return;
           }
@@ -178,10 +178,10 @@ export const useCarDetails = (carId: string) => {
           fillupsError: null,
         }));
       } catch (error) {
-        let errorMessage = "Nieznany błąd";
+        let errorMessage = 'Nieznany błąd';
         if (error instanceof Error) {
-          if (error.message.includes("Failed to fetch") || error.message.includes("NetworkError")) {
-            errorMessage = "Nie udało się pobrać tankowań. Sprawdź połączenie internetowe.";
+          if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+            errorMessage = 'Nie udało się pobrać tankowań. Sprawdź połączenie internetowe.';
           } else {
             errorMessage = error.message;
           }
@@ -208,14 +208,14 @@ export const useCarDetails = (carId: string) => {
       try {
         const params = new URLSearchParams({
           type,
-          limit: "50",
+          limit: '50',
         });
 
         const response = await fetch(`/api/cars/${carId}/charts?${params}`, {
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
-          credentials: "include",
+          credentials: 'include',
           signal: controller.signal,
         });
 
@@ -226,7 +226,7 @@ export const useCarDetails = (carId: string) => {
             setState((prev) => ({
               ...prev,
               chartLoading: false,
-              chartError: new Error("Wymagana autoryzacja. Zaloguj się ponownie."),
+              chartError: new Error('Wymagana autoryzacja. Zaloguj się ponownie.'),
             }));
             return;
           }
@@ -235,7 +235,7 @@ export const useCarDetails = (carId: string) => {
             setState((prev) => ({
               ...prev,
               chartLoading: false,
-              chartError: new Error("Samochód nie został znaleziony."),
+              chartError: new Error('Samochód nie został znaleziony.'),
             }));
             return;
           }
@@ -245,7 +245,7 @@ export const useCarDetails = (carId: string) => {
             setState((prev) => ({
               ...prev,
               chartLoading: false,
-              chartError: new Error(errorData.error.message || "Wystąpił błąd serwera. Spróbuj ponownie później."),
+              chartError: new Error(errorData.error.message || 'Wystąpił błąd serwera. Spróbuj ponownie później.'),
             }));
             return;
           }
@@ -265,12 +265,12 @@ export const useCarDetails = (carId: string) => {
       } catch (error) {
         clearTimeout(timeoutId);
 
-        let errorMessage = "Nieznany błąd";
+        let errorMessage = 'Nieznany błąd';
         if (error instanceof Error) {
-          if (error.name === "AbortError" || error.message.includes("aborted")) {
-            errorMessage = "Przekroczono limit czasu połączenia. Spróbuj ponownie.";
-          } else if (error.message.includes("Failed to fetch") || error.message.includes("NetworkError")) {
-            errorMessage = "Nie udało się połączyć z serwerem. Sprawdź połączenie internetowe.";
+          if (error.name === 'AbortError' || error.message.includes('aborted')) {
+            errorMessage = 'Przekroczono limit czasu połączenia. Spróbuj ponownie.';
+          } else if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+            errorMessage = 'Nie udało się połączyć z serwerem. Sprawdź połączenie internetowe.';
           } else {
             errorMessage = error.message;
           }
@@ -299,25 +299,25 @@ export const useCarDetails = (carId: string) => {
   const updateCar = useCallback(
     async (data: UpdateCarCommand) => {
       const response = await fetch(`/api/cars/${carId}`, {
-        method: "PATCH",
+        method: 'PATCH',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-        credentials: "include",
+        credentials: 'include',
         body: JSON.stringify(data),
       });
 
       if (!response.ok) {
         if (response.status === 401) {
-          if (typeof window !== "undefined") {
-            window.location.href = "/login";
+          if (typeof window !== 'undefined') {
+            window.location.href = '/login';
           }
           return;
         }
 
         if (response.status === 409) {
           const errorData: ErrorResponseDTO = await response.json();
-          throw new Error(errorData.error.message || "Nazwa samochodu już istnieje");
+          throw new Error(errorData.error.message || 'Nazwa samochodu już istnieje');
         }
 
         const errorData: ErrorResponseDTO = await response.json();
@@ -339,18 +339,18 @@ export const useCarDetails = (carId: string) => {
   const deleteCar = useCallback(
     async (confirmation: DeleteCarCommand) => {
       const response = await fetch(`/api/cars/${carId}`, {
-        method: "DELETE",
+        method: 'DELETE',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-        credentials: "include",
+        credentials: 'include',
         body: JSON.stringify(confirmation),
       });
 
       if (!response.ok) {
         if (response.status === 401) {
-          if (typeof window !== "undefined") {
-            window.location.href = "/login";
+          if (typeof window !== 'undefined') {
+            window.location.href = '/login';
           }
           return;
         }
@@ -360,15 +360,15 @@ export const useCarDetails = (carId: string) => {
       }
 
       // Redirect to cars list
-      if (typeof window !== "undefined") {
-        window.location.href = "/cars";
+      if (typeof window !== 'undefined') {
+        window.location.href = '/cars';
       }
     },
     [carId]
   );
 
   // Tab management
-  const switchMainTab = useCallback((tab: "fillups" | "charts") => {
+  const switchMainTab = useCallback((tab: 'fillups' | 'charts') => {
     setState((prev) => ({ ...prev, activeMainTab: tab }));
   }, []);
 
@@ -391,7 +391,7 @@ export const useCarDetails = (carId: string) => {
 
   // Handle add fillup button click
   const handleAddFillup = useCallback(() => {
-    if (typeof window !== "undefined") {
+    if (typeof window !== 'undefined') {
       window.location.href = `/cars/${carId}/fillups/new`;
     }
   }, [carId]);
@@ -405,10 +405,10 @@ export const useCarDetails = (carId: string) => {
 
   // Read tab parameter from URL on mount
   useEffect(() => {
-    if (typeof window !== "undefined") {
+    if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search);
-      const tab = urlParams.get("tab");
-      if (tab === "fillups" || tab === "charts") {
+      const tab = urlParams.get('tab');
+      if (tab === 'fillups' || tab === 'charts') {
         setState((prev) => ({ ...prev, activeMainTab: tab }));
       }
     }
@@ -417,22 +417,19 @@ export const useCarDetails = (carId: string) => {
   // Initial load - only when carId changes
   useEffect(() => {
     fetchCarDetails();
-    // fetchCarDetails is stable (depends only on carId)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [carId]);
+  }, [fetchCarDetails]);
 
   // Load fillups when main tab is fillups
   useEffect(() => {
-    if (state.activeMainTab === "fillups" && state.car && state.fillups.length === 0 && !state.fillupsLoading) {
+    if (state.activeMainTab === 'fillups' && state.car && state.fillups.length === 0 && !state.fillupsLoading) {
       fetchFillups();
     }
     // Only trigger when activeMainTab or car changes, not when fillups change
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.activeMainTab, state.car]);
+  }, [state.activeMainTab, state.car, fetchFillups, state.fillups.length, state.fillupsLoading]);
 
   // Load chart data when main tab is charts and chart type changes
   useEffect(() => {
-    if (state.activeMainTab === "charts" && state.car) {
+    if (state.activeMainTab === 'charts' && state.car) {
       fetchChartData(state.activeChartTab);
     }
   }, [state.activeMainTab, state.activeChartTab, state.car, fetchChartData]);

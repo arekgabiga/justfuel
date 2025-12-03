@@ -1,13 +1,13 @@
-import { test, expect } from "@playwright/test";
-import { LoginPage } from "../page-objects/login.page";
-import { CarsListPage } from "../page-objects/cars-list.page";
-import { NewCarPage } from "../page-objects/new-car.page";
-import { EditCarPage } from "../page-objects/edit-car.page";
-import { CarDetailsPage } from "../page-objects/car-details.page";
-import { NewFillupPage } from "../page-objects/new-fillup.page";
-import { DeleteCarDialog } from "../page-objects/delete-car-dialog";
+import { test, expect } from '@playwright/test';
+import { LoginPage } from '../page-objects/login.page';
+import { CarsListPage } from '../page-objects/cars-list.page';
+import { NewCarPage } from '../page-objects/new-car.page';
+import { EditCarPage } from '../page-objects/edit-car.page';
+import { CarDetailsPage } from '../page-objects/car-details.page';
+import { NewFillupPage } from '../page-objects/new-fillup.page';
+import { DeleteCarDialog } from '../page-objects/delete-car-dialog';
 
-test.describe("Scenario 2: Zarządzanie Samochodami", () => {
+test.describe('Scenario 2: Zarządzanie Samochodami', () => {
   let loginPage: LoginPage;
   let carsListPage: CarsListPage;
   let newCarPage: NewCarPage;
@@ -32,17 +32,17 @@ test.describe("Scenario 2: Zarządzanie Samochodami", () => {
     const password = process.env.E2E_PASSWORD;
 
     if (!username || !password) {
-      throw new Error("E2E_USERNAME and E2E_PASSWORD must be set in .env.test");
+      throw new Error('E2E_USERNAME and E2E_PASSWORD must be set in .env.test');
     }
 
     await loginPage.login(username, password);
 
     // Verify we're on the cars list page after login
-    await expect(page).toHaveURL("/");
+    await expect(page).toHaveURL('/');
     await expect(carsListPage.addCarButton).toBeVisible();
   });
 
-  test("complete car management flow", async ({ page }) => {
+  test('complete car management flow', async ({ page }) => {
     const testCarName = `Test Car ${Date.now()}`;
     const updatedCarName = `Updated ${testCarName}`;
 
@@ -52,20 +52,20 @@ test.describe("Scenario 2: Zarządzanie Samochodami", () => {
 
     await newCarPage.fillCarForm({
       name: testCarName,
-      initialOdometer: "50000",
-      mileagePreference: "odometer",
+      initialOdometer: '50000',
+      mileagePreference: 'odometer',
     });
     await newCarPage.submit();
 
     // Verify redirect to cars list
-    await expect(page).toHaveURL("/cars");
+    await expect(page).toHaveURL('/cars');
     await expect(page.getByText(testCarName)).toBeVisible();
 
     // Get the created car ID from the page
     // (In a real scenario, you might need to extract this from the URL or DOM)
     const carCardLocator = page.locator(`[data-test-id^="car-card-"]`).first();
-    const carCardId = await carCardLocator.getAttribute("data-test-id");
-    createdCarId = carCardId?.replace("car-card-", "") || "";
+    const carCardId = await carCardLocator.getAttribute('data-test-id');
+    createdCarId = carCardId?.replace('car-card-', '') || '';
 
     // Step 3 & 4: Edycja nazwy samochodu i przełączenie na tryb "distance"
     await carsListPage.clickCarCard(createdCarId);
@@ -80,7 +80,7 @@ test.describe("Scenario 2: Zarządzanie Samochodami", () => {
 
     await editCarPage.updateCar({
       name: updatedCarName,
-      mileagePreference: "distance",
+      mileagePreference: 'distance',
     });
     await editCarPage.submit();
 
@@ -94,11 +94,11 @@ test.describe("Scenario 2: Zarządzanie Samochodami", () => {
     // First fillup - use distance mode since car preference is "distance"
     await newFillupPage.goto();
     await newFillupPage.fillFillupForm({
-      date: "2024-01-15",
-      fuelAmount: "45.5",
-      totalPrice: "250.00",
-      inputMode: "distance",
-      distance: "500",
+      date: '2024-01-15',
+      fuelAmount: '45.5',
+      totalPrice: '250.00',
+      inputMode: 'distance',
+      distance: '500',
     });
     await newFillupPage.submit();
 
@@ -108,11 +108,11 @@ test.describe("Scenario 2: Zarządzanie Samochodami", () => {
     // Second fillup
     await newFillupPage.goto();
     await newFillupPage.fillFillupForm({
-      date: "2024-02-01",
-      fuelAmount: "40.0",
-      totalPrice: "220.00",
-      inputMode: "distance",
-      distance: "450",
+      date: '2024-02-01',
+      fuelAmount: '40.0',
+      totalPrice: '220.00',
+      inputMode: 'distance',
+      distance: '450',
     });
     await newFillupPage.submit();
 
@@ -122,7 +122,7 @@ test.describe("Scenario 2: Zarządzanie Samochodami", () => {
 
     // Step 8: Weryfikacja statystyk na liście samochodów
     await carDetailsPage.goBack();
-    await expect(page).toHaveURL("/");
+    await expect(page).toHaveURL('/');
 
     // Verify statistics on the car card
     const statsText = await carsListPage.getCarStatistics(createdCarId);
@@ -135,10 +135,10 @@ test.describe("Scenario 2: Zarządzanie Samochodami", () => {
     // Total cost: 470.00 PLN
     // Avg consumption: (85.5 / 950) * 100 = 9.0 L/100km
 
-    expect(statsText).toContain("8.99 L/100km");
-    expect(statsText).toContain("470.00 zł");
-    expect(statsText).toContain("950 km");
-    expect(statsText).toContain("2 tankowań"); // fillup count
+    expect(statsText).toContain('8.99 L/100km');
+    expect(statsText).toContain('470.00 zł');
+    expect(statsText).toContain('950 km');
+    expect(statsText).toContain('2 tankowań'); // fillup count
 
     // Step 9: Usunięcie samochodu (z potwierdzeniem)
     // Musimy wrócić do szczegółów, aby usunąć
@@ -153,34 +153,34 @@ test.describe("Scenario 2: Zarządzanie Samochodami", () => {
     await deleteCarDialog.confirmDeletion(updatedCarName);
 
     // Verify redirect to cars list after deletion
-    await expect(page).toHaveURL("/cars");
+    await expect(page).toHaveURL('/cars');
 
     // Verify car is no longer in the list
     await expect(page.getByText(updatedCarName)).not.toBeVisible();
   });
 
-  test("cancel car creation", async ({ page }) => {
+  test('cancel car creation', async ({ page }) => {
     await carsListPage.clickAddCar();
     await expect(newCarPage.form).toBeVisible();
 
     await newCarPage.fillCarForm({
-      name: "This car will not be created",
-      mileagePreference: "odometer",
+      name: 'This car will not be created',
+      mileagePreference: 'odometer',
     });
     await newCarPage.cancel();
 
     // Verify we're back on cars list
-    await expect(page).toHaveURL("/cars");
+    await expect(page).toHaveURL('/cars');
   });
 
-  test("cancel car deletion", async ({ page }) => {
+  test('cancel car deletion', async ({ page }) => {
     const testCarName = `Test Car ${Date.now()}`;
 
     // First create a car
     await carsListPage.clickAddCar();
     await newCarPage.fillCarForm({
       name: testCarName,
-      mileagePreference: "odometer",
+      mileagePreference: 'odometer',
     });
     await newCarPage.submit();
 
@@ -189,8 +189,8 @@ test.describe("Scenario 2: Zarządzanie Samochodami", () => {
 
     // Navigate to car details
     const carCardLocator = page.locator(`[data-test-id^="car-card-"]`).first();
-    const carCardId = await carCardLocator.getAttribute("data-test-id");
-    createdCarId = carCardId?.replace("car-card-", "") || "";
+    const carCardId = await carCardLocator.getAttribute('data-test-id');
+    createdCarId = carCardId?.replace('car-card-', '') || '';
 
     carDetailsPage = new CarDetailsPage(page, createdCarId);
     await carDetailsPage.goto();

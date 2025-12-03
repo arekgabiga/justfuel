@@ -1,4 +1,4 @@
-import type { Tables, TablesInsert } from "./db/database.types";
+import type { Tables, TablesInsert } from './db/database.types';
 
 // ============================================================================
 // Base Entity Types (from Database)
@@ -7,17 +7,17 @@ import type { Tables, TablesInsert } from "./db/database.types";
 /**
  * Base Car entity from database
  */
-export type Car = Tables<"cars">;
+export type Car = Tables<'cars'>;
 
 /**
  * Base Fillup entity from database
  */
-export type Fillup = Tables<"fillups">;
+export type Fillup = Tables<'fillups'>;
 
 /**
  * Car statistics view from database
  */
-export type CarStatisticsView = Tables<"car_statistics">;
+export type CarStatisticsView = Tables<'car_statistics'>;
 
 // ============================================================================
 // Car DTOs (Data Transfer Objects)
@@ -28,7 +28,7 @@ export type CarStatisticsView = Tables<"car_statistics">;
  * Used in responses for: POST /api/cars, PATCH /api/cars/{carId}
  * Excludes internal fields like user_id and created_at
  */
-export type CarDTO = Pick<Car, "id" | "name" | "initial_odometer" | "mileage_input_preference">;
+export type CarDTO = Pick<Car, 'id' | 'name' | 'initial_odometer' | 'mileage_input_preference'>;
 
 /**
  * Car data with aggregated statistics
@@ -38,12 +38,12 @@ export type CarDTO = Pick<Car, "id" | "name" | "initial_odometer" | "mileage_inp
 export type CarWithStatisticsDTO = CarDTO & {
   statistics: Pick<
     CarStatisticsView,
-    | "total_fuel_cost"
-    | "total_fuel_amount"
-    | "total_distance"
-    | "average_consumption"
-    | "average_price_per_liter"
-    | "fillup_count"
+    | 'total_fuel_cost'
+    | 'total_fuel_amount'
+    | 'total_distance'
+    | 'average_consumption'
+    | 'average_price_per_liter'
+    | 'fillup_count'
   >;
 };
 
@@ -61,13 +61,13 @@ export type CarDetailsDTO = CarWithStatisticsDTO & { created_at: string };
  */
 export type CarStatisticsDTO = Pick<
   CarStatisticsView,
-  | "car_id"
-  | "total_fuel_cost"
-  | "total_fuel_amount"
-  | "total_distance"
-  | "average_consumption"
-  | "average_price_per_liter"
-  | "fillup_count"
+  | 'car_id'
+  | 'total_fuel_cost'
+  | 'total_fuel_amount'
+  | 'total_distance'
+  | 'average_consumption'
+  | 'average_price_per_liter'
+  | 'fillup_count'
 > & {
   latest_fillup_date: string | null;
   current_odometer: number | null;
@@ -81,14 +81,14 @@ export type CarStatisticsDTO = Pick<
  * Command to create a new car
  * Used in request body for: POST /api/cars
  */
-export type CreateCarCommand = Pick<TablesInsert<"cars">, "name" | "initial_odometer" | "mileage_input_preference">;
+export type CreateCarCommand = Pick<TablesInsert<'cars'>, 'name' | 'initial_odometer' | 'mileage_input_preference'>;
 
 /**
  * Command to update existing car
  * Used in request body for: PATCH /api/cars/{carId}
  * All fields are optional - only provided fields will be updated
  */
-export type UpdateCarCommand = Partial<Pick<Car, "name" | "mileage_input_preference">>;
+export type UpdateCarCommand = Partial<Pick<Car, 'name' | 'mileage_input_preference'>>;
 
 /**
  * Command to delete a car (requires confirmation)
@@ -109,15 +109,15 @@ export interface DeleteCarCommand {
  */
 export type FillupDTO = Pick<
   Fillup,
-  | "id"
-  | "car_id"
-  | "date"
-  | "fuel_amount"
-  | "total_price"
-  | "odometer"
-  | "distance_traveled"
-  | "fuel_consumption"
-  | "price_per_liter"
+  | 'id'
+  | 'car_id'
+  | 'date'
+  | 'fuel_amount'
+  | 'total_price'
+  | 'odometer'
+  | 'distance_traveled'
+  | 'fuel_consumption'
+  | 'price_per_liter'
 >;
 
 /**
@@ -216,7 +216,7 @@ export type UpdateFillupCommand = Partial<BaseFillupInput> & {
 /**
  * Chart type enum for chart data requests
  */
-export type ChartType = "consumption" | "price_per_liter" | "distance";
+export type ChartType = 'consumption' | 'price_per_liter' | 'distance';
 
 /**
  * Individual data point in chart time series
@@ -286,8 +286,8 @@ export interface ErrorResponseDTO {
  * Used in: GET /api/cars
  */
 export interface ListCarsQueryParams {
-  sort?: "name" | "created_at";
-  order?: "asc" | "desc";
+  sort?: 'name' | 'created_at';
+  order?: 'asc' | 'desc';
 }
 
 /**
@@ -297,8 +297,8 @@ export interface ListCarsQueryParams {
 export interface ListFillupsQueryParams {
   limit?: number; // default: 20, max: 100
   cursor?: string;
-  sort?: "date" | "odometer";
-  order?: "asc" | "desc";
+  sort?: 'date' | 'odometer';
+  order?: 'asc' | 'desc';
 }
 
 /**
@@ -320,12 +320,12 @@ export interface ChartQueryParams {
  * Type guard to check if fillup input uses odometer
  */
 export function isFillupInputWithOdometer(input: CreateFillupCommand): input is FillupInputWithOdometer {
-  return "odometer" in input && input.odometer !== undefined;
+  return 'odometer' in input && input.odometer !== undefined;
 }
 
 /**
  * Type guard to check if fillup input uses distance
  */
 export function isFillupInputWithDistance(input: CreateFillupCommand): input is FillupInputWithDistance {
-  return "distance" in input && input.distance !== undefined;
+  return 'distance' in input && input.distance !== undefined;
 }

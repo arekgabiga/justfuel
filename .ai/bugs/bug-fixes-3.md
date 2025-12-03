@@ -227,14 +227,14 @@ useEffect(() => {
   const fetchCar = async () => {
     try {
       const response = await fetch(`/api/cars/${carId}`, {
-        credentials: "include",
+        credentials: 'include',
       });
       if (response.ok) {
         const data = await response.json();
         setCar(data);
       }
     } catch (error) {
-      console.error("Failed to load car:", error);
+      console.error('Failed to load car:', error);
     } finally {
       setIsLoadingCar(false);
     }
@@ -245,7 +245,7 @@ useEffect(() => {
 // Przekaż preferencję do hooka
 const formHook = useNewFillupForm({
   carId,
-  initialInputMode: car?.mileage_input_preference || "odometer",
+  initialInputMode: car?.mileage_input_preference || 'odometer',
 });
 ```
 
@@ -270,14 +270,14 @@ if (isLoadingCar) {
 Rozszerz test `/src/lib/hooks/__tests__/useNewFillupForm.test.ts`:
 
 ```typescript
-it("should use car mileage preference as initial input mode", () => {
+it('should use car mileage preference as initial input mode', () => {
   const { result } = renderHook(() =>
     useNewFillupForm({
-      carId: "test-car",
-      initialInputMode: "distance",
+      carId: 'test-car',
+      initialInputMode: 'distance',
     })
   );
-  expect(result.current.formState.inputMode).toBe("distance");
+  expect(result.current.formState.inputMode).toBe('distance');
 });
 ```
 
@@ -326,7 +326,7 @@ Dodaj debounce do walidacji w hookach formularzy:
 
 ```typescript
 // W useLoginForm.ts i useRegisterForm.ts
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef } from 'react';
 
 const handleFieldChange = useCallback(
   (field: keyof FormState, value: string) => {
@@ -459,11 +459,11 @@ Sprawdź funkcję walidacji `confirmPassword`:
 // Prawdopodobny problem: walidacja sprawdza tylko touched field
 const validateConfirmPassword = (password: string, confirmPassword: string) => {
   if (!confirmPassword) {
-    return "Potwierdzenie hasła jest wymagane";
+    return 'Potwierdzenie hasła jest wymagane';
   }
   // PROBLEM: Ta walidacja może nie być wywoływana przy zmianie password
   if (password !== confirmPassword) {
-    return "Hasła muszą być identyczne";
+    return 'Hasła muszą być identyczne';
   }
   return undefined;
 };
@@ -488,7 +488,7 @@ const handlePasswordChange = useCallback(
     }
 
     // DODAJ: Jeśli confirmPassword jest filled i touched, przewaliduj
-    if (touchedFields.has("confirmPassword") && formState.confirmPassword) {
+    if (touchedFields.has('confirmPassword') && formState.confirmPassword) {
       // Sprawdź, czy teraz hasła się zgadzają
       if (value === formState.confirmPassword) {
         // Wyczyść błąd confirmPassword
@@ -518,11 +518,11 @@ const handleConfirmPasswordChange = useCallback(
         const { confirmPassword: _, ...rest } = prev;
         return rest;
       });
-    } else if (touchedFields.has("confirmPassword")) {
+    } else if (touchedFields.has('confirmPassword')) {
       // Tylko pokaż błąd jeśli pole było touched
       setFormErrors((prev) => ({
         ...prev,
-        confirmPassword: "Hasła muszą być identyczne",
+        confirmPassword: 'Hasła muszą być identyczne',
       }));
     }
   },
@@ -645,13 +645,13 @@ Test wizualny z Playwright:
 
 ```typescript
 // W /tests/visual/fillup-card.spec.ts
-test("fillup card layout on mobile", async ({ page }) => {
+test('fillup card layout on mobile', async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 667 }); // iPhone SE
-  await page.goto("/cars/[carId]?tab=fillups");
+  await page.goto('/cars/[carId]?tab=fillups');
 
   // Zrób screenshot kafelka
   const card = page.locator('[role="button"]').first();
-  await expect(card).toHaveScreenshot("fillup-card-mobile.png");
+  await expect(card).toHaveScreenshot('fillup-card-mobile.png');
 });
 ```
 
@@ -709,7 +709,7 @@ Prawdopodobnie w `AverageConsumption.tsx` lub `CarStatistics.tsx`:
 ```typescript
 const formatConsumption = (value: number | null | undefined): string => {
   if (value === null || value === undefined || !isFinite(value)) {
-    return "N/A";
+    return 'N/A';
   }
   return value.toFixed(2); // Zawsze 2 miejsca po przecinku
 };
@@ -734,7 +734,7 @@ Upewnij się, że ta sama funkcja jest używana w:
 // W /src/lib/utils/formatters.ts
 export const formatNumber = (value: number | null | undefined, decimals: number = 2): string => {
   if (value === null || value === undefined || !isFinite(value)) {
-    return "N/A";
+    return 'N/A';
   }
   return value.toFixed(decimals);
 };
@@ -760,17 +760,17 @@ Test jednostkowy:
 
 ```typescript
 // W /src/lib/utils/__tests__/formatters.test.ts
-describe("formatConsumption", () => {
-  it("should format with 2 decimal places", () => {
-    expect(formatConsumption(8.5)).toBe("8.50");
-    expect(formatConsumption(10)).toBe("10.00");
-    expect(formatConsumption(7.123456)).toBe("7.12");
+describe('formatConsumption', () => {
+  it('should format with 2 decimal places', () => {
+    expect(formatConsumption(8.5)).toBe('8.50');
+    expect(formatConsumption(10)).toBe('10.00');
+    expect(formatConsumption(7.123456)).toBe('7.12');
   });
 
-  it("should handle edge cases", () => {
-    expect(formatConsumption(null)).toBe("N/A");
-    expect(formatConsumption(undefined)).toBe("N/A");
-    expect(formatConsumption(Infinity)).toBe("N/A");
+  it('should handle edge cases', () => {
+    expect(formatConsumption(null)).toBe('N/A');
+    expect(formatConsumption(undefined)).toBe('N/A');
+    expect(formatConsumption(Infinity)).toBe('N/A');
   });
 });
 ```
@@ -850,7 +850,7 @@ Jeśli breadcrumbs jest mały, powiększ go i usuń duplikację:
 // W Breadcrumbs.tsx
 <nav className="mb-6">
   <ol className="flex items-center gap-2 text-lg">
-    {" "}
+    {' '}
     {/* Zwiększ z text-sm */}
     <li>
       <a href="/cars" className="text-muted-foreground hover:text-foreground">
@@ -904,12 +904,12 @@ Test wizualny:
 
 ```typescript
 // W /tests/visual/car-header.spec.ts
-test("car header layout without overlap", async ({ page }) => {
-  await page.goto("/cars/[carId]");
+test('car header layout without overlap', async ({ page }) => {
+  await page.goto('/cars/[carId]');
 
   // Screenshot nagłówka
   const header = page.locator('[data-testid="car-header"]');
-  await expect(header).toHaveScreenshot("car-header.png");
+  await expect(header).toHaveScreenshot('car-header.png');
 
   // Sprawdź, czy breadcrumbs i nazwa nie nachodzą na siebie
   const breadcrumbs = page.locator('nav[aria-label="breadcrumb"]');

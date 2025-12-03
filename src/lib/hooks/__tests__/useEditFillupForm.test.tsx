@@ -1,21 +1,21 @@
-import { renderHook, act, waitFor } from "@testing-library/react";
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { useEditFillupForm } from "../useEditFillupForm";
+import { renderHook, act, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { useEditFillupForm } from '../useEditFillupForm';
 
-describe("useEditFillupForm", () => {
+describe('useEditFillupForm', () => {
   const mockFetch = vi.fn();
   const originalLocation = window.location;
-  const carId = "car-123";
-  const fillupId = "fillup-456";
+  const carId = 'car-123';
+  const fillupId = 'fillup-456';
   const mockCarData = {
     id: carId,
-    name: "Test Car",
-    mileage_input_preference: "odometer",
+    name: 'Test Car',
+    mileage_input_preference: 'odometer',
   };
   const mockFillupData = {
     id: fillupId,
     car_id: carId,
-    date: "2023-01-01",
+    date: '2023-01-01',
     fuel_amount: 50,
     total_price: 300,
     odometer: 1000,
@@ -25,7 +25,7 @@ describe("useEditFillupForm", () => {
   beforeEach(() => {
     global.fetch = mockFetch;
     delete (window as any).location;
-    window.location = { ...originalLocation, href: "" };
+    window.location = { ...originalLocation, href: '' };
 
     // Mock localStorage
     const localStorageMock = {
@@ -33,7 +33,7 @@ describe("useEditFillupForm", () => {
       setItem: vi.fn(),
       clear: vi.fn(),
     };
-    Object.defineProperty(window, "localStorage", { value: localStorageMock });
+    Object.defineProperty(window, 'localStorage', { value: localStorageMock });
   });
 
   afterEach(() => {
@@ -41,9 +41,9 @@ describe("useEditFillupForm", () => {
     window.location = originalLocation;
   });
 
-  describe("Initialization", () => {
-    it("should load fillup data on mount", async () => {
-      vi.mocked(localStorage.getItem).mockReturnValue("fake-token");
+  describe('Initialization', () => {
+    it('should load fillup data on mount', async () => {
+      vi.mocked(localStorage.getItem).mockReturnValue('fake-token');
 
       // Mock parallel fetches: car and fillup
       mockFetch
@@ -59,22 +59,22 @@ describe("useEditFillupForm", () => {
       });
 
       expect(result.current.formState).toEqual({
-        date: "2023-01-01",
-        fuelAmount: "50",
-        totalPrice: "300",
-        inputMode: "odometer",
-        odometer: "1000",
-        distance: "",
+        date: '2023-01-01',
+        fuelAmount: '50',
+        totalPrice: '300',
+        inputMode: 'odometer',
+        odometer: '1000',
+        distance: '',
       });
       expect(result.current.originalFillupData).toEqual(mockFillupData);
     });
 
-    it("should handle load error", async () => {
-      vi.mocked(localStorage.getItem).mockReturnValue("fake-token");
+    it('should handle load error', async () => {
+      vi.mocked(localStorage.getItem).mockReturnValue('fake-token');
 
       mockFetch
         .mockResolvedValueOnce({ ok: true, status: 200, json: async () => mockCarData })
-        .mockResolvedValueOnce({ ok: false, status: 404, json: async () => ({ error: { message: "Not found" } }) });
+        .mockResolvedValueOnce({ ok: false, status: 404, json: async () => ({ error: { message: 'Not found' } }) });
 
       const { result } = renderHook(() => useEditFillupForm({ carId, fillupId }));
 
@@ -82,17 +82,17 @@ describe("useEditFillupForm", () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      expect(result.current.formErrors.submit).toContain("Tankowanie nie zostało znalezione");
+      expect(result.current.formErrors.submit).toContain('Tankowanie nie zostało znalezione');
     });
   });
 
-  describe("Update Handling", () => {
+  describe('Update Handling', () => {
     beforeEach(() => {
       // Reset all mocks first
       mockFetch.mockClear();
 
       // Setup localStorage mock
-      vi.mocked(localStorage.getItem).mockReturnValue("fake-token");
+      vi.mocked(localStorage.getItem).mockReturnValue('fake-token');
 
       // Setup successful loads for update tests
       mockFetch
@@ -100,7 +100,7 @@ describe("useEditFillupForm", () => {
         .mockResolvedValueOnce({ ok: true, status: 200, json: async () => mockFillupData });
     });
 
-    it("should not submit if no changes", async () => {
+    it('should not submit if no changes', async () => {
       const { result } = renderHook(() => useEditFillupForm({ carId, fillupId }));
       await waitFor(() => expect(result.current.isLoading).toBe(false));
 
@@ -110,12 +110,12 @@ describe("useEditFillupForm", () => {
         await result.current.handleSubmit(event);
       });
 
-      expect(result.current.formErrors.submit).toBe("Nie wprowadzono żadnych zmian");
+      expect(result.current.formErrors.submit).toBe('Nie wprowadzono żadnych zmian');
       // Should not call fetch for update (only initial loads were called)
       expect(mockFetch).toHaveBeenCalledTimes(2);
     });
 
-    it("should submit only changed fields", async () => {
+    it('should submit only changed fields', async () => {
       const { result } = renderHook(() => useEditFillupForm({ carId, fillupId }));
       await waitFor(() => expect(result.current.isLoading).toBe(false));
 
@@ -125,7 +125,7 @@ describe("useEditFillupForm", () => {
 
       // Update fuel amount
       act(() => {
-        result.current.handleFieldChange("fuelAmount", "60");
+        result.current.handleFieldChange('fuelAmount', '60');
       });
 
       // Mock update response
@@ -142,7 +142,7 @@ describe("useEditFillupForm", () => {
       expect(mockFetch).toHaveBeenCalledTimes(3); // Load Car + Load Fillup + Update
       const updateCall = mockFetch.mock.calls[2];
       expect(updateCall[0]).toBe(`/api/cars/${carId}/fillups/${fillupId}`);
-      expect(updateCall[1].method).toBe("PATCH");
+      expect(updateCall[1].method).toBe('PATCH');
       expect(JSON.parse(updateCall[1].body)).toEqual({ fuel_amount: 60 });
 
       // Check redirect
@@ -155,13 +155,13 @@ describe("useEditFillupForm", () => {
     });
   });
 
-  describe("Delete Handling", () => {
+  describe('Delete Handling', () => {
     beforeEach(() => {
       // Reset all mocks first
       mockFetch.mockClear();
 
       // Setup localStorage mock
-      vi.mocked(localStorage.getItem).mockReturnValue("fake-token");
+      vi.mocked(localStorage.getItem).mockReturnValue('fake-token');
 
       // Setup successful loads
       mockFetch
@@ -169,7 +169,7 @@ describe("useEditFillupForm", () => {
         .mockResolvedValueOnce({ ok: true, status: 200, json: async () => mockFillupData });
     });
 
-    it("should open and close delete dialog", async () => {
+    it('should open and close delete dialog', async () => {
       const { result } = renderHook(() => useEditFillupForm({ carId, fillupId }));
       await waitFor(() => expect(result.current.isLoading).toBe(false));
 
@@ -184,7 +184,7 @@ describe("useEditFillupForm", () => {
       expect(result.current.isDeleteDialogOpen).toBe(false);
     });
 
-    it("should handle delete confirmation", async () => {
+    it('should handle delete confirmation', async () => {
       const { result } = renderHook(() => useEditFillupForm({ carId, fillupId }));
       await waitFor(() => expect(result.current.isLoading).toBe(false));
 
@@ -192,7 +192,7 @@ describe("useEditFillupForm", () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: 200,
-        json: async () => ({ message: "Deleted" }),
+        json: async () => ({ message: 'Deleted' }),
       });
 
       await act(async () => {
@@ -202,7 +202,7 @@ describe("useEditFillupForm", () => {
       expect(mockFetch).toHaveBeenCalledTimes(3); // Load Car + Load Fillup + Delete
       const deleteCall = mockFetch.mock.calls[2];
       expect(deleteCall[0]).toBe(`/api/cars/${carId}/fillups/${fillupId}`);
-      expect(deleteCall[1].method).toBe("DELETE");
+      expect(deleteCall[1].method).toBe('DELETE');
 
       expect(window.location.href).toBe(`/cars/${carId}?tab=fillups`);
     });

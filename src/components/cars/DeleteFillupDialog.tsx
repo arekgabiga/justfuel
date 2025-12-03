@@ -1,5 +1,5 @@
-import React, { useEffect, useRef } from "react";
-import { Button } from "@/components/ui/button";
+import React, { useEffect, useRef } from 'react';
+import { Button } from '@/components/ui/button';
 
 interface DeleteFillupDialogProps {
   isOpen: boolean;
@@ -27,25 +27,25 @@ export const DeleteFillupDialog: React.FC<DeleteFillupDialogProps> = ({
     if (!isOpen || isDeleting) return;
 
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
+      if (e.key === 'Escape') {
         onCancel();
       }
     };
 
-    window.addEventListener("keydown", handleEscape);
-    return () => window.removeEventListener("keydown", handleEscape);
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
   }, [isOpen, isDeleting, onCancel]);
 
   // Prevent body scroll when dialog is open
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = "hidden";
+      document.body.style.overflow = 'hidden';
     } else {
-      document.body.style.overflow = "";
+      document.body.style.overflow = '';
     }
 
     return () => {
-      document.body.style.overflow = "";
+      document.body.style.overflow = '';
     };
   }, [isOpen]);
 
@@ -74,7 +74,7 @@ export const DeleteFillupDialog: React.FC<DeleteFillupDialogProps> = ({
     const lastElement = focusableElements[focusableElements.length - 1];
 
     const handleTabKey = (e: KeyboardEvent) => {
-      if (e.key !== "Tab") return;
+      if (e.key !== 'Tab') return;
 
       // If only one focusable element, prevent tabbing
       if (focusableElements.length === 1) {
@@ -98,20 +98,20 @@ export const DeleteFillupDialog: React.FC<DeleteFillupDialogProps> = ({
       }
     };
 
-    dialog.addEventListener("keydown", handleTabKey);
-    return () => dialog.removeEventListener("keydown", handleTabKey);
+    dialog.addEventListener('keydown', handleTabKey);
+    return () => dialog.removeEventListener('keydown', handleTabKey);
   }, [isOpen, isDeleting]);
 
   if (!isOpen) return null;
 
   const formatDate = (dateString?: string): string => {
-    if (!dateString) return "";
+    if (!dateString) return '';
     try {
       const date = new Date(dateString);
-      return date.toLocaleDateString("pl-PL", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
+      return date.toLocaleDateString('pl-PL', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
       });
     } catch {
       return dateString;
@@ -119,6 +119,7 @@ export const DeleteFillupDialog: React.FC<DeleteFillupDialogProps> = ({
   };
 
   return (
+    // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
       role="dialog"
@@ -131,15 +132,15 @@ export const DeleteFillupDialog: React.FC<DeleteFillupDialogProps> = ({
           onCancel();
         }
       }}
+      onKeyDown={(e) => {
+        if (!isDeleting && e.key === 'Escape') {
+          onCancel();
+        }
+      }}
+      tabIndex={-1}
     >
-      <div
-        ref={dialogRef}
-        className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4 p-6"
-      >
-        <h2
-          id="delete-fillup-dialog-title"
-          className="text-2xl font-bold text-red-600 dark:text-red-400 mb-4"
-        >
+      <div ref={dialogRef} className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
+        <h2 id="delete-fillup-dialog-title" className="text-2xl font-bold text-red-600 dark:text-red-400 mb-4">
           Usuń tankowanie
         </h2>
 
@@ -187,11 +188,10 @@ export const DeleteFillupDialog: React.FC<DeleteFillupDialogProps> = ({
             aria-busy={isDeleting}
             aria-label="Potwierdź usunięcie tankowania"
           >
-            {isDeleting ? "Usuwanie..." : "Usuń tankowanie"}
+            {isDeleting ? 'Usuwanie...' : 'Usuń tankowanie'}
           </Button>
         </div>
       </div>
     </div>
   );
 };
-

@@ -1,14 +1,14 @@
-import { renderHook, act, waitFor } from "@testing-library/react";
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { useCarsList } from "../useCarsList";
+import { renderHook, act, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { useCarsList } from '../useCarsList';
 
-describe("useCarsList", () => {
+describe('useCarsList', () => {
   const mockFetch = vi.fn();
   const originalLocation = window.location;
   const mockCars = [
     {
-      id: "car-1",
-      name: "Car 1",
+      id: 'car-1',
+      name: 'Car 1',
       statistics: {
         total_fuel_cost: 100,
         total_fuel_amount: 50,
@@ -19,8 +19,8 @@ describe("useCarsList", () => {
       },
     },
     {
-      id: "car-2",
-      name: "Car 2",
+      id: 'car-2',
+      name: 'Car 2',
       statistics: {
         total_fuel_cost: 200,
         total_fuel_amount: 100,
@@ -34,22 +34,22 @@ describe("useCarsList", () => {
 
   beforeEach(() => {
     global.fetch = mockFetch;
-    Object.defineProperty(window, "location", {
+    Object.defineProperty(window, 'location', {
       writable: true,
-      value: { ...originalLocation, href: "" },
+      value: { ...originalLocation, href: '' },
     });
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
-    Object.defineProperty(window, "location", {
+    Object.defineProperty(window, 'location', {
       writable: true,
       value: originalLocation,
     });
   });
 
-  describe("Initialization and Fetching", () => {
-    it("should fetch cars on mount", async () => {
+  describe('Initialization and Fetching', () => {
+    it('should fetch cars on mount', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: 200,
@@ -67,15 +67,15 @@ describe("useCarsList", () => {
       expect(result.current.cars).toEqual(mockCars);
       expect(result.current.error).toBeNull();
       expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining("/api/cars?sort=name&order=asc"),
+        expect.stringContaining('/api/cars?sort=name&order=asc'),
         expect.objectContaining({
-          credentials: "include",
-          headers: expect.objectContaining({ "Content-Type": "application/json" }),
+          credentials: 'include',
+          headers: expect.objectContaining({ 'Content-Type': 'application/json' }),
         })
       );
     });
 
-    it("should handle fetch error", async () => {
+    it('should handle fetch error', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 500,
@@ -89,10 +89,10 @@ describe("useCarsList", () => {
       });
 
       expect(result.current.error).toBeDefined();
-      expect(result.current.error?.message).toContain("Wystąpił błąd serwera");
+      expect(result.current.error?.message).toContain('Wystąpił błąd serwera');
     });
 
-    it("should handle unauthorized (401)", async () => {
+    it('should handle unauthorized (401)', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 401,
@@ -101,11 +101,11 @@ describe("useCarsList", () => {
       renderHook(() => useCarsList());
 
       await waitFor(() => {
-        expect(window.location.href).toBe("/auth/login");
+        expect(window.location.href).toBe('/auth/login');
       });
     });
 
-    it("should fetch cars even without explicit token (session-based auth)", async () => {
+    it('should fetch cars even without explicit token (session-based auth)', async () => {
       // Clear any previous fetch calls
       mockFetch.mockClear();
       mockFetch.mockResolvedValueOnce({
@@ -126,8 +126,8 @@ describe("useCarsList", () => {
     });
   });
 
-  describe("Retry Logic", () => {
-    it("should retry fetching", async () => {
+  describe('Retry Logic', () => {
+    it('should retry fetching', async () => {
       // First attempt fails
       mockFetch.mockResolvedValueOnce({
         ok: false,
@@ -162,25 +162,25 @@ describe("useCarsList", () => {
     });
   });
 
-  describe("Navigation", () => {
-    it("should navigate to car details", () => {
+  describe('Navigation', () => {
+    it('should navigate to car details', () => {
       const { result } = renderHook(() => useCarsList());
 
       act(() => {
-        result.current.handleCarClick("car-1");
+        result.current.handleCarClick('car-1');
       });
 
-      expect(window.location.href).toBe("/cars/car-1");
+      expect(window.location.href).toBe('/cars/car-1');
     });
 
-    it("should navigate to add car", () => {
+    it('should navigate to add car', () => {
       const { result } = renderHook(() => useCarsList());
 
       act(() => {
         result.current.handleAddCar();
       });
 
-      expect(window.location.href).toBe("/cars/new");
+      expect(window.location.href).toBe('/cars/new');
     });
   });
 });

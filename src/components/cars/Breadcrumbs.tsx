@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 interface BreadcrumbsProps {
   carName: string;
@@ -8,16 +8,16 @@ interface BreadcrumbsProps {
   showEditFillup?: boolean;
 }
 
-export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ 
-  carName, 
-  showFillups = false, 
+export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
+  carName,
+  showFillups = false,
   carId,
   showNewFillup = false,
-  showEditFillup = false
+  showEditFillup = false,
 }) => {
   const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
-    if (typeof window !== "undefined") {
+    if (typeof window !== 'undefined') {
       window.location.href = href;
     }
   };
@@ -28,7 +28,7 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
         <li className="flex-shrink-0">
           <a
             href="/"
-            onClick={(e) => handleLinkClick(e, "/")}
+            onClick={(e) => handleLinkClick(e, '/')}
             className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer"
           >
             Auta
@@ -51,16 +51,14 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
             <li className="flex-shrink-0">
               <span className="mx-2">/</span>
             </li>
-            <li className="flex-shrink-0 text-gray-900 dark:text-gray-100 font-medium">
-              Tankowania
-            </li>
+            <li className="flex-shrink-0 text-gray-900 dark:text-gray-100 font-medium">Tankowania</li>
             {(showNewFillup || showEditFillup) && (
               <>
                 <li className="flex-shrink-0">
                   <span className="mx-2">/</span>
                 </li>
                 <li className="flex-shrink-0 text-gray-900 dark:text-gray-100 font-medium">
-                  {showNewFillup ? "Nowe tankowanie" : "Edycja"}
+                  {showNewFillup ? 'Nowe tankowanie' : 'Edycja'}
                 </li>
               </>
             )}
@@ -74,4 +72,3 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
     </nav>
   );
 };
-

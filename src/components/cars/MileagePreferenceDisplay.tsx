@@ -1,14 +1,12 @@
-import React from "react";
-import { Gauge, Route } from "lucide-react";
+import React from 'react';
+import { Gauge, Route } from 'lucide-react';
 
 interface MileagePreferenceDisplayProps {
-  preference: "odometer" | "distance";
+  preference: 'odometer' | 'distance';
 }
 
-export const MileagePreferenceDisplay: React.FC<MileagePreferenceDisplayProps> = ({
-  preference,
-}) => {
-  const isOdometer = preference === "odometer";
+export const MileagePreferenceDisplay: React.FC<MileagePreferenceDisplayProps> = ({ preference }) => {
+  const isOdometer = preference === 'odometer';
 
   return (
     <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
@@ -26,4 +24,3 @@ export const MileagePreferenceDisplay: React.FC<MileagePreferenceDisplayProps> =
     </div>
   );
 };
-

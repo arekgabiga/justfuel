@@ -1,7 +1,7 @@
-import React from "react";
-import { Button } from "@/components/ui/button";
-import { TrendingDown, DollarSign, Route } from "lucide-react";
-import type { ChartType } from "../../types";
+import React from 'react';
+import { Button } from '@/components/ui/button';
+import { TrendingDown, DollarSign, Route } from 'lucide-react';
+import type { ChartType } from '../../types';
 
 interface ChartTabsProps {
   activeChartType: ChartType;
@@ -12,8 +12,8 @@ export const ChartTabs: React.FC<ChartTabsProps> = ({ activeChartType, onChartTy
   return (
     <div className="flex items-center gap-2 mb-6">
       <Button
-        onClick={() => onChartTypeChange("consumption")}
-        variant={activeChartType === "consumption" ? "default" : "outline"}
+        onClick={() => onChartTypeChange('consumption')}
+        variant={activeChartType === 'consumption' ? 'default' : 'outline'}
         size="sm"
         className="flex items-center gap-2"
       >
@@ -21,8 +21,8 @@ export const ChartTabs: React.FC<ChartTabsProps> = ({ activeChartType, onChartTy
         Spalanie
       </Button>
       <Button
-        onClick={() => onChartTypeChange("price_per_liter")}
-        variant={activeChartType === "price_per_liter" ? "default" : "outline"}
+        onClick={() => onChartTypeChange('price_per_liter')}
+        variant={activeChartType === 'price_per_liter' ? 'default' : 'outline'}
         size="sm"
         className="flex items-center gap-2"
       >
@@ -30,8 +30,8 @@ export const ChartTabs: React.FC<ChartTabsProps> = ({ activeChartType, onChartTy
         Cena za litr
       </Button>
       <Button
-        onClick={() => onChartTypeChange("distance")}
-        variant={activeChartType === "distance" ? "default" : "outline"}
+        onClick={() => onChartTypeChange('distance')}
+        variant={activeChartType === 'distance' ? 'default' : 'outline'}
         size="sm"
         className="flex items-center gap-2"
       >
@@ -41,4 +41,3 @@ export const ChartTabs: React.FC<ChartTabsProps> = ({ activeChartType, onChartTy
     </div>
   );
 };
-

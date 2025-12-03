@@ -1,7 +1,7 @@
-import React from "react";
-import { ChartHeader } from "./ChartHeader";
-import { ChartVisualization } from "./ChartVisualization";
-import type { ChartDataDTO, ChartType } from "../../types";
+import React from 'react';
+import { ChartHeader } from './ChartHeader';
+import { ChartVisualization } from './ChartVisualization';
+import type { ChartDataDTO, ChartType } from '../../types';
 
 interface ChartContainerProps {
   chartData: ChartDataDTO;
@@ -21,14 +21,14 @@ export const ChartContainer: React.FC<ChartContainerProps> = ({ chartData, chart
   // Get chart title for aria-label
   const getChartTitle = (type: ChartType): string => {
     switch (type) {
-      case "consumption":
-        return "Wykres spalania";
-      case "price_per_liter":
-        return "Wykres ceny za litr";
-      case "distance":
-        return "Wykres dystansu";
+      case 'consumption':
+        return 'Wykres spalania';
+      case 'price_per_liter':
+        return 'Wykres ceny za litr';
+      case 'distance':
+        return 'Wykres dystansu';
       default:
-        return "Wykres";
+        return 'Wykres';
     }
   };
 
@@ -40,13 +40,8 @@ export const ChartContainer: React.FC<ChartContainerProps> = ({ chartData, chart
       aria-label={getChartTitle(chartType)}
       role="region"
     >
-      <ChartHeader
-        chartType={chartType}
-        average={chartData.average}
-        metadata={chartData.metadata}
-      />
+      <ChartHeader chartType={chartType} average={chartData.average} metadata={chartData.metadata} />
       <ChartVisualization chartData={chartData} chartType={chartType} aria-describedby={statsId} />
     </div>
   );
 };
-
