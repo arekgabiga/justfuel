@@ -51,11 +51,14 @@ export const useNewFillupForm = ({ carId, initialInputMode = "odometer" }: UseNe
 
   // Update inputMode when initialInputMode prop changes (e.g., after fetching car preference)
   useEffect(() => {
-    setFormState((prev) => ({
-      ...prev,
-      inputMode: initialInputMode,
-    }));
-  }, [initialInputMode]);
+    // Only update if the user hasn't manually interacted with the mode toggle
+    if (!touchedFields.has("inputMode")) {
+      setFormState((prev) => ({
+        ...prev,
+        inputMode: initialInputMode,
+      }));
+    }
+  }, [initialInputMode, touchedFields]);
 
   // Enhanced validation functions with detailed error messages
   const validateDate = useCallback((date: string): string | undefined => {
@@ -362,6 +365,7 @@ export const useNewFillupForm = ({ carId, initialInputMode = "odometer" }: UseNe
 
   // Handle mode toggle
   const handleModeToggle = useCallback((mode: "odometer" | "distance") => {
+    setTouchedFields((prev) => new Set(prev).add("inputMode"));
     setFormState((prev) => {
       const newState = {
         ...prev,

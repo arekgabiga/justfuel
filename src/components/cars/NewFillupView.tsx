@@ -14,6 +14,7 @@ interface NewFillupViewProps {
 
 const NewFillupView: React.FC<NewFillupViewProps> = ({ carId, initialInputMode = "odometer" }) => {
   const [carPreference, setCarPreference] = useState<"odometer" | "distance" | null>(null);
+  const [carName, setCarName] = useState<string>("");
 
   // Fetch car name and preference first
   useEffect(() => {
@@ -29,6 +30,7 @@ const NewFillupView: React.FC<NewFillupViewProps> = ({ carId, initialInputMode =
           const carData: CarDetailsDTO = await response.json();
           // Use car's saved preference if available, otherwise use prop default
           setCarPreference((carData.mileage_input_preference as "odometer" | "distance") || initialInputMode);
+          setCarName(carData.name);
         } else {
           // If API call fails, use prop default
           setCarPreference(initialInputMode);
@@ -82,10 +84,18 @@ const NewFillupView: React.FC<NewFillupViewProps> = ({ carId, initialInputMode =
       {/* Header */}
       <header>
         <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Dodaj Nowe Tankowanie</h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-2">Wypełnij formularz, aby dodać nowe tankowanie</p>
+        <p className="text-gray-600 dark:text-gray-400 mt-2">
+          {carName ? `Dla pojazdu: ${carName}` : "Wypełnij formularz, aby dodać nowe tankowanie"}
+        </p>
       </header>
       {/* Form */}
-      <form onSubmit={handleSubmit} noValidate aria-label="Formularz dodawania nowego tankowania" className="space-y-6" data-test-id="new-fillup-form">
+      <form
+        onSubmit={handleSubmit}
+        noValidate
+        aria-label="Formularz dodawania nowego tankowania"
+        className="space-y-6"
+        data-test-id="new-fillup-form"
+      >
         {/* Date field */}
         <div className="space-y-2">
           <Label htmlFor="date" aria-required="true">
