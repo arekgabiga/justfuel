@@ -483,7 +483,7 @@ In the project directory, run:
 - Social features or data sharing.
 - Native mobile apps (iOS/Android).
 - In-app feedback collection.
-- Automatic GPS/OBD-II integrations.
+- Automatic GPS/OBD-II integration.
 
 ## Project Status
 
