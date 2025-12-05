@@ -23,6 +23,7 @@ interface CarDetailsState {
   pagination: PaginationDTO;
   fillupsLoading: boolean;
   fillupsError: Error | null;
+  fillupsInitiallyFetched: boolean;
   chartData: ChartDataDTO | null;
   chartLoading: boolean;
   chartError: Error | null;
@@ -45,6 +46,7 @@ export const useCarDetails = (carId: string) => {
     },
     fillupsLoading: false,
     fillupsError: null,
+    fillupsInitiallyFetched: false,
     chartData: null,
     chartLoading: false,
     chartError: null,
@@ -176,6 +178,7 @@ export const useCarDetails = (carId: string) => {
           pagination: data.pagination,
           fillupsLoading: false,
           fillupsError: null,
+          fillupsInitiallyFetched: true,
         }));
       } catch (error) {
         let errorMessage = 'Nieznany błąd';
@@ -191,6 +194,7 @@ export const useCarDetails = (carId: string) => {
           ...prev,
           fillupsLoading: false,
           fillupsError: new Error(errorMessage),
+          fillupsInitiallyFetched: true,
         }));
       }
     },
@@ -421,11 +425,11 @@ export const useCarDetails = (carId: string) => {
 
   // Load fillups when main tab is fillups
   useEffect(() => {
-    if (state.activeMainTab === 'fillups' && state.car && state.fillups.length === 0 && !state.fillupsLoading) {
+    if (state.activeMainTab === 'fillups' && state.car && !state.fillupsInitiallyFetched && !state.fillupsLoading) {
       fetchFillups();
     }
-    // Only trigger when activeMainTab or car changes, not when fillups change
-  }, [state.activeMainTab, state.car, fetchFillups, state.fillups.length, state.fillupsLoading]);
+    // Only trigger when activeMainTab or car changes, not when fillups fetch state changes
+  }, [state.activeMainTab, state.car, state.fillupsInitiallyFetched, state.fillupsLoading, fetchFillups]);
 
   // Load chart data when main tab is charts and chart type changes
   useEffect(() => {
