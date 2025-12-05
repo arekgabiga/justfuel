@@ -28,3 +28,7 @@ pnpm-debug.log*
 coverage
 test-results
 playwright-report
+
+# Vercel
+.vercel
+.env*.local
