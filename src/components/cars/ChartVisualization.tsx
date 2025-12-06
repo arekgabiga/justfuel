@@ -166,8 +166,8 @@ export const ChartVisualization: React.FC<ChartVisualizationProps> = ({
     data: chartDataPoints,
     margin: {
       top: 5,
-      right: 30,
-      left: 20,
+      right: 10,
+      left: -20,
       bottom: 5,
     },
   };
@@ -194,6 +194,7 @@ export const ChartVisualization: React.FC<ChartVisualizationProps> = ({
               height={80}
             />
             <YAxis
+              width={40}
               label={{ value: getYAxisLabel(chartType), angle: -90, position: 'insideLeft' }}
               className="text-sm fill-gray-600 dark:fill-gray-400"
             />
@@ -226,6 +227,7 @@ export const ChartVisualization: React.FC<ChartVisualizationProps> = ({
             height={80}
           />
           <YAxis
+            width={40}
             label={{ value: getYAxisLabel(chartType), angle: -90, position: 'insideLeft' }}
             className="text-sm fill-gray-600 dark:fill-gray-400"
           />
