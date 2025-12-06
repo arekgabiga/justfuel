@@ -273,9 +273,7 @@ const EditFillupView: React.FC<EditFillupViewProps> = ({ carId, fillupId }) => {
                     placeholder="np. 55000"
                     aria-invalid={touchedFields.has('odometer') && !!formErrors.odometer}
                     aria-describedby={
-                      touchedFields.has('odometer') && formErrors.odometer
-                        ? 'odometer-error'
-                        : undefined
+                      touchedFields.has('odometer') && formErrors.odometer ? 'odometer-error' : undefined
                     }
                     disabled={isSubmitting}
                     className={`pr-10 ${touchedFields.has('odometer') && formErrors.odometer ? 'border-destructive' : ''}`}
@@ -312,9 +310,7 @@ const EditFillupView: React.FC<EditFillupViewProps> = ({ carId, fillupId }) => {
                     placeholder="np. 500"
                     aria-invalid={touchedFields.has('distance') && !!formErrors.distance}
                     aria-describedby={
-                      touchedFields.has('distance') && formErrors.distance
-                        ? 'distance-error'
-                        : undefined
+                      touchedFields.has('distance') && formErrors.distance ? 'distance-error' : undefined
                     }
                     disabled={isSubmitting}
                     className={`pr-10 ${touchedFields.has('distance') && formErrors.distance ? 'border-destructive' : ''}`}
