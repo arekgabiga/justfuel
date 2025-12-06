@@ -100,7 +100,7 @@ describe('NewFillupView', () => {
       customRender(<NewFillupView carId={mockCarId} />);
 
       expect(screen.getByLabelText(/stan licznika/i)).toBeInTheDocument();
-      expect(screen.queryByLabelText(/dystans \(km\)/i)).not.toBeInTheDocument();
+      expect(screen.queryByLabelText(/dystans/i)).not.toBeInTheDocument();
     });
 
     it('should initialize with specified initial mode', () => {
@@ -114,14 +114,9 @@ describe('NewFillupView', () => {
 
       customRender(<NewFillupView carId={mockCarId} initialInputMode="distance" />);
 
-      expect(screen.getByLabelText(/dystans \(km\)/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/dystans/i)).toBeInTheDocument();
       expect(screen.queryByLabelText(/stan licznika/i)).not.toBeInTheDocument();
     });
-
-    // LIMITATION: Direct Radix UI Select interaction testing is not possible in jsdom
-    // Radix UI components use Portals and complex ARIA patterns that don't work in jsdom
-    // The functionality is tested indirectly through hook mocking and state changes
-    // For E2E testing of the actual select interaction, use Playwright tests
   });
 
   describe('Conditional Field Rendering', () => {
@@ -129,7 +124,7 @@ describe('NewFillupView', () => {
       customRender(<NewFillupView carId={mockCarId} />);
 
       expect(screen.getByLabelText(/stan licznika/i)).toBeInTheDocument();
-      expect(screen.queryByLabelText(/dystans \(km\)/i)).not.toBeInTheDocument();
+      expect(screen.queryByLabelText(/dystans/i)).not.toBeInTheDocument();
     });
 
     it('should show distance field when mode is distance', () => {
@@ -143,7 +138,7 @@ describe('NewFillupView', () => {
 
       customRender(<NewFillupView carId={mockCarId} />);
 
-      expect(screen.getByLabelText(/dystans \(km\)/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/dystans/i)).toBeInTheDocument();
       expect(screen.queryByLabelText(/stan licznika/i)).not.toBeInTheDocument();
     });
 
@@ -152,7 +147,7 @@ describe('NewFillupView', () => {
 
       // Initial: odometer mode
       expect(screen.getByLabelText(/stan licznika/i)).toBeInTheDocument();
-      expect(screen.queryByLabelText(/dystans \(km\)/i)).not.toBeInTheDocument();
+      expect(screen.queryByLabelText(/dystans/i)).not.toBeInTheDocument();
 
       // Switch to distance mode
       (useNewFillupForm as Mock).mockReturnValue({
@@ -164,7 +159,7 @@ describe('NewFillupView', () => {
       });
       rerender(<NewFillupView carId={mockCarId} />);
 
-      expect(screen.getByLabelText(/dystans \(km\)/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/dystans/i)).toBeInTheDocument();
       expect(screen.queryByLabelText(/stan licznika/i)).not.toBeInTheDocument();
     });
   });

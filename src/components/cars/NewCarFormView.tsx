@@ -28,7 +28,7 @@ const NewCarFormView: React.FC = () => {
   const isSubmitDisabled = isSubmitting || (hasErrors && touchedFields.size > 0);
 
   return (
-    <div className="space-y-6 max-w-xl mx-auto">
+    <div className="space-y-6 max-w-4xl mx-auto">
       {/* Back Navigation */}
       <button
         onClick={handleCancel}
@@ -48,195 +48,201 @@ const NewCarFormView: React.FC = () => {
         </p>
       </header>
 
-      {/* Form */}
-      <form
-        onSubmit={handleSubmit}
-        noValidate
-        aria-label="Formularz dodawania nowego samochodu"
-        className="grid gap-6 grid-cols-1 sm:grid-cols-2"
-        data-test-id="new-car-form"
-      >
-        {/* Name field */}
-        <div className="space-y-2 sm:col-span-2">
-          <Label htmlFor="name" aria-required="true">
-            Nazwa samochodu
-            <span aria-label="Pole wymagane" className="text-destructive ml-1">
-              *
-            </span>
-          </Label>
-          <Input
-            ref={nameInputRef}
-            id="name"
-            name="name"
-            type="text"
-            value={formState.name}
-            onChange={(e) => handleFieldChange('name', e.target.value)}
-            onBlur={() => handleFieldBlur('name')}
-            placeholder="np. Moje Audi A4"
-            aria-invalid={touchedFields.has('name') && !!formErrors.name}
-            aria-describedby={
-              touchedFields.has('name') && formErrors.name
-                ? 'name-error name-help'
-                : touchedFields.has('name')
-                  ? 'name-help'
-                  : undefined
-            }
-            aria-required="true"
-            autoComplete="off"
-            disabled={isSubmitting}
-            className={touchedFields.has('name') && formErrors.name ? 'border-destructive' : ''}
-            data-test-id="car-name-input"
-            required
-          />
-          <p id="name-help" className="sr-only">
-            Wprowadź nazwę samochodu (1-100 znaków)
-          </p>
-          {touchedFields.has('name') && formErrors.name && (
-            <p id="name-error" className="text-sm text-destructive mt-1" role="alert" aria-live="polite">
-              {formErrors.name}
-            </p>
-          )}
-        </div>
-
-        {/* Initial odometer field */}
-        <div className="space-y-2 sm:col-span-2">
-          <Label htmlFor="initialOdometer">Początkowy stan licznika (opcjonalne)</Label>
-          <div className="relative">
+      {/* Form Card */}
+      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg ring-1 ring-black/5 p-8">
+        <form
+          onSubmit={handleSubmit}
+          noValidate
+          aria-label="Formularz dodawania nowego samochodu"
+          className="grid gap-6 grid-cols-1 md:grid-cols-2"
+          data-test-id="new-car-form"
+        >
+          {/* Name field */}
+          <div className="space-y-2 md:col-span-2">
+            <Label htmlFor="name" aria-required="true">
+              Nazwa samochodu
+              <span aria-label="Pole wymagane" className="text-destructive ml-1">
+                *
+              </span>
+            </Label>
             <Input
-              id="initialOdometer"
-              name="initialOdometer"
-              type="number"
-              min="0"
-              step="1"
-              value={formState.initialOdometer}
-              onChange={(e) => handleFieldChange('initialOdometer', e.target.value)}
-              onBlur={() => handleFieldBlur('initialOdometer')}
-              placeholder="np. 50000"
-              aria-invalid={touchedFields.has('initialOdometer') && !!formErrors.initialOdometer}
+              ref={nameInputRef}
+              id="name"
+              name="name"
+              type="text"
+              value={formState.name}
+              onChange={(e) => handleFieldChange('name', e.target.value)}
+              onBlur={() => handleFieldBlur('name')}
+              placeholder="np. Moje Audi A4"
+              aria-invalid={touchedFields.has('name') && !!formErrors.name}
               aria-describedby={
-                touchedFields.has('initialOdometer') && formErrors.initialOdometer
-                  ? 'initialOdometer-error initialOdometer-help'
-                  : touchedFields.has('initialOdometer')
-                    ? 'initialOdometer-help'
-                    : undefined
-              }
-              autoComplete="off"
-              disabled={isSubmitting}
-              className={`pr-10 ${touchedFields.has('initialOdometer') && formErrors.initialOdometer ? 'border-destructive' : ''}`}
-              data-test-id="car-initial-odometer-input"
-            />
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm pointer-events-none">
-              km
-            </span>
-          </div>
-          <p id="initialOdometer-help" className="sr-only">
-            Wprowadź początkowy stan licznika w kilometrach (opcjonalne)
-          </p>
-          {touchedFields.has('initialOdometer') && formErrors.initialOdometer && (
-            <p id="initialOdometer-error" className="text-sm text-destructive mt-1" role="alert" aria-live="polite">
-              {formErrors.initialOdometer}
-            </p>
-          )}
-        </div>
-
-        {/* Mileage input preference field */}
-        <div className="space-y-2 sm:col-span-2">
-          <Label htmlFor="mileageInputPreference" aria-required="true">
-            Preferencja wprowadzania przebiegu
-            <span aria-label="Pole wymagane" className="text-destructive ml-1">
-              *
-            </span>
-          </Label>
-          <Select
-            value={formState.mileageInputPreference}
-            onValueChange={(value) => {
-              handleFieldChange('mileageInputPreference', value);
-            }}
-            disabled={isSubmitting}
-          >
-            <SelectTrigger
-              id="mileageInputPreference"
-              name="mileageInputPreference"
-              aria-invalid={!!formErrors.mileageInputPreference}
-              aria-describedby={
-                formErrors.mileageInputPreference
-                  ? 'mileageInputPreference-error mileageInputPreference-help'
-                  : touchedFields.has('mileageInputPreference')
-                    ? 'mileageInputPreference-help'
+                touchedFields.has('name') && formErrors.name
+                  ? 'name-error name-help'
+                  : touchedFields.has('name')
+                    ? 'name-help'
                     : undefined
               }
               aria-required="true"
-              className={
-                touchedFields.has('mileageInputPreference') && formErrors.mileageInputPreference
-                  ? 'border-destructive'
-                  : ''
-              }
-              data-test-id="car-mileage-preference-select"
-            >
-              <SelectValue placeholder="Wybierz preferencję" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="odometer">Stan licznika</SelectItem>
-              <SelectItem value="distance">Przejechany dystans</SelectItem>
-            </SelectContent>
-          </Select>
-          <p id="mileageInputPreference-help" className="sr-only">
-            Wybierz jak będziesz wprowadzać przebieg: stan licznika lub przejechany dystans
-          </p>
-          {touchedFields.has('mileageInputPreference') && formErrors.mileageInputPreference && (
-            <p
-              id="mileageInputPreference-error"
-              className="text-sm text-destructive mt-1"
-              role="alert"
-              aria-live="polite"
-            >
-              {formErrors.mileageInputPreference}
+              autoComplete="off"
+              disabled={isSubmitting}
+              className={touchedFields.has('name') && formErrors.name ? 'border-destructive' : ''}
+              data-test-id="car-name-input"
+              required
+            />
+            <p id="name-help" className="sr-only">
+              Wprowadź nazwę samochodu (1-100 znaków)
             </p>
-          )}
-        </div>
-
-        {/* Submit error message */}
-        {formErrors.submit && (
-          <div
-            className="p-4 rounded-md bg-destructive/10 border border-destructive/50 sm:col-span-2"
-            role="alert"
-            aria-live="assertive"
-            aria-atomic="true"
-          >
-            <p className="text-sm text-destructive">{formErrors.submit}</p>
+            {touchedFields.has('name') && formErrors.name && (
+              <p id="name-error" className="text-sm text-destructive mt-1" role="alert" aria-live="polite">
+                {formErrors.name}
+              </p>
+            )}
           </div>
-        )}
 
-        {/* Form actions */}
-        <div className="flex flex-col sm:flex-row gap-4 pt-6 sm:col-span-2" role="group" aria-label="Akcje formularza">
-          <Button
-            type="submit"
-            disabled={isSubmitDisabled}
-            className="flex-1 sm:flex-none min-w-[120px] h-12 px-6"
-            aria-busy={isSubmitting}
-            aria-describedby={isSubmitting ? 'submitting-status' : undefined}
-            data-test-id="save-car-button"
-          >
-            {isSubmitting ? 'Zapisywanie...' : 'Zapisz'}
-          </Button>
-          {isSubmitting && (
-            <span id="submitting-status" className="sr-only">
-              Zapisywanie formularza, proszę czekać
-            </span>
+          {/* Initial odometer field */}
+          <div className="space-y-2 md:col-span-1">
+            <Label htmlFor="initialOdometer">Początkowy stan licznika (opcjonalne)</Label>
+            <div className="relative">
+              <Input
+                id="initialOdometer"
+                name="initialOdometer"
+                type="number"
+                min="0"
+                step="1"
+                value={formState.initialOdometer}
+                onChange={(e) => handleFieldChange('initialOdometer', e.target.value)}
+                onBlur={() => handleFieldBlur('initialOdometer')}
+                placeholder="np. 50000"
+                aria-invalid={touchedFields.has('initialOdometer') && !!formErrors.initialOdometer}
+                aria-describedby={
+                  touchedFields.has('initialOdometer') && formErrors.initialOdometer
+                    ? 'initialOdometer-error initialOdometer-help'
+                    : touchedFields.has('initialOdometer')
+                      ? 'initialOdometer-help'
+                      : undefined
+                }
+                autoComplete="off"
+                disabled={isSubmitting}
+                className={`pr-10 ${touchedFields.has('initialOdometer') && formErrors.initialOdometer ? 'border-destructive' : ''}`}
+                data-test-id="car-initial-odometer-input"
+              />
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm pointer-events-none">
+                km
+              </span>
+            </div>
+            <p id="initialOdometer-help" className="sr-only">
+              Wprowadź początkowy stan licznika w kilometrach (opcjonalne)
+            </p>
+            {touchedFields.has('initialOdometer') && formErrors.initialOdometer && (
+              <p id="initialOdometer-error" className="text-sm text-destructive mt-1" role="alert" aria-live="polite">
+                {formErrors.initialOdometer}
+              </p>
+            )}
+          </div>
+
+          {/* Mileage input preference field */}
+          <div className="space-y-2 md:col-span-1">
+            <Label htmlFor="mileageInputPreference" aria-required="true">
+              Preferencja wprowadzania przebiegu
+              <span aria-label="Pole wymagane" className="text-destructive ml-1">
+                *
+              </span>
+            </Label>
+            <Select
+              value={formState.mileageInputPreference}
+              onValueChange={(value) => {
+                handleFieldChange('mileageInputPreference', value);
+              }}
+              disabled={isSubmitting}
+            >
+              <SelectTrigger
+                id="mileageInputPreference"
+                name="mileageInputPreference"
+                aria-invalid={!!formErrors.mileageInputPreference}
+                aria-describedby={
+                  formErrors.mileageInputPreference
+                    ? 'mileageInputPreference-error mileageInputPreference-help'
+                    : touchedFields.has('mileageInputPreference')
+                      ? 'mileageInputPreference-help'
+                      : undefined
+                }
+                aria-required="true"
+                className={
+                  touchedFields.has('mileageInputPreference') && formErrors.mileageInputPreference
+                    ? 'border-destructive'
+                    : ''
+                }
+                data-test-id="car-mileage-preference-select"
+              >
+                <SelectValue placeholder="Wybierz preferencję" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="odometer">Stan licznika</SelectItem>
+                <SelectItem value="distance">Przejechany dystans</SelectItem>
+              </SelectContent>
+            </Select>
+            <p id="mileageInputPreference-help" className="sr-only">
+              Wybierz jak będziesz wprowadzać przebieg: stan licznika lub przejechany dystans
+            </p>
+            {touchedFields.has('mileageInputPreference') && formErrors.mileageInputPreference && (
+              <p
+                id="mileageInputPreference-error"
+                className="text-sm text-destructive mt-1"
+                role="alert"
+                aria-live="polite"
+              >
+                {formErrors.mileageInputPreference}
+              </p>
+            )}
+          </div>
+
+          {/* Submit error message */}
+          {formErrors.submit && (
+            <div
+              className="p-4 rounded-md bg-destructive/10 border border-destructive/50 md:col-span-2"
+              role="alert"
+              aria-live="assertive"
+              aria-atomic="true"
+            >
+              <p className="text-sm text-destructive">{formErrors.submit}</p>
+            </div>
           )}
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleCancel}
-            disabled={isSubmitting}
-            className="flex-1 sm:flex-none min-w-[120px] h-12 px-6"
-            aria-label="Anuluj i wróć do listy samochodów"
-            data-test-id="cancel-car-button"
+
+          {/* Form actions */}
+          <div
+            className="flex flex-col sm:flex-row justify-end gap-4 pt-6 border-t border-gray-100 dark:border-gray-800 md:col-span-2"
+            role="group"
+            aria-label="Akcje formularza"
           >
-            Anuluj
-          </Button>
-        </div>
-      </form>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleCancel}
+              disabled={isSubmitting}
+              className="order-2 sm:order-1 flex-1 sm:flex-none min-w-[120px] h-12 px-6"
+              aria-label="Anuluj i wróć do listy samochodów"
+              data-test-id="cancel-car-button"
+            >
+              Anuluj
+            </Button>
+            <Button
+              type="submit"
+              disabled={isSubmitDisabled}
+              className="order-1 sm:order-2 flex-1 sm:flex-none min-w-[120px] h-12 px-6"
+              aria-busy={isSubmitting}
+              aria-describedby={isSubmitting ? 'submitting-status' : undefined}
+              data-test-id="save-car-button"
+            >
+              {isSubmitting ? 'Zapisywanie...' : 'Zapisz'}
+            </Button>
+            {isSubmitting && (
+              <span id="submitting-status" className="sr-only">
+                Zapisywanie formularza, proszę czekać
+              </span>
+            )}
+          </div>
+        </form>
+      </div>
     </div>
   );
 };

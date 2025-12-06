@@ -101,31 +101,35 @@ export const CarDetailsView: React.FC<CarDetailsViewProps> = ({ carId }) => {
         <CarHeader car={car} onEdit={openEditDialog} onDelete={openDeleteDialog} onBack={handleBackToCars} />
       </div>
 
-      <TabNavigation activeTab={activeMainTab} onTabChange={switchMainTab} />
+      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg ring-1 ring-black/5 p-8">
+        <TabNavigation activeTab={activeMainTab} onTabChange={switchMainTab} />
 
-      {activeMainTab === 'fillups' && (
-        <FillupsTab
-          car={car}
-          fillups={fillups}
-          pagination={pagination}
-          loading={fillupsLoading}
-          error={fillupsError}
-          onLoadMore={loadMoreFillups}
-          onFillupClick={handleFillupClick}
-          onAddFillup={handleAddFillup}
-        />
-      )}
+        <div className="mt-6">
+          {activeMainTab === 'fillups' && (
+            <FillupsTab
+              car={car}
+              fillups={fillups}
+              pagination={pagination}
+              loading={fillupsLoading}
+              error={fillupsError}
+              onLoadMore={loadMoreFillups}
+              onFillupClick={handleFillupClick}
+              onAddFillup={handleAddFillup}
+            />
+          )}
 
-      {activeMainTab === 'charts' && (
-        <ChartsTab
-          chartData={chartData}
-          activeChartType={activeChartTab}
-          loading={chartLoading}
-          error={chartError}
-          onChartTypeChange={handleChartTypeChange}
-          onRetry={handleChartRetry}
-        />
-      )}
+          {activeMainTab === 'charts' && (
+            <ChartsTab
+              chartData={chartData}
+              activeChartType={activeChartTab}
+              loading={chartLoading}
+              error={chartError}
+              onChartTypeChange={handleChartTypeChange}
+              onRetry={handleChartRetry}
+            />
+          )}
+        </div>
+      </div>
 
       {car && (
         <>
