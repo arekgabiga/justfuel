@@ -63,7 +63,7 @@ test.describe('Scenario 2: Zarządzanie Samochodami', () => {
 
     // Get the created car ID from the page
     // (In a real scenario, you might need to extract this from the URL or DOM)
-    const carCardLocator = page.locator(`[data-test-id^="car-card-"]`).first();
+    const carCardLocator = page.locator(`[data-test-id^="car-card-"]`).filter({ hasText: testCarName }).first();
     const carCardId = await carCardLocator.getAttribute('data-test-id');
     createdCarId = carCardId?.replace('car-card-', '') || '';
 
@@ -188,7 +188,7 @@ test.describe('Scenario 2: Zarządzanie Samochodami', () => {
     await expect(page.getByText(testCarName)).toBeVisible();
 
     // Navigate to car details
-    const carCardLocator = page.locator(`[data-test-id^="car-card-"]`).first();
+    const carCardLocator = page.locator(`[data-test-id^="car-card-"]`).filter({ hasText: testCarName }).first();
     const carCardId = await carCardLocator.getAttribute('data-test-id');
     createdCarId = carCardId?.replace('car-card-', '') || '';
 

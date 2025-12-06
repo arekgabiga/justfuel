@@ -225,7 +225,7 @@ const NewFillupView: React.FC<NewFillupViewProps> = ({ carId, initialInputMode =
             </div>
             {touchedFields.has('totalPrice') && formErrors.totalPrice && (
               <p id="totalPrice-error" className="text-sm text-destructive mt-1" role="alert" aria-live="polite">
-          {formErrors.totalPrice}
+                {formErrors.totalPrice}
               </p>
             )}
           </div>
@@ -247,6 +247,7 @@ const NewFillupView: React.FC<NewFillupViewProps> = ({ carId, initialInputMode =
                 id="inputMode"
                 aria-invalid={!!formErrors.inputMode}
                 className={touchedFields.has('inputMode') && formErrors.inputMode ? 'border-destructive' : ''}
+                data-test-id="fillup-input-mode-select"
               >
                 <SelectValue placeholder="Wybierz tryb" />
               </SelectTrigger>
@@ -279,9 +280,7 @@ const NewFillupView: React.FC<NewFillupViewProps> = ({ carId, initialInputMode =
                     placeholder="np. 55000"
                     aria-invalid={touchedFields.has('odometer') && !!formErrors.odometer}
                     aria-describedby={
-                      touchedFields.has('odometer') && formErrors.odometer
-                        ? 'odometer-error'
-                        : undefined
+                      touchedFields.has('odometer') && formErrors.odometer ? 'odometer-error' : undefined
                     }
                     disabled={isSubmitting}
                     className={`pr-10 ${touchedFields.has('odometer') && formErrors.odometer ? 'border-destructive' : ''}`}
@@ -319,9 +318,7 @@ const NewFillupView: React.FC<NewFillupViewProps> = ({ carId, initialInputMode =
                     placeholder="np. 500"
                     aria-invalid={touchedFields.has('distance') && !!formErrors.distance}
                     aria-describedby={
-                      touchedFields.has('distance') && formErrors.distance
-                        ? 'distance-error'
-                        : undefined
+                      touchedFields.has('distance') && formErrors.distance ? 'distance-error' : undefined
                     }
                     disabled={isSubmitting}
                     className={`pr-10 ${touchedFields.has('distance') && formErrors.distance ? 'border-destructive' : ''}`}

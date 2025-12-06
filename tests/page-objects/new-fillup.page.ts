@@ -93,23 +93,17 @@ export class NewFillupPage {
 
   async selectInputMode(mode: 'odometer' | 'distance'): Promise<void> {
     // Focus the select trigger
-    await this.inputModeSelect.focus();
-
-    // Press Space or Enter to open the dropdown
-    await this.inputModeSelect.press('Enter');
+    await this.inputModeSelect.click();
 
     // Wait a bit for the dropdown to open
     await this.page.waitForTimeout(100);
 
-    // Use Arrow keys to navigate: ArrowDown selects "Przejechany dystans", ArrowUp selects "Stan licznika"
+    // Select the option by text content
     if (mode === 'distance') {
-      await this.page.keyboard.press('ArrowDown');
+      await this.page.getByRole('option', { name: 'Przejechany dystans' }).click();
     } else {
-      await this.page.keyboard.press('ArrowUp');
+      await this.page.getByRole('option', { name: 'Stan licznika' }).click();
     }
-
-    // Press Enter to confirm selection
-    await this.page.keyboard.press('Enter');
 
     // Wait for the mode-specific input to appear
     if (mode === 'odometer') {
