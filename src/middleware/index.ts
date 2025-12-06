@@ -58,7 +58,25 @@ export const onRequest = defineMiddleware(async ({ locals, cookies, url, request
     // User is not authenticated
     locals.isAuthenticated = false;
 
-    // Redirect to login for protected routes
+    // For API routes, return 401 JSON instead of redirecting
+    if (url.pathname.startsWith('/api/')) {
+      return new Response(
+        JSON.stringify({
+          error: {
+            code: 'UNAUTHORIZED',
+            message: 'Wymagana autoryzacja',
+          },
+        }),
+        {
+          status: 401,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+    }
+
+    // Redirect to login for protected pages
     const redirectUrl = `/auth/login?redirect=${encodeURIComponent(url.pathname)}`;
     return redirect(redirectUrl);
   }
