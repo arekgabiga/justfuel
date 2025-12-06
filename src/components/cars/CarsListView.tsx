@@ -31,7 +31,7 @@ const CarsListView: React.FC = () => {
 
   // Show cars grid
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
+    <div className="space-y-6 w-full">
       <CarsListHeader onAddCar={handleAddCar} />
       <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg ring-1 ring-black/5 p-8">
         <CarsGrid cars={cars} onCarClick={handleCarClick} />

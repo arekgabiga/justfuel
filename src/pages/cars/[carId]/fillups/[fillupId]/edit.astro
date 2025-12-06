@@ -19,7 +19,7 @@ if (!uuidRegex.test(carId) || !uuidRegex.test(fillupId)) {
 ---
 
 <Layout title={title} description={description}>
-  <main class="container mx-auto px-4 py-8">
+  <main class="container mx-auto px-4 py-8 max-w-4xl">
     <EditFillupView carId={carId} fillupId={fillupId} client:load />
   </main>
 </Layout>

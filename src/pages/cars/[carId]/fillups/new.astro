@@ -40,7 +40,7 @@ const description = 'Dodaj nowe tankowanie do swojego samochodu';
 ---
 
 <Layout title={title} description={description}>
-  <main class="container mx-auto px-4 py-8">
+  <main class="container mx-auto px-4 py-8 max-w-4xl">
     <NewFillupView carId={carId} initialInputMode={mileagePreference} client:load />
   </main>
 </Layout>
