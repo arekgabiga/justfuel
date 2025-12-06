@@ -70,7 +70,7 @@ const EditFillupView: React.FC<EditFillupViewProps> = ({ carId, fillupId }) => {
   }
 
   return (
-    <div className="space-y-6 max-w-2xl">
+    <div className="space-y-6 max-w-xl mx-auto">
       {/* Back Navigation */}
       <button
         onClick={handleCancel}
@@ -85,13 +85,22 @@ const EditFillupView: React.FC<EditFillupViewProps> = ({ carId, fillupId }) => {
       {/* Header */}
       <header>
         <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Edytuj Tankowanie</h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-2">Zmodyfikuj dane tankowania</p>
+        {originalFillupData?.date && (
+          <p className="text-gray-600 dark:text-gray-400 mt-2">
+            Z dnia {new Date(originalFillupData.date).toLocaleDateString('pl-PL')}
+          </p>
+        )}
       </header>
 
       {/* Form */}
-      <form onSubmit={handleSubmit} noValidate aria-label="Formularz edycji tankowania" className="space-y-6">
+      <form
+        onSubmit={handleSubmit}
+        noValidate
+        aria-label="Formularz edycji tankowania"
+        className="grid gap-6 grid-cols-1 sm:grid-cols-2"
+      >
         {/* Date field */}
-        <div className="space-y-2">
+        <div className="space-y-2 sm:col-span-2">
           <Label htmlFor="date" aria-required="true">
             Data tankowania
             <span aria-label="Pole wymagane" className="text-destructive ml-1">
@@ -132,35 +141,40 @@ const EditFillupView: React.FC<EditFillupViewProps> = ({ carId, fillupId }) => {
         {/* Fuel amount field */}
         <div className="space-y-2">
           <Label htmlFor="fuelAmount" aria-required="true">
-            Ilość paliwa (litry)
+            Ilość paliwa
             <span aria-label="Pole wymagane" className="text-destructive ml-1">
               *
             </span>
           </Label>
-          <Input
-            id="fuelAmount"
-            name="fuelAmount"
-            type="number"
-            min="0"
-            step="0.01"
-            value={formState.fuelAmount}
-            onChange={(e) => handleFieldChange('fuelAmount', e.target.value)}
-            onBlur={() => handleFieldBlur('fuelAmount')}
-            placeholder="np. 45.5"
-            aria-invalid={touchedFields.has('fuelAmount') && !!formErrors.fuelAmount}
-            aria-describedby={
-              touchedFields.has('fuelAmount') && formErrors.fuelAmount
-                ? 'fuelAmount-error fuelAmount-help'
-                : touchedFields.has('fuelAmount')
-                  ? 'fuelAmount-help'
-                  : undefined
-            }
-            aria-required="true"
-            autoComplete="off"
-            disabled={isSubmitting}
-            className={touchedFields.has('fuelAmount') && formErrors.fuelAmount ? 'border-destructive' : ''}
-            required
-          />
+          <div className="relative">
+            <Input
+              id="fuelAmount"
+              name="fuelAmount"
+              type="number"
+              min="0"
+              step="0.01"
+              value={formState.fuelAmount}
+              onChange={(e) => handleFieldChange('fuelAmount', e.target.value)}
+              onBlur={() => handleFieldBlur('fuelAmount')}
+              placeholder="np. 45.5"
+              aria-invalid={touchedFields.has('fuelAmount') && !!formErrors.fuelAmount}
+              aria-describedby={
+                touchedFields.has('fuelAmount') && formErrors.fuelAmount
+                  ? 'fuelAmount-error fuelAmount-help'
+                  : touchedFields.has('fuelAmount')
+                    ? 'fuelAmount-help'
+                    : undefined
+              }
+              aria-required="true"
+              autoComplete="off"
+              disabled={isSubmitting}
+              className={`pr-10 ${touchedFields.has('fuelAmount') && formErrors.fuelAmount ? 'border-destructive' : ''}`}
+              required
+            />
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm pointer-events-none">
+              L
+            </span>
+          </div>
           <p id="fuelAmount-help" className="sr-only">
             Wprowadź ilość zatankowanego paliwa w litrach
           </p>
@@ -174,35 +188,40 @@ const EditFillupView: React.FC<EditFillupViewProps> = ({ carId, fillupId }) => {
         {/* Total price field */}
         <div className="space-y-2">
           <Label htmlFor="totalPrice" aria-required="true">
-            Całkowita cena (PLN)
+            Całkowita cena
             <span aria-label="Pole wymagane" className="text-destructive ml-1">
               *
             </span>
           </Label>
-          <Input
-            id="totalPrice"
-            name="totalPrice"
-            type="number"
-            min="0"
-            step="0.01"
-            value={formState.totalPrice}
-            onChange={(e) => handleFieldChange('totalPrice', e.target.value)}
-            onBlur={() => handleFieldBlur('totalPrice')}
-            placeholder="np. 227.5"
-            aria-invalid={touchedFields.has('totalPrice') && !!formErrors.totalPrice}
-            aria-describedby={
-              touchedFields.has('totalPrice') && formErrors.totalPrice
-                ? 'totalPrice-error totalPrice-help'
-                : touchedFields.has('totalPrice')
-                  ? 'totalPrice-help'
-                  : undefined
-            }
-            aria-required="true"
-            autoComplete="off"
-            disabled={isSubmitting}
-            className={touchedFields.has('totalPrice') && formErrors.totalPrice ? 'border-destructive' : ''}
-            required
-          />
+          <div className="relative">
+            <Input
+              id="totalPrice"
+              name="totalPrice"
+              type="number"
+              min="0"
+              step="0.01"
+              value={formState.totalPrice}
+              onChange={(e) => handleFieldChange('totalPrice', e.target.value)}
+              onBlur={() => handleFieldBlur('totalPrice')}
+              placeholder="np. 227.5"
+              aria-invalid={touchedFields.has('totalPrice') && !!formErrors.totalPrice}
+              aria-describedby={
+                touchedFields.has('totalPrice') && formErrors.totalPrice
+                  ? 'totalPrice-error totalPrice-help'
+                  : touchedFields.has('totalPrice')
+                    ? 'totalPrice-help'
+                    : undefined
+              }
+              aria-required="true"
+              autoComplete="off"
+              disabled={isSubmitting}
+              className={`pr-12 ${touchedFields.has('totalPrice') && formErrors.totalPrice ? 'border-destructive' : ''}`}
+              required
+            />
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm pointer-events-none">
+              PLN
+            </span>
+          </div>
           <p id="totalPrice-help" className="sr-only">
             Wprowadź całkowitą cenę tankowania w PLN
           </p>
@@ -268,30 +287,35 @@ const EditFillupView: React.FC<EditFillupViewProps> = ({ carId, fillupId }) => {
                 *
               </span>
             </Label>
-            <Input
-              id="odometer"
-              name="odometer"
-              type="number"
-              min="0"
-              step="1"
-              value={formState.odometer}
-              onChange={(e) => handleFieldChange('odometer', e.target.value)}
-              onBlur={() => handleFieldBlur('odometer')}
-              placeholder="np. 55000"
-              aria-invalid={touchedFields.has('odometer') && !!formErrors.odometer}
-              aria-describedby={
-                touchedFields.has('odometer') && formErrors.odometer
-                  ? 'odometer-error odometer-help'
-                  : touchedFields.has('odometer')
-                    ? 'odometer-help'
-                    : undefined
-              }
-              aria-required="true"
-              autoComplete="off"
-              disabled={isSubmitting}
-              className={touchedFields.has('odometer') && formErrors.odometer ? 'border-destructive' : ''}
-              required
-            />
+            <div className="relative">
+              <Input
+                id="odometer"
+                name="odometer"
+                type="number"
+                min="0"
+                step="1"
+                value={formState.odometer}
+                onChange={(e) => handleFieldChange('odometer', e.target.value)}
+                onBlur={() => handleFieldBlur('odometer')}
+                placeholder="np. 55000"
+                aria-invalid={touchedFields.has('odometer') && !!formErrors.odometer}
+                aria-describedby={
+                  touchedFields.has('odometer') && formErrors.odometer
+                    ? 'odometer-error odometer-help'
+                    : touchedFields.has('odometer')
+                      ? 'odometer-help'
+                      : undefined
+                }
+                aria-required="true"
+                autoComplete="off"
+                disabled={isSubmitting}
+                className={`pr-10 ${touchedFields.has('odometer') && formErrors.odometer ? 'border-destructive' : ''}`}
+                required
+              />
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm pointer-events-none">
+                km
+              </span>
+            </div>
             <p id="odometer-help" className="sr-only">
               Wprowadź aktualny stan licznika w kilometrach
             </p>
@@ -306,35 +330,40 @@ const EditFillupView: React.FC<EditFillupViewProps> = ({ carId, fillupId }) => {
         {formState.inputMode === 'distance' && (
           <div className="space-y-2">
             <Label htmlFor="distance" aria-required="true">
-              Dystans (km)
+              Dystans
               <span aria-label="Pole wymagane" className="text-destructive ml-1">
                 *
               </span>
             </Label>
-            <Input
-              id="distance"
-              name="distance"
-              type="number"
-              min="0"
-              step="0.01"
-              value={formState.distance}
-              onChange={(e) => handleFieldChange('distance', e.target.value)}
-              onBlur={() => handleFieldBlur('distance')}
-              placeholder="np. 500"
-              aria-invalid={touchedFields.has('distance') && !!formErrors.distance}
-              aria-describedby={
-                touchedFields.has('distance') && formErrors.distance
-                  ? 'distance-error distance-help'
-                  : touchedFields.has('distance')
-                    ? 'distance-help'
-                    : undefined
-              }
-              aria-required="true"
-              autoComplete="off"
-              disabled={isSubmitting}
-              className={touchedFields.has('distance') && formErrors.distance ? 'border-destructive' : ''}
-              required
-            />
+            <div className="relative">
+              <Input
+                id="distance"
+                name="distance"
+                type="number"
+                min="0"
+                step="0.01"
+                value={formState.distance}
+                onChange={(e) => handleFieldChange('distance', e.target.value)}
+                onBlur={() => handleFieldBlur('distance')}
+                placeholder="np. 500"
+                aria-invalid={touchedFields.has('distance') && !!formErrors.distance}
+                aria-describedby={
+                  touchedFields.has('distance') && formErrors.distance
+                    ? 'distance-error distance-help'
+                    : touchedFields.has('distance')
+                      ? 'distance-help'
+                      : undefined
+                }
+                aria-required="true"
+                autoComplete="off"
+                disabled={isSubmitting}
+                className={`pr-10 ${touchedFields.has('distance') && formErrors.distance ? 'border-destructive' : ''}`}
+                required
+              />
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm pointer-events-none">
+                km
+              </span>
+            </div>
             <p id="distance-help" className="sr-only">
               Wprowadź przejechany dystans od ostatniego tankowania w kilometrach
             </p>
@@ -349,7 +378,7 @@ const EditFillupView: React.FC<EditFillupViewProps> = ({ carId, fillupId }) => {
         {/* Validation warnings */}
         {warnings.length > 0 && (
           <div
-            className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md p-4"
+            className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md p-4 sm:col-span-2"
             role="alert"
             aria-live="polite"
           >
@@ -385,7 +414,7 @@ const EditFillupView: React.FC<EditFillupViewProps> = ({ carId, fillupId }) => {
         {/* Submit error message */}
         {formErrors.submit && (
           <div
-            className="p-4 rounded-md bg-destructive/10 border border-destructive/50"
+            className="p-4 rounded-md bg-destructive/10 border border-destructive/50 sm:col-span-2"
             role="alert"
             aria-live="assertive"
             aria-atomic="true"
@@ -395,41 +424,48 @@ const EditFillupView: React.FC<EditFillupViewProps> = ({ carId, fillupId }) => {
         )}
 
         {/* Form actions */}
-        <div className="flex flex-col sm:flex-row gap-4 pt-6" role="group" aria-label="Akcje formularza">
-          <Button
-            type="submit"
-            disabled={isSubmitDisabled}
-            className="flex-1 sm:flex-none min-w-[120px] h-12 px-6"
-            aria-busy={isSubmitting}
-            aria-describedby={isSubmitting ? 'submitting-status' : undefined}
-          >
-            {isSubmitting ? 'Zapisywanie...' : 'Zapisz'}
-          </Button>
-          {isSubmitting && (
-            <span id="submitting-status" className="sr-only">
-              Zapisywanie formularza, proszę czekać
-            </span>
-          )}
+        <div
+          className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 sm:col-span-2"
+          role="group"
+          aria-label="Akcje formularza"
+        >
+          <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto order-1 sm:order-none">
+            <Button
+              type="submit"
+              disabled={isSubmitDisabled}
+              className="w-full sm:w-auto min-w-[120px] h-12 px-6"
+              aria-busy={isSubmitting}
+              aria-describedby={isSubmitting ? 'submitting-status' : undefined}
+            >
+              {isSubmitting ? 'Zapisywanie...' : 'Zapisz'}
+            </Button>
+            {isSubmitting && (
+              <span id="submitting-status" className="sr-only">
+                Zapisywanie formularza, proszę czekać
+              </span>
+            )}
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleCancel}
+              disabled={isSubmitting || isDeleting}
+              className="w-full sm:w-auto min-w-[120px] h-12 px-6"
+              aria-label="Anuluj i wróć do listy tankowań"
+            >
+              Anuluj
+            </Button>
+          </div>
+
           <Button
             type="button"
-            variant="outline"
-            onClick={handleCancel}
-            disabled={isSubmitting || isDeleting}
-            className="flex-1 sm:flex-none min-w-[120px] h-12 px-6"
-            aria-label="Anuluj i wróć do listy tankowań"
-          >
-            Anuluj
-          </Button>
-          <Button
-            type="button"
-            variant="destructive"
+            variant="ghost"
             onClick={handleDeleteClick}
             disabled={isSubmitting || isDeleting}
-            className="flex-1 sm:flex-none min-w-[140px] h-12 px-6"
+            className="w-full sm:w-auto text-destructive hover:text-destructive/90 hover:bg-destructive/10 order-2 sm:order-none"
             aria-label="Usuń tankowanie"
           >
             <Trash2 className="h-4 w-4 mr-2" aria-hidden="true" />
-            Usuń tankowanie
+            Usuń
           </Button>
         </div>
       </form>

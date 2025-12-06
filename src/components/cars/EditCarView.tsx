@@ -77,7 +77,7 @@ const EditCarView: React.FC<EditCarViewProps> = ({ carId }) => {
   const isDeleteDisabled = isSubmitting || isDeleting;
 
   return (
-    <div className="space-y-6 max-w-2xl">
+    <div className="space-y-6 max-w-xl mx-auto">
       {/* Back Navigation */}
       <button
         onClick={handleCancel}
@@ -101,11 +101,11 @@ const EditCarView: React.FC<EditCarViewProps> = ({ carId }) => {
         onSubmit={handleSubmit}
         noValidate
         aria-label="Formularz edycji samochodu"
-        className="space-y-6"
+        className="grid gap-6 grid-cols-1 sm:grid-cols-2"
         data-test-id="edit-car-form"
       >
         {/* Name field */}
-        <div className="space-y-2">
+        <div className="space-y-2 sm:col-span-2">
           <Label htmlFor="name" aria-required="true">
             Nazwa samochodu
             <span aria-label="Pole wymagane" className="text-destructive ml-1">
@@ -147,7 +147,7 @@ const EditCarView: React.FC<EditCarViewProps> = ({ carId }) => {
         </div>
 
         {/* Mileage input preference field */}
-        <div className="space-y-2">
+        <div className="space-y-2 sm:col-span-2">
           <Label htmlFor="mileageInputPreference" aria-required="true">
             Preferencja wprowadzania przebiegu
             <span aria-label="Pole wymagane" className="text-destructive ml-1">
@@ -205,7 +205,7 @@ const EditCarView: React.FC<EditCarViewProps> = ({ carId }) => {
         {/* Submit error message */}
         {formErrors.submit && (
           <div
-            className="p-4 rounded-md bg-destructive/10 border border-destructive/50"
+            className="p-4 rounded-md bg-destructive/10 border border-destructive/50 sm:col-span-2"
             role="alert"
             aria-live="assertive"
             aria-atomic="true"
@@ -215,47 +215,51 @@ const EditCarView: React.FC<EditCarViewProps> = ({ carId }) => {
         )}
 
         {/* Form actions */}
-        <div className="flex flex-col sm:flex-row gap-4 pt-6" role="group" aria-label="Akcje formularza">
-          <Button
-            type="submit"
-            disabled={isSubmitDisabled || isDeleting}
-            size="lg"
-            className="flex-1 sm:flex-none min-w-[120px]"
-            aria-busy={isSubmitting}
-            aria-describedby={isSubmitting ? 'submitting-status' : undefined}
-            data-test-id="edit-car-save-button"
-          >
-            {isSubmitting ? 'Zapisywanie...' : 'Zapisz'}
-          </Button>
-          {isSubmitting && (
-            <span id="submitting-status" className="sr-only">
-              Zapisywanie formularza, proszę czekać
-            </span>
-          )}
+        <div
+          className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 sm:col-span-2"
+          role="group"
+          aria-label="Akcje formularza"
+        >
+          <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto order-1 sm:order-none">
+            <Button
+              type="submit"
+              disabled={isSubmitDisabled || isDeleting}
+              className="w-full sm:w-auto min-w-[120px] h-12 px-6"
+              aria-busy={isSubmitting}
+              aria-describedby={isSubmitting ? 'submitting-status' : undefined}
+              data-test-id="edit-car-save-button"
+            >
+              {isSubmitting ? 'Zapisywanie...' : 'Zapisz'}
+            </Button>
+            {isSubmitting && (
+              <span id="submitting-status" className="sr-only">
+                Zapisywanie formularza, proszę czekać
+              </span>
+            )}
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleCancel}
+              disabled={isSubmitting || isDeleting}
+              className="w-full sm:w-auto min-w-[120px] h-12 px-6"
+              aria-label="Anuluj i wróć do szczegółów samochodu"
+              data-test-id="edit-car-cancel-button"
+            >
+              Anuluj
+            </Button>
+          </div>
+
           <Button
             type="button"
-            variant="outline"
-            onClick={handleCancel}
-            disabled={isSubmitting || isDeleting}
-            size="lg"
-            className="flex-1 sm:flex-none min-w-[120px]"
-            aria-label="Anuluj i wróć do szczegółów samochodu"
-            data-test-id="edit-car-cancel-button"
-          >
-            Anuluj
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
+            variant="ghost"
             onClick={handleDeleteClick}
             disabled={isDeleteDisabled}
-            size="lg"
-            className="flex-1 sm:flex-none min-w-[140px] text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 border-red-600 dark:border-red-400 hover:bg-red-50 dark:hover:bg-red-950"
+            className="w-full sm:w-auto text-destructive hover:text-destructive/90 hover:bg-destructive/10 order-2 sm:order-none"
             aria-label="Usuń samochód i wszystkie powiązane tankowania"
             data-test-id="edit-car-delete-button"
           >
             <Trash2 className="h-4 w-4 mr-2" aria-hidden="true" />
-            Usuń samochód
+            Usuń
           </Button>
         </div>
       </form>
