@@ -13,8 +13,8 @@ export const FillupCount: React.FC<FillupCountProps> = ({ value }) => {
 
   return (
     <div className="flex items-center justify-between">
-      <span className="text-sm text-gray-600 dark:text-gray-400">Liczba tankowań:</span>
-      <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{formatValue(value)}</span>
+      <span className="text-base text-gray-600 dark:text-gray-400">Liczba tankowań:</span>
+      <span className="text-base font-medium text-gray-900 dark:text-gray-100">{formatValue(value)}</span>
     </div>
   );
 };

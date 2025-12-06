@@ -37,8 +37,8 @@ export const AverageConsumption: React.FC<AverageConsumptionProps> = ({ value, a
 
   return (
     <div className="flex items-center justify-between">
-      <span className="text-sm text-gray-600 dark:text-gray-400">Średnie spalanie:</span>
-      <span className={`px-2 py-1 rounded-full text-sm font-medium ${colorClasses}`}>{formatValue(value)}</span>
+      <span className="text-base text-gray-600 dark:text-gray-400">Średnie spalanie:</span>
+      <span className={`px-2 py-1 rounded-full text-base font-medium ${colorClasses}`}>{formatValue(value)}</span>
     </div>
   );
 };

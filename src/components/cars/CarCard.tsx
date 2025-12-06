@@ -28,7 +28,7 @@ export const CarCard: React.FC<CarCardProps> = ({ car, onClick }) => {
       aria-label={`Przejdź do szczegółów samochodu ${car.name}`}
       data-test-id={`car-card-${car.id}`}
     >
-      <div className="p-6">
+      <div className="p-3 md:p-6">
         <CarName name={car.name} />
         <CarStatistics statistics={car.statistics} />
       </div>

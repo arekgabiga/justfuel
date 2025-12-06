@@ -16,7 +16,7 @@ export const CarsGrid: React.FC<CarsGridProps> = ({ cars, onCarClick, loading = 
         {Array.from({ length: 10 }).map((_, index) => (
           <div
             key={index}
-            className="bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 p-6"
+            className="bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 p-3 md:p-6"
           >
             <Skeleton className="h-6 w-3/4 mb-4" />
             <div className="space-y-3">

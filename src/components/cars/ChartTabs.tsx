@@ -10,7 +10,7 @@ interface ChartTabsProps {
 
 export const ChartTabs: React.FC<ChartTabsProps> = ({ activeChartType, onChartTypeChange }) => {
   return (
-    <div className="flex items-center gap-2 mb-6">
+    <div className="flex flex-wrap items-center gap-2 mb-6">
       <Button
         onClick={() => onChartTypeChange('consumption')}
         variant={activeChartType === 'consumption' ? 'default' : 'outline'}

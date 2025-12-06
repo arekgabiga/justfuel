@@ -101,7 +101,7 @@ export const CarDetailsView: React.FC<CarDetailsViewProps> = ({ carId }) => {
         <CarHeader car={car} onEdit={openEditDialog} onDelete={openDeleteDialog} onBack={handleBackToCars} />
       </div>
 
-      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg ring-1 ring-black/5 p-8">
+      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg ring-1 ring-black/5 p-4 md:p-8">
         <TabNavigation activeTab={activeMainTab} onTabChange={switchMainTab} />
 
         <div className="mt-6">

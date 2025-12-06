@@ -188,14 +188,14 @@ export const ChartVisualization: React.FC<ChartVisualizationProps> = ({
             <XAxis
               dataKey="date"
               tickFormatter={formatXAxisDate}
-              className="text-xs fill-gray-600 dark:fill-gray-400"
+              className="text-sm fill-gray-600 dark:fill-gray-400"
               angle={-45}
               textAnchor="end"
               height={80}
             />
             <YAxis
               label={{ value: getYAxisLabel(chartType), angle: -90, position: 'insideLeft' }}
-              className="text-xs fill-gray-600 dark:fill-gray-400"
+              className="text-sm fill-gray-600 dark:fill-gray-400"
             />
             <Tooltip content={<CustomTooltip />} />
             <Bar dataKey="value" fill="#3b82f6" radius={[4, 4, 0, 0]} className="hover:opacity-80" />
@@ -220,14 +220,14 @@ export const ChartVisualization: React.FC<ChartVisualizationProps> = ({
           <XAxis
             dataKey="date"
             tickFormatter={formatXAxisDate}
-            className="text-xs fill-gray-600 dark:fill-gray-400"
+            className="text-sm fill-gray-600 dark:fill-gray-400"
             angle={-45}
             textAnchor="end"
             height={80}
           />
           <YAxis
             label={{ value: getYAxisLabel(chartType), angle: -90, position: 'insideLeft' }}
-            className="text-xs fill-gray-600 dark:fill-gray-400"
+            className="text-sm fill-gray-600 dark:fill-gray-400"
           />
           <Tooltip content={<CustomTooltip />} />
           <Line

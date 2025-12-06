@@ -88,7 +88,7 @@ const EditFillupView: React.FC<EditFillupViewProps> = ({ carId, fillupId }) => {
       </header>
 
       {/* Form Card */}
-      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg ring-1 ring-black/5 p-8">
+      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg ring-1 ring-black/5 p-4 md:p-8">
         <form
           onSubmit={handleSubmit}
           noValidate
