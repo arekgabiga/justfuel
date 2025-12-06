@@ -38,7 +38,10 @@ const user = Astro.locals.user;
             </a>
             <nav class="flex items-center gap-4">
               {user?.email ? (
-                <span class="text-sm text-muted-foreground" aria-label={`Zalogowany jako ${user.email}`}>
+                <span
+                  class="hidden md:inline text-sm text-muted-foreground"
+                  aria-label={`Zalogowany jako ${user.email}`}
+                >
                   {user.email}
                 </span>
               ) : null}

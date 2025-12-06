@@ -64,7 +64,7 @@ export const CarDetailsView: React.FC<CarDetailsViewProps> = ({ carId }) => {
     fetchChartData(activeChartTab);
   };
 
-  const handleChartTypeChange = (type: React.SetStateAction<'consumption' | 'price_per_liter' | 'distance'>) => {
+  const handleChartTypeChange = (type: 'consumption' | 'price_per_liter' | 'distance') => {
     switchChartTab(type);
   };
 
@@ -96,7 +96,7 @@ export const CarDetailsView: React.FC<CarDetailsViewProps> = ({ carId }) => {
   }
 
   return (
-    <main className="container mx-auto px-4 py-8">
+    <main className="container mx-auto px-4 py-8 max-w-4xl">
       <div className="mb-8">
         <CarHeader car={car} onEdit={openEditDialog} onDelete={openDeleteDialog} onBack={handleBackToCars} />
       </div>

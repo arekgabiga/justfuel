@@ -79,26 +79,27 @@ export const FillupCard: React.FC<FillupCardProps> = ({ fillup, averageConsumpti
         }
       }}
     >
-      <div className="grid grid-cols-2 gap-x-4 gap-y-3 sm:grid-cols-4">
-        <div className="min-w-0">
-          <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Data</div>
-          <div className="font-medium text-gray-900 dark:text-gray-100">{formatDate(fillup.date)}</div>
+      <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+        {/* Top Left: Date */}
+        <div className="text-sm text-gray-500 dark:text-gray-400">{formatDate(fillup.date)}</div>
+
+        {/* Top Right: Consumption */}
+        <div
+          className={`text-right text-sm font-bold flex justify-end items-baseline ${getConsumptionColor(fillup.fuel_consumption, averageConsumption)}`}
+        >
+          {formatNumber(fillup.fuel_consumption)}{' '}
+          <span className="font-normal text-xs text-gray-400 w-[60px] text-left ml-1.5 inline-block">L/100km</span>
         </div>
-        <div className="min-w-0">
-          <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Spalanie</div>
-          <div className={`font-medium ${getConsumptionColor(fillup.fuel_consumption, averageConsumption)}`}>
-            {formatNumber(fillup.fuel_consumption)} L/100km
-          </div>
+
+        {/* Bottom Left: Distance */}
+        <div className="text-sm font-medium text-gray-900 dark:text-gray-200">
+          {formatNumber(fillup.distance_traveled)} <span className="text-gray-500 font-normal">km</span>
         </div>
-        <div className="min-w-0">
-          <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Dystans</div>
-          <div className="font-medium text-gray-900 dark:text-gray-100">
-            {formatNumber(fillup.distance_traveled)} km
-          </div>
-        </div>
-        <div className="min-w-0">
-          <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Cena za litr</div>
-          <div className="font-medium text-gray-900 dark:text-gray-100">{formatNumber(fillup.price_per_liter)} zł</div>
+
+        {/* Bottom Right: Price */}
+        <div className="text-right text-sm text-gray-600 dark:text-gray-400 flex justify-end items-baseline">
+          {formatNumber(fillup.price_per_liter)}{' '}
+          <span className="text-xs text-gray-400 w-[60px] text-left ml-1.5 inline-block">zł/L</span>
         </div>
       </div>
     </div>

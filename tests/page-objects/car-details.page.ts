@@ -1,4 +1,4 @@
-import { Page, Locator } from '@playwright/test';
+import type { Page, Locator } from '@playwright/test';
 
 export class CarDetailsPage {
   readonly page: Page;
@@ -26,12 +26,18 @@ export class CarDetailsPage {
     return this.page.getByTestId('back-to-cars-button');
   }
 
+  get optionsMenuButton(): Locator {
+    return this.page.getByTestId('car-options-menu-button');
+  }
+
   // Actions
   async clickEdit(): Promise<void> {
+    await this.optionsMenuButton.click();
     await this.editButton.click();
   }
 
   async clickDelete(): Promise<void> {
+    await this.optionsMenuButton.click();
     await this.deleteButton.click();
   }
 

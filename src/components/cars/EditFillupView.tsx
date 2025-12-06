@@ -399,8 +399,7 @@ const EditFillupView: React.FC<EditFillupViewProps> = ({ carId, fillupId }) => {
           <Button
             type="submit"
             disabled={isSubmitDisabled}
-            size="lg"
-            className="flex-1 sm:flex-none min-w-[120px]"
+            className="flex-1 sm:flex-none min-w-[120px] h-12 px-6"
             aria-busy={isSubmitting}
             aria-describedby={isSubmitting ? 'submitting-status' : undefined}
           >
@@ -416,8 +415,7 @@ const EditFillupView: React.FC<EditFillupViewProps> = ({ carId, fillupId }) => {
             variant="outline"
             onClick={handleCancel}
             disabled={isSubmitting || isDeleting}
-            size="lg"
-            className="flex-1 sm:flex-none min-w-[120px]"
+            className="flex-1 sm:flex-none min-w-[120px] h-12 px-6"
             aria-label="Anuluj i wróć do listy tankowań"
           >
             Anuluj
@@ -427,8 +425,7 @@ const EditFillupView: React.FC<EditFillupViewProps> = ({ carId, fillupId }) => {
             variant="destructive"
             onClick={handleDeleteClick}
             disabled={isSubmitting || isDeleting}
-            size="lg"
-            className="flex-1 sm:flex-none min-w-[140px]"
+            className="flex-1 sm:flex-none min-w-[140px] h-12 px-6"
             aria-label="Usuń tankowanie"
           >
             <Trash2 className="h-4 w-4 mr-2" aria-hidden="true" />
