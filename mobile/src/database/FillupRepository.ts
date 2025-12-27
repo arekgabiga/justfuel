@@ -61,6 +61,40 @@ export const FillupRepository = {
     };
   },
 
+  getPreviousFillup: async (carId: string, date: string): Promise<Fillup | null> => {
+    const db = await getDBConnection();
+    const result = await db.getFirstAsync<Fillup>(
+      'SELECT * FROM fillups WHERE car_id = ? AND date < ? ORDER BY date DESC LIMIT 1',
+      [carId, date]
+    );
+    return result;
+  },
+
+  updateFillup: async (fillup: Fillup): Promise<void> => {
+    const db = await getDBConnection();
+    await db.runAsync(
+      `UPDATE fillups SET 
+        date = ?, 
+        fuel_amount = ?, 
+        total_price = ?, 
+        odometer = ?, 
+        distance_traveled = ?, 
+        fuel_consumption = ?, 
+        price_per_liter = ? 
+      WHERE id = ?`,
+      [
+        fillup.date,
+        fillup.fuel_amount,
+        fillup.total_price,
+        fillup.odometer,
+        fillup.distance_traveled,
+        fillup.fuel_consumption,
+        fillup.price_per_liter,
+        fillup.id,
+      ]
+    );
+  },
+
   deleteFillup: async (id: string): Promise<void> => {
     const db = await getDBConnection();
     await db.runAsync('DELETE FROM fillups WHERE id = ?', [id]);

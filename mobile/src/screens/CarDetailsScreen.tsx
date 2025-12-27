@@ -23,14 +23,14 @@ export default function CarDetailsScreen({ route }: any) {
   const openMenu = () => setMenuVisible(true);
   const closeMenu = () => setMenuVisible(false);
 
-  const handleEdit = () => {
+  const handleEdit = useCallback(() => {
     closeMenu();
     if (car) {
       navigation.navigate('AddCar', { car });
     }
-  };
+  }, [car, navigation]);
 
-  const handleDelete = () => {
+  const handleDelete = useCallback(() => {
     closeMenu();
     Alert.alert(
       'Usuń samochód',
@@ -54,7 +54,7 @@ export default function CarDetailsScreen({ route }: any) {
         },
       ]
     );
-  };
+  }, [carId, navigation]);
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -62,13 +62,14 @@ export default function CarDetailsScreen({ route }: any) {
         <Menu
           visible={menuVisible}
           onDismiss={closeMenu}
-          anchor={<Appbar.Action icon="dots-vertical" onPress={openMenu} />}>
+          anchor={<Appbar.Action icon="dots-vertical" onPress={openMenu} />}
+        >
           <Menu.Item onPress={handleEdit} title="Edytuj" leadingIcon="pencil" />
           <Menu.Item onPress={handleDelete} title="Usuń" leadingIcon="delete" />
         </Menu>
       ),
     });
-  }, [navigation, menuVisible, car]);
+  }, [navigation, menuVisible, handleEdit, handleDelete]);
 
   const loadData = useCallback(async () => {
     try {
@@ -105,7 +106,7 @@ export default function CarDetailsScreen({ route }: any) {
     }
 
     return (
-      <Card style={styles.card}>
+      <Card style={styles.card} onPress={() => navigation.navigate('FillupForm', { carId, fillup: item })}>
         <View style={styles.cardHeader}>
           <Text variant="titleMedium" style={{ fontWeight: 'bold' }}>
             {new Date(item.date).toLocaleDateString()}
@@ -117,12 +118,20 @@ export default function CarDetailsScreen({ route }: any) {
             <Text variant="bodySmall" style={styles.label}>
               Spalanie
             </Text>
-            <Text variant="titleLarge" style={{ fontWeight: 'bold', color: consumptionColor }}>
-              {item.fuel_consumption ? item.fuel_consumption.toFixed(2) : '-'}{' '}
-              <Text variant="bodySmall" style={{ color: consumptionColor }}>
-                L/100km
+            {item.fuel_consumption ? (
+              <>
+                <Text variant="titleLarge" style={{ fontWeight: 'bold', color: consumptionColor }}>
+                  {item.fuel_consumption.toFixed(2)}
+                </Text>
+                <Text variant="labelSmall" style={{ color: consumptionColor, marginTop: -4 }}>
+                  L/100km
+                </Text>
+              </>
+            ) : (
+              <Text variant="titleMedium" style={{ fontWeight: 'bold', color: theme.colors.onSurfaceDisabled }}>
+                -
               </Text>
-            </Text>
+            )}
           </View>
 
           <View style={styles.statCol}>
@@ -130,7 +139,10 @@ export default function CarDetailsScreen({ route }: any) {
               Przebieg
             </Text>
             <Text variant="titleMedium" style={{ fontWeight: 'bold' }}>
-              {item.odometer} <Text variant="bodySmall">km</Text>
+              {item.odometer}
+            </Text>
+            <Text variant="labelSmall" style={{ marginTop: -2 }}>
+              km
             </Text>
           </View>
 
@@ -139,7 +151,10 @@ export default function CarDetailsScreen({ route }: any) {
               Cena
             </Text>
             <Text variant="titleMedium" style={{ fontWeight: 'bold' }}>
-              {item.price_per_liter.toFixed(2)} <Text variant="bodySmall">zł/L</Text>
+              {item.price_per_liter.toFixed(2)}
+            </Text>
+            <Text variant="labelSmall" style={{ marginTop: -2 }}>
+              zł/L
             </Text>
           </View>
         </Card.Content>
@@ -193,7 +208,6 @@ export default function CarDetailsScreen({ route }: any) {
 
       <FAB
         icon="plus"
-        label="Dodaj tankowanie"
         style={[styles.fab, { backgroundColor: theme.colors.primary, bottom: insets.bottom + 16 }]}
         color="white"
         onPress={() => navigation.navigate('FillupForm', { carId })}
