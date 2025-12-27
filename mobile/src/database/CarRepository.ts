@@ -77,8 +77,9 @@ export const CarRepository = {
 
   updateCar: async (car: Car): Promise<void> => {
     const db = await getDBConnection();
-    await db.runAsync('UPDATE cars SET name = ?, mileage_input_preference = ? WHERE id = ?', [
+    await db.runAsync('UPDATE cars SET name = ?, initial_odometer = ?, mileage_input_preference = ? WHERE id = ?', [
       car.name,
+      car.initial_odometer,
       car.mileage_input_preference,
       car.id,
     ]);

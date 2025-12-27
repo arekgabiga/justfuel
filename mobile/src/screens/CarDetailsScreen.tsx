@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
-import { View, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
-import { Text, FAB, Card, useTheme, Divider, ActivityIndicator } from 'react-native-paper';
+import { View, FlatList, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { Text, FAB, Card, useTheme, Divider, ActivityIndicator, Menu, Appbar } from 'react-native-paper';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FillupRepository } from '../database/FillupRepository';
@@ -18,6 +18,57 @@ export default function CarDetailsScreen({ route }: any) {
   const [car, setCar] = useState<Car | null>(null);
   const [activeTab, setActiveTab] = useState<'fillups' | 'charts'>('fillups');
   const [loading, setLoading] = useState(true);
+  const [menuVisible, setMenuVisible] = useState(false);
+
+  const openMenu = () => setMenuVisible(true);
+  const closeMenu = () => setMenuVisible(false);
+
+  const handleEdit = () => {
+    closeMenu();
+    if (car) {
+      navigation.navigate('AddCar', { car });
+    }
+  };
+
+  const handleDelete = () => {
+    closeMenu();
+    Alert.alert(
+      'Usuń samochód',
+      'Czy na pewno chcesz usunąć ten samochód i wszystkie jego tankowania? Tej operacji nie można cofnąć.',
+      [
+        { text: 'Anuluj', style: 'cancel' },
+        {
+          text: 'Usuń',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              setLoading(true);
+              await CarRepository.deleteCar(carId);
+              navigation.goBack();
+            } catch (e) {
+              console.error(e);
+              Alert.alert('Błąd', 'Nie udało się usunąć samochodu.');
+              setLoading(false); // Restore state if failed
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <Menu
+          visible={menuVisible}
+          onDismiss={closeMenu}
+          anchor={<Appbar.Action icon="dots-vertical" onPress={openMenu} />}>
+          <Menu.Item onPress={handleEdit} title="Edytuj" leadingIcon="pencil" />
+          <Menu.Item onPress={handleDelete} title="Usuń" leadingIcon="delete" />
+        </Menu>
+      ),
+    });
+  }, [navigation, menuVisible, car]);
 
   const loadData = useCallback(async () => {
     try {

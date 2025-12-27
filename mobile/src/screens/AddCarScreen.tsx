@@ -1,17 +1,26 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { TextInput, Button, SegmentedButtons, HelperText } from 'react-native-paper';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { CarRepository } from '../database/CarRepository';
 import { MileagePreference } from '../types';
 
 export default function AddCarScreen() {
   const navigation = useNavigation();
-  const [name, setName] = useState('');
-  const [initialOdometer, setInitialOdometer] = useState('');
-  const [preference, setPreference] = useState<MileagePreference>('odometer');
+  const route = useRoute<any>();
+  const carToEdit = route.params?.car;
+
+  const [name, setName] = useState(carToEdit?.name || '');
+  const [initialOdometer, setInitialOdometer] = useState(carToEdit?.initial_odometer?.toString() || '');
+  const [preference, setPreference] = useState<MileagePreference>(carToEdit?.mileage_input_preference || 'odometer');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  React.useEffect(() => {
+    if (carToEdit) {
+      navigation.setOptions({ title: 'Edytuj samochód' });
+    }
+  }, [carToEdit, navigation]);
 
   const handleSave = async () => {
     if (!name.trim()) {
@@ -21,11 +30,20 @@ export default function AddCarScreen() {
 
     setLoading(true);
     try {
-      await CarRepository.addCar({
-        name: name.trim(),
-        initial_odometer: initialOdometer ? parseFloat(initialOdometer) : 0,
-        mileage_input_preference: preference,
-      });
+      if (carToEdit) {
+        await CarRepository.updateCar({
+          ...carToEdit,
+          name: name.trim(),
+          initial_odometer: initialOdometer ? parseFloat(initialOdometer) : 0,
+          mileage_input_preference: preference,
+        });
+      } else {
+        await CarRepository.addCar({
+          name: name.trim(),
+          initial_odometer: initialOdometer ? parseFloat(initialOdometer) : 0,
+          mileage_input_preference: preference,
+        });
+      }
       navigation.goBack();
     } catch (e) {
       console.error(e);
@@ -64,7 +82,7 @@ export default function AddCarScreen() {
       <HelperText type="info" padding="none" style={styles.label}>
         Preferowany sposób wprowadzania przebiegu:
       </HelperText>
-      
+
       <SegmentedButtons
         value={preference}
         onValueChange={(val) => setPreference(val as MileagePreference)}
@@ -83,13 +101,7 @@ export default function AddCarScreen() {
         style={styles.segmentedButton}
       />
 
-      <Button
-        mode="contained"
-        onPress={handleSave}
-        loading={loading}
-        disabled={loading}
-        style={styles.button}
-      >
+      <Button mode="contained" onPress={handleSave} loading={loading} disabled={loading} style={styles.button}>
         Zapisz
       </Button>
     </ScrollView>
