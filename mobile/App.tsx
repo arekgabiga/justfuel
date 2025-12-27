@@ -1,0 +1,72 @@
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { PaperProvider, MD3LightTheme } from 'react-native-paper';
+import { View, Text } from 'react-native';
+import { getDBConnection, createTables } from './src/database/schema';
+import CarListScreen from './src/screens/CarListScreen';
+import AddCarScreen from './src/screens/AddCarScreen';
+import CarDetailsScreen from './src/screens/CarDetailsScreen';
+
+const Stack = createNativeStackNavigator();
+
+// Temporary Placeholder Screen
+function HomeScreen() {
+  return (
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+      <Text>JustFuel Mobile MVP</Text>
+      <Text>Environment Ready 🚀</Text>
+    </View>
+  );
+}
+
+const theme = {
+  ...MD3LightTheme,
+  colors: {
+    ...MD3LightTheme.colors,
+    primary: '#0066CC',
+    secondary: '#FFCC00',
+  },
+};
+
+export default function App() {
+  const [dbInitialized, setDbInitialized] = React.useState(false);
+
+  React.useEffect(() => {
+    async function initDB() {
+      try {
+        const db = await getDBConnection();
+        await createTables(db);
+        setDbInitialized(true);
+        console.log('Database initialized');
+      } catch (e) {
+        console.error('Database init failed', e);
+      }
+    }
+    initDB();
+  }, []);
+
+  if (!dbInitialized) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text>Initializing Database...</Text>
+      </View>
+    );
+  }
+
+  return (
+    <PaperProvider theme={theme}>
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="CarList">
+          <Stack.Screen name="CarList" component={CarListScreen} options={{ title: 'Moje Samochody' }} />
+          <Stack.Screen name="AddCar" component={AddCarScreen} options={{ title: 'Dodaj Samochód' }} />
+          <Stack.Screen
+            name="CarDetails"
+            component={CarDetailsScreen}
+            options={({ route }: any) => ({ title: route.params.carName })}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </PaperProvider>
+  );
+}
