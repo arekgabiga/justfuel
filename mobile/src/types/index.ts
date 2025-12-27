@@ -6,6 +6,10 @@ export interface Car {
   initial_odometer: number;
   mileage_input_preference: MileagePreference;
   created_at: string; // ISO Date String
+  average_consumption?: number;
+  total_cost?: number;
+  total_distance?: number;
+  fillups_count?: number;
 }
 
 export interface Fillup {
@@ -25,6 +29,9 @@ export interface Fillup {
 export type NewCar = Omit<Car, 'id' | 'created_at'>;
 
 // For creating a new fillup
-export type NewFillup = Omit<Fillup, 'id' | 'created_at' | 'distance_traveled' | 'fuel_consumption' | 'price_per_liter'> & {
+export type NewFillup = Omit<
+  Fillup,
+  'id' | 'created_at' | 'distance_traveled' | 'fuel_consumption' | 'price_per_liter'
+> & {
   // We might calculate these before saving, or validation, but usually we pass raw input
 };

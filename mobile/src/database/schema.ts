@@ -1,9 +1,13 @@
 import * as SQLite from 'expo-sqlite';
 
 const DB_NAME = 'justfuel.db';
+let dbInstance: SQLite.SQLiteDatabase | null = null;
 
 export const getDBConnection = async () => {
-  return SQLite.openDatabaseAsync(DB_NAME);
+  if (!dbInstance) {
+    dbInstance = await SQLite.openDatabaseAsync(DB_NAME);
+  }
+  return dbInstance;
 };
 
 export const createTables = async (db: SQLite.SQLiteDatabase) => {
@@ -37,6 +41,6 @@ export const createTables = async (db: SQLite.SQLiteDatabase) => {
       FOREIGN KEY (car_id) REFERENCES cars(id) ON DELETE CASCADE
     );
   `);
-  
+
   console.log('Tables created successfully');
 };

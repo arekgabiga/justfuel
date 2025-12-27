@@ -7,6 +7,7 @@ import { getDBConnection, createTables } from './src/database/schema';
 import CarListScreen from './src/screens/CarListScreen';
 import AddCarScreen from './src/screens/AddCarScreen';
 import CarDetailsScreen from './src/screens/CarDetailsScreen';
+import FillupFormScreen from './src/screens/FillupFormScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -65,6 +66,7 @@ export default function App() {
             component={CarDetailsScreen}
             options={({ route }: any) => ({ title: route.params.carName })}
           />
+          <Stack.Screen name="FillupForm" component={FillupFormScreen} options={{ title: 'Nowe Tankowanie' }} />
         </Stack.Navigator>
       </NavigationContainer>
     </PaperProvider>
