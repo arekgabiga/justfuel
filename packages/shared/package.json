@@ -3,11 +3,13 @@
   "version": "0.0.1",
   "private": true,
   "type": "module",
+  "main": "src/index.ts",
+  "react-native": "src/index.ts",
+  "source": "src/index.ts",
   "exports": {
-    ".": "./dist/index.js"
+    ".": "./src/index.ts"
   },
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "types": "src/index.ts",
   "files": [
     "dist"
   ],

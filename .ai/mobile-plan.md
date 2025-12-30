@@ -64,37 +64,38 @@ Ten dokument definiuje strategię budowy aplikacji mobilnej JustFuel na system A
 
 ### Krok 1: Setup Projektu (Expo)
 
-- Inicjalizacja projektu Expo + TypeScript.
-- Konfiguracja Lintera/Prettiera.
-- Setup nawigacji (React Navigation).
+- [x] Inicjalizacja projektu Expo + TypeScript.
+- [x] Konfiguracja Lintera/Prettiera.
+- [x] Setup nawigacji (React Navigation).
 
 ### Krok 2: Warstwa Danych (SQLite)
 
-- Projekt schematu bazy danych SQL (tabela `Cars`, tabela `Fillups`).
-- Implementacja warstwy Repository (dla przyszłej łatwej zamiany na Sync).
-- Migracje bazy danych.
+- [x] Projekt schematu bazy danych SQL (tabela `Cars`, tabela `Fillups`).
+- [x] Implementacja warstwy Repository (dla przyszłej łatwej zamiany na Sync).
+- [x] Migracje bazy danych.
 
 ### Krok 3: Implementacja UI (Faza 1 Offline)
 
-- Ekran Listy Samochodów.
-- Ekran Dodawania/Edycji Samochodu.
-- Ekran Listy Tankowań (Infinite Scroll local).
-- Formularz Tankowania (Logika obliczeń spalania w JS).
-- Wykresy (biblioteka `react-native-chart-kit` lub podobna).
+- [x] Ekran Listy Samochodów.
+- [x] Ekran Dodawania/Edycji Samochodu.
+- [x] Ekran Listy Tankowań (Infinite Scroll local).
+- [x] Formularz Tankowania (Logika obliczeń spalania w JS).
+- [x] Wykresy (biblioteka `react-native-chart-kit` lub podobna).
 
 ### Krok 4: Testy i Build
 
-- Manualne testy funkcjonalne na emulatorze Androida.
-- Konfiguracja `eas.json` do budowania APK.
-- Wygenerowanie pierwszego wydania `.apk`.
+- [x] Manualne testy funkcjonalne na emulatorze Androida.
+- [x] Konfiguracja `eas.json` do budowania APK.
+- [x] Wygenerowanie pierwszego wydania `.apk` (EAS Build).
 
 ### Krok 5: Faza Sync (Później)
 
-- Dodanie ekranu logowania (Supabase Auth).
-- Implementacja logiki synchronizacji (Merge Logic).
-- Testy konfliktów i edge-case'ów.
+- [ ] Dodanie ekranu logowania (Supabase Auth).
+- [ ] Implementacja logiki synchronizacji (Merge Logic).
+- [ ] Testy konfliktów i edge-case'ów.
 
 ## 6. Decyzje Administracyjne
 
+- **Sklep:** Brak publikacji w Google Play w fazie 1. Dystrybucja pliku APK.
 - **Sklep:** Brak publikacji w Google Play w fazie 1. Dystrybucja pliku APK.
 - **Bezpieczeństwo:** Klucze podpisujące zarządzane przez Expo (EAS Credentials).

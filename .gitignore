@@ -32,3 +32,6 @@ playwright-report
 # Vercel
 .vercel
 .env*.local
+
+# Expo
+.expo/
