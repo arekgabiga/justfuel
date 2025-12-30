@@ -35,3 +35,6 @@ export type NewFillup = Omit<
 > & {
   // We might calculate these before saving, or validation, but usually we pass raw input
 };
+
+export type ChartType = 'consumption' | 'price_per_liter' | 'distance';
+

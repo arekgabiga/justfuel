@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FillupRepository } from '../database/FillupRepository';
 import { Fillup, Car } from '../types';
 import { CarRepository } from '../database/CarRepository';
-import ConsumptionChart from '../components/ConsumptionChart';
+import { ChartsTab } from '../components/ChartsTab';
 
 export default function CarDetailsScreen({ route }: any) {
   const { carId, carName } = route.params;
@@ -201,17 +201,17 @@ export default function CarDetailsScreen({ route }: any) {
           }
         />
       ) : (
-        <View style={styles.chartContainer}>
-          <ConsumptionChart fillups={fillups} />
-        </View>
+        <ChartsTab fillups={fillups} />
       )}
 
-      <FAB
-        icon="plus"
-        style={[styles.fab, { backgroundColor: theme.colors.primary, bottom: insets.bottom + 16 }]}
-        color="white"
-        onPress={() => navigation.navigate('FillupForm', { carId })}
-      />
+      {activeTab === 'fillups' && (
+        <FAB
+          icon="plus"
+          style={[styles.fab, { backgroundColor: theme.colors.primary, bottom: insets.bottom + 16 }]}
+          color="white"
+          onPress={() => navigation.navigate('FillupForm', { carId })}
+        />
+      )}
     </View>
   );
 }
