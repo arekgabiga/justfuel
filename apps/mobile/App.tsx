@@ -27,6 +27,8 @@ import { CarRepository } from './src/database/CarRepository';
 import { getLastActiveCarId } from './src/utils/storage';
 import { ActivityIndicator } from 'react-native-paper';
 
+import ErrorBoundary from './src/components/ErrorBoundary';
+
 export default function App() {
   const [isReady, setIsReady] = React.useState(false);
   const [initialState, setInitialState] = React.useState<InitialState>();
@@ -83,18 +85,20 @@ export default function App() {
 
   return (
     <PaperProvider theme={theme}>
-      <NavigationContainer initialState={initialState}>
-        <Stack.Navigator initialRouteName="CarList">
-          <Stack.Screen name="CarList" component={CarListScreen} options={{ title: 'Moje Samochody' }} />
-          <Stack.Screen name="AddCar" component={AddCarScreen} options={{ title: 'Dodaj Samochód' }} />
-          <Stack.Screen
-            name="CarDetails"
-            component={CarDetailsScreen}
-            options={({ route }) => ({ title: route.params.carName })}
-          />
-          <Stack.Screen name="FillupForm" component={FillupFormScreen} options={{ title: 'Nowe Tankowanie' }} />
-        </Stack.Navigator>
-      </NavigationContainer>
+      <ErrorBoundary>
+        <NavigationContainer initialState={initialState}>
+          <Stack.Navigator initialRouteName="CarList">
+            <Stack.Screen name="CarList" component={CarListScreen} options={{ title: 'Moje Samochody' }} />
+            <Stack.Screen name="AddCar" component={AddCarScreen} options={{ title: 'Dodaj Samochód' }} />
+            <Stack.Screen
+              name="CarDetails"
+              component={CarDetailsScreen}
+              options={({ route }) => ({ title: route.params.carName })}
+            />
+            <Stack.Screen name="FillupForm" component={FillupFormScreen} options={{ title: 'Nowe Tankowanie' }} />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </ErrorBoundary>
     </PaperProvider>
   );
 }
