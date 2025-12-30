@@ -166,7 +166,7 @@ export default function CarDetailsScreen({ route }: any) {
               Cena
             </Text>
             <Text variant="titleMedium" style={{ fontWeight: 'bold' }}>
-              {item.price_per_liter.toFixed(2)}
+              {item.price_per_liter?.toFixed(2) ?? '-'}
             </Text>
             <Text variant="labelSmall" style={{ marginTop: -2 }}>
               zł/L

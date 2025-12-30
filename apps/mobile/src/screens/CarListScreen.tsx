@@ -8,11 +8,11 @@ import { Car } from '../types';
 import { CarRepository } from '../database/CarRepository';
 
 // Define navigation types locally for now or move to a types file
-interface RootStackParamList {
+type RootStackParamList = {
   CarList: undefined;
   AddCar: undefined;
   CarDetails: { carId: string; carName: string };
-}
+};
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 

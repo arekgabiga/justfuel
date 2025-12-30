@@ -5,6 +5,12 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { FillupRepository } from '../database/FillupRepository';
 import { CarRepository } from '../database/CarRepository';
 import { NewFillup, Fillup, Car } from '../types';
+import {
+  calculateFuelConsumption,
+  calculatePricePerLiter,
+  calculateDistanceTraveled,
+  calculateOdometer,
+} from '@justfuel/shared';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 export default function FillupFormScreen() {
@@ -68,7 +74,7 @@ export default function FillupFormScreen() {
       finalDistance = dist;
       // If we have a last fillup, we add to it. If not (first fillup), odometer is just distance (assuming starts at 0? or we ask for initial odo in car creation).
       const baseOdometer = lastFillup ? lastFillup.odometer : car.initial_odometer || 0;
-      finalOdometer = baseOdometer + dist;
+      finalOdometer = calculateOdometer(baseOdometer, dist);
     }
   } else {
     // Default 'odometer'
@@ -76,12 +82,12 @@ export default function FillupFormScreen() {
     if (!isNaN(odo)) {
       finalOdometer = odo;
       const baseOdometer = lastFillup ? lastFillup.odometer : car?.initial_odometer || 0;
-      finalDistance = finalOdometer - baseOdometer;
+      finalDistance = calculateDistanceTraveled(finalOdometer, baseOdometer);
     }
   }
 
-  const consumption = finalDistance > 0 && !isNaN(fuel) ? (fuel / finalDistance) * 100 : null;
-  const pricePerLiter = !isNaN(price) && !isNaN(fuel) && fuel > 0 ? price / fuel : null;
+  const consumption = calculateFuelConsumption(finalDistance, fuel);
+  const pricePerLiter = calculatePricePerLiter(price, fuel) || 0;
 
   const toggleDatePicker = () => {
     setShowDatePicker(!showDatePicker);

@@ -2,7 +2,7 @@ import type { AstroCookies } from 'astro';
 import { createServerClient, type CookieOptionsWithName } from '@supabase/ssr';
 import { createClient } from '@supabase/supabase-js';
 
-import type { Database } from '../db/database.types.ts';
+import type { Database } from '@justfuel/shared';
 
 const supabaseUrl = import.meta.env.SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.SUPABASE_KEY;

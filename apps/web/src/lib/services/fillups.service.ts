@@ -9,6 +9,12 @@ import type {
   DeleteResponseDTO,
 } from '../../types.ts';
 import type { AppSupabaseClient } from '../../db/supabase.client.ts';
+import {
+  calculateFuelConsumption,
+  calculatePricePerLiter,
+  calculateDistanceTraveled,
+  calculateOdometer,
+} from '@justfuel/shared';
 
 export interface ListFillupsParams {
   limit?: number;
@@ -365,7 +371,7 @@ export async function createFillup(
     odometer = input.odometer;
 
     if (previousFillup) {
-      distance_traveled = odometer - previousFillup.odometer;
+      distance_traveled = calculateDistanceTraveled(odometer, previousFillup.odometer);
 
       // Validate odometer consistency
       if (distance_traveled < 0) {
@@ -382,7 +388,7 @@ export async function createFillup(
     } else {
       // First fillup - calculate distance from initial odometer
       const initialOdometer = car.initial_odometer ?? 0;
-      distance_traveled = odometer - initialOdometer;
+      distance_traveled = calculateDistanceTraveled(odometer, initialOdometer);
 
       if (distance_traveled < 0) {
         warnings.push({
@@ -396,19 +402,19 @@ export async function createFillup(
     distance_traveled = input.distance;
 
     if (previousFillup) {
-      odometer = previousFillup.odometer + distance_traveled;
+      odometer = calculateOdometer(previousFillup.odometer, distance_traveled);
     } else {
       // First fillup - calculate odometer from initial odometer
       const initialOdometer = car.initial_odometer ?? 0;
-      odometer = initialOdometer + distance_traveled;
+      odometer = calculateOdometer(initialOdometer, distance_traveled);
     }
   } else {
     throw new Error('Either odometer or distance must be provided');
   }
 
   // Calculate fuel consumption and price per liter
-  const fuel_consumption = distance_traveled > 0 ? (input.fuel_amount / distance_traveled) * 100 : null;
-  const price_per_liter = input.fuel_amount > 0 ? input.total_price / input.fuel_amount : null;
+  const fuel_consumption = calculateFuelConsumption(distance_traveled, input.fuel_amount);
+  const price_per_liter = calculatePricePerLiter(input.total_price, input.fuel_amount);
 
   // Prepare fillup data for insertion
   const fillupData = {
@@ -577,11 +583,11 @@ export async function updateFillup(
       }
 
       if (previousFillup) {
-        newDistanceTraveled = newOdometer - previousFillup.odometer;
+        newDistanceTraveled = calculateDistanceTraveled(newOdometer, previousFillup.odometer);
       } else {
         // This might be the first fillup or odometer went backwards
         const initialOdometer = car.initial_odometer ?? 0;
-        newDistanceTraveled = newOdometer - initialOdometer;
+        newDistanceTraveled = calculateDistanceTraveled(newOdometer, initialOdometer);
       }
 
       // Validate odometer consistency
@@ -619,11 +625,11 @@ export async function updateFillup(
       }
 
       if (previousFillup) {
-        newOdometer = previousFillup.odometer + newDistanceTraveled;
+        newOdometer = calculateOdometer(previousFillup.odometer, newDistanceTraveled);
       } else {
         // This might be the first fillup
         const initialOdometer = car.initial_odometer ?? 0;
-        newOdometer = initialOdometer + newDistanceTraveled;
+        newOdometer = calculateOdometer(initialOdometer, newDistanceTraveled);
       }
     } else {
       throw new Error('Either odometer or distance must be provided');
@@ -639,8 +645,8 @@ export async function updateFillup(
   const totalPrice = input.total_price ?? existingFillup.total_price;
   const distanceTraveled = updateData.distance_traveled ?? existingFillup.distance_traveled;
 
-  updateData.fuel_consumption = distanceTraveled && distanceTraveled > 0 ? (fuelAmount / distanceTraveled) * 100 : null;
-  updateData.price_per_liter = fuelAmount > 0 ? totalPrice / fuelAmount : null;
+  updateData.fuel_consumption = calculateFuelConsumption(distanceTraveled ?? 0, fuelAmount);
+  updateData.price_per_liter = calculatePricePerLiter(totalPrice, fuelAmount);
 
   // Update the fillup
   const { data: updatedFillup, error: updateError } = await supabase
@@ -800,9 +806,8 @@ export async function deleteFillup(
       const previousFillupForCalculation = i === 0 ? previousFillup : subsequentFillups[i - 1];
 
       if (previousFillupForCalculation) {
-        const newDistanceTraveled = currentFillup.odometer - previousFillupForCalculation.odometer;
-        const newFuelConsumption =
-          newDistanceTraveled > 0 ? (currentFillup.fuel_amount / newDistanceTraveled) * 100 : null;
+        const newDistanceTraveled = calculateDistanceTraveled(currentFillup.odometer, previousFillupForCalculation.odometer);
+        const newFuelConsumption = calculateFuelConsumption(newDistanceTraveled, currentFillup.fuel_amount);
 
         updates.push({
           id: currentFillup.id,
