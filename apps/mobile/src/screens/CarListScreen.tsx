@@ -2,23 +2,14 @@ import React, { useState, useCallback } from 'react';
 import { View, FlatList, StyleSheet } from 'react-native';
 import { Appbar, FAB, Card, Text, TouchableRipple, useTheme, Avatar } from 'react-native-paper';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Car } from '../types';
 import { CarRepository } from '../database/CarRepository';
-
-// Define navigation types locally for now or move to a types file
-type RootStackParamList = {
-  CarList: undefined;
-  AddCar: undefined;
-  CarDetails: { carId: string; carName: string };
-};
-
-type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
+import { RootStackNavigationProp } from '../navigation/types';
 
 export default function CarListScreen() {
   const [cars, setCars] = useState<Car[]>([]);
-  const navigation = useNavigation<NavigationProp>();
+  const navigation = useNavigation<RootStackNavigationProp>();
   const theme = useTheme();
   const insets = useSafeAreaInsets();
 

@@ -9,10 +9,11 @@ import { CarRepository } from '../database/CarRepository';
 import { ChartsTab } from '../components/ChartsTab';
 import { ConsumptionDeviation, getConsumptionDeviation, formatDate } from '@justfuel/shared';
 import { saveLastActiveCarId } from '../utils/storage';
+import { CarDetailsScreenProps, RootStackNavigationProp } from '../navigation/types';
 
-export default function CarDetailsScreen({ route }: any) {
+export default function CarDetailsScreen({ route }: CarDetailsScreenProps) {
   const { carId, carName } = route.params;
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<RootStackNavigationProp>();
   
   React.useEffect(() => {
     if (carId) {

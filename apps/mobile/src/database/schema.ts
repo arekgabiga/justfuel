@@ -38,9 +38,9 @@ export const createTables = async (db: SQLite.SQLiteDatabase) => {
       fuel_consumption REAL,
       price_per_liter REAL NOT NULL,
       created_at TEXT NOT NULL,
-      FOREIGN KEY (car_id) REFERENCES cars(id) ON DELETE CASCADE
     );
+    CREATE INDEX IF NOT EXISTS idx_fillups_car_id ON fillups(car_id);
+    CREATE INDEX IF NOT EXISTS idx_fillups_date ON fillups(date);
   `);
 
-  // console.log('Tables created successfully');
 };

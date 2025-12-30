@@ -54,3 +54,8 @@ jest.mock('expo-sqlite', () => ({
     closeAsync: jest.fn().mockResolvedValue(undefined),
   }),
 }));
+
+// Mock expo-crypto
+jest.mock('expo-crypto', () => ({
+  randomUUID: jest.fn(() => 'test-uuid-' + Math.random().toString(36).substring(7)),
+}));

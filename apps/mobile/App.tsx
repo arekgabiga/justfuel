@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, InitialState } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { PaperProvider, MD3LightTheme } from 'react-native-paper';
 import { View, Text } from 'react-native';
@@ -8,18 +8,11 @@ import CarListScreen from './src/screens/CarListScreen';
 import AddCarScreen from './src/screens/AddCarScreen';
 import CarDetailsScreen from './src/screens/CarDetailsScreen';
 import FillupFormScreen from './src/screens/FillupFormScreen';
+import { RootStackParamList, CarDetailsScreenProps } from './src/navigation/types';
 
-const Stack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
-// Temporary Placeholder Screen
-function HomeScreen() {
-  return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Text>JustFuel Mobile MVP</Text>
-      <Text>Environment Ready 🚀</Text>
-    </View>
-  );
-}
+
 
 const theme = {
   ...MD3LightTheme,
@@ -36,7 +29,7 @@ import { ActivityIndicator } from 'react-native-paper';
 
 export default function App() {
   const [isReady, setIsReady] = React.useState(false);
-  const [initialState, setInitialState] = React.useState<any>();
+  const [initialState, setInitialState] = React.useState<InitialState>();
 
   React.useEffect(() => {
     async function init() {
@@ -97,7 +90,7 @@ export default function App() {
           <Stack.Screen
             name="CarDetails"
             component={CarDetailsScreen}
-            options={({ route }: any) => ({ title: route.params.carName })}
+            options={({ route }) => ({ title: route.params.carName })}
           />
           <Stack.Screen name="FillupForm" component={FillupFormScreen} options={{ title: 'Nowe Tankowanie' }} />
         </Stack.Navigator>

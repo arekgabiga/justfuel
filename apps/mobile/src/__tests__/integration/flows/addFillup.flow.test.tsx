@@ -29,8 +29,9 @@ jest.mock('../../../database/schema', () => ({
 // Screens - import AFTER mocking dependencies
 import CarDetailsScreen from '../../../screens/CarDetailsScreen';
 import FillupFormScreen from '../../../screens/FillupFormScreen';
+import { RootStackParamList } from '../../../navigation/types';
 
-const Stack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const theme = {
   ...MD3LightTheme,

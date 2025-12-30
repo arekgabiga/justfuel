@@ -1,23 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, Alert, Platform, TouchableOpacity } from 'react-native';
 import { TextInput, Button, HelperText, useTheme } from 'react-native-paper';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { FillupRepository } from '../database/FillupRepository';
 import { CarRepository } from '../database/CarRepository';
 import { NewFillup, Fillup, Car } from '../types';
 import {
-  calculateFuelConsumption,
-  calculatePricePerLiter,
-  calculateDistanceTraveled,
-  calculateOdometer,
   formatDate,
   createFillupRequestSchema,
+  CreateFillupRequestInput,
 } from '@justfuel/shared';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { RootStackParamList, RootStackNavigationProp } from '../navigation/types';
+import { useFillupCalculations } from '../hooks/useFillupCalculations';
 
 export default function FillupFormScreen() {
-  const navigation = useNavigation();
-  const route = useRoute<any>();
+  const navigation = useNavigation<RootStackNavigationProp>();
+  const route = useRoute<RouteProp<RootStackParamList, 'FillupForm'>>();
   const theme = useTheme();
   const { carId, fillup } = route.params;
 
@@ -62,36 +61,22 @@ export default function FillupFormScreen() {
     loadData();
   }, [carId, date]);
 
-  // Derived calculations
-  const fuel = parseFloat(fuelAmount);
-  const price = parseFloat(totalPrice);
-
-  let finalOdometer = 0;
-  let finalDistance = 0;
-  let calculationError = '';
-
-  if (car?.mileage_input_preference === 'distance') {
-    const dist = parseFloat(distanceInput);
-    if (!isNaN(dist)) {
-      finalDistance = dist;
-      const baseOdometer = lastFillup ? lastFillup.odometer : car.initial_odometer || 0;
-      finalOdometer = calculateOdometer(baseOdometer, dist);
-    }
-  } else {
-    // Default 'odometer'
-    const odo = parseFloat(odometerInput);
-    if (!isNaN(odo)) {
-      finalOdometer = odo;
-      const baseOdometer = lastFillup ? lastFillup.odometer : car?.initial_odometer || 0;
-      finalDistance = calculateDistanceTraveled(finalOdometer, baseOdometer);
-      if (finalDistance < 0) {
-        calculationError = `Przebieg musi być wyższy niż poprzedni (${baseOdometer} km)`;
-      }
-    }
-  }
-
-  const consumption = calculateFuelConsumption(finalDistance, fuel);
-  const pricePerLiter = calculatePricePerLiter(price, fuel) || 0;
+  const {
+    fuel,
+    price,
+    finalOdometer,
+    finalDistance,
+    consumption,
+    pricePerLiter,
+    calculationError,
+  } = useFillupCalculations({
+    car,
+    lastFillup,
+    odometerInput,
+    distanceInput,
+    fuelAmount,
+    totalPrice,
+  });
 
   // Real-time Validation
   useEffect(() => {
@@ -172,17 +157,14 @@ export default function FillupFormScreen() {
     if (!isFormValid()) return;
 
     // Payload preparation
-    const payload: any = {
+    const payload: CreateFillupRequestInput = {
       date: date.toISOString(),
       fuel_amount: fuel,
       total_price: price,
+      ...(car?.mileage_input_preference === 'distance'
+        ? { distance: parseFloat(distanceInput) }
+        : { odometer: parseFloat(odometerInput) }),
     };
-
-    if (car?.mileage_input_preference === 'distance') {
-      payload.distance = parseFloat(distanceInput);
-    } else {
-      payload.odometer = parseFloat(odometerInput);
-    }
 
     const validationResult = createFillupRequestSchema.safeParse(payload);
 
@@ -215,10 +197,9 @@ export default function FillupFormScreen() {
           odometer: finalOdometer,
           fuel_amount: validData.fuel_amount,
           total_price: validData.total_price,
+          distance_traveled: finalDistance,
+          fuel_consumption: consumption,
         };
-
-        (newFillup as any).distance_traveled = finalDistance;
-        (newFillup as any).fuel_consumption = consumption;
 
         await FillupRepository.addFillup(newFillup);
       }

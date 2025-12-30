@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, Alert } from 'react-native';
 import { TextInput, Button, SegmentedButtons, HelperText, useTheme } from 'react-native-paper';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { CarRepository } from '../database/CarRepository';
 import { MileagePreference } from '../types';
 import { createCarCommandSchema } from '@justfuel/shared';
+import { RootStackParamList, RootStackNavigationProp } from '../navigation/types';
 
 export default function AddCarScreen() {
-  const navigation = useNavigation();
-  const route = useRoute<any>();
+  const navigation = useNavigation<RootStackNavigationProp>();
+  const route = useRoute<RouteProp<RootStackParamList, 'AddCar'>>();
   const theme = useTheme();
   const carToEdit = route.params?.car;
 
