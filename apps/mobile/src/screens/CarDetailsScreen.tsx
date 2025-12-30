@@ -7,6 +7,7 @@ import { FillupRepository } from '../database/FillupRepository';
 import { Fillup, Car } from '../types';
 import { CarRepository } from '../database/CarRepository';
 import { ChartsTab } from '../components/ChartsTab';
+import { ConsumptionDeviation, getConsumptionDeviation } from '@justfuel/shared';
 
 export default function CarDetailsScreen({ route }: any) {
   const { carId, carName } = route.params;
@@ -94,16 +95,30 @@ export default function CarDetailsScreen({ route }: any) {
   );
 
   const renderFillupItem = ({ item }: { item: Fillup }) => {
-    // Determine color based on average if available
-    // Simple logic: if consumption < average, green; else red.
-    // Ensure both exist.
-    let consumptionColor = theme.colors.onSurface;
-    if (item.fuel_consumption && car?.average_consumption) {
-      consumptionColor =
-        item.fuel_consumption <= car.average_consumption
-          ? '#4CAF50' // Green
-          : '#F44336'; // Red
-    }
+    const getConsumptionColor = (consumption: number | null | undefined, avg: number | undefined) => {
+      if (avg === undefined) return theme.colors.onSurface;
+      const deviation = getConsumptionDeviation(consumption, avg);
+      switch (deviation) {
+        case ConsumptionDeviation.EXTREMELY_LOW:
+          return '#166534'; // Green 800
+        case ConsumptionDeviation.VERY_LOW:
+          return '#16a34a'; // Green 600
+        case ConsumptionDeviation.LOW:
+          return '#65a30d'; // Lime 600
+        case ConsumptionDeviation.NEUTRAL:
+          return '#ca8a04'; // Yellow 600
+        case ConsumptionDeviation.HIGH:
+          return '#ea580c'; // Orange 600
+        case ConsumptionDeviation.VERY_HIGH:
+          return '#dc2626'; // Red 600
+        case ConsumptionDeviation.EXTREMELY_HIGH:
+          return '#991b1b'; // Red 800
+        default:
+          return theme.colors.onSurface;
+      }
+    };
+
+    const consumptionColor = getConsumptionColor(item.fuel_consumption, car?.average_consumption);
 
     return (
       <Card style={styles.card} onPress={() => navigation.navigate('FillupForm', { carId, fillup: item })}>
