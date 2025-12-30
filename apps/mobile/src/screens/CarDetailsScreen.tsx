@@ -207,10 +207,11 @@ export default function CarDetailsScreen({ route }: any) {
 
       {activeTab === 'fillups' ? (
         <FlatList
+          style={{ flex: 1 }}
           data={fillups}
           keyExtractor={(item) => item.id}
           renderItem={renderFillupItem}
-          contentContainerStyle={styles.listContent}
+          contentContainerStyle={[styles.listContent, { paddingBottom: 140 }]}
           ListEmptyComponent={
             <View style={styles.emptyState}>
               <Text>Brak tankowań. Dodaj pierwsze tankowanie!</Text>
@@ -268,7 +269,6 @@ const styles = StyleSheet.create({
   },
   listContent: {
     padding: 16,
-    paddingBottom: 80,
   },
   card: {
     marginBottom: 12,
