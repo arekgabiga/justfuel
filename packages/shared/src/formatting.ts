@@ -5,11 +5,10 @@
 export function formatDate(date: string | Date | null | undefined): string {
   if (!date) return '-';
   const d = new Date(date);
-  return d.toLocaleDateString('pl-PL', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  });
+  const day = d.getDate().toString().padStart(2, '0');
+  const month = (d.getMonth() + 1).toString().padStart(2, '0');
+  const year = d.getFullYear();
+  return `${day}.${month}.${year}`;
 }
 
 /**

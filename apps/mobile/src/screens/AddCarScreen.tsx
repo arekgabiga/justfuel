@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
-import { TextInput, Button, SegmentedButtons, HelperText } from 'react-native-paper';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, ScrollView, Alert } from 'react-native';
+import { TextInput, Button, SegmentedButtons, HelperText, useTheme } from 'react-native-paper';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { CarRepository } from '../database/CarRepository';
 import { MileagePreference } from '../types';
@@ -9,13 +9,17 @@ import { createCarCommandSchema } from '@justfuel/shared';
 export default function AddCarScreen() {
   const navigation = useNavigation();
   const route = useRoute<any>();
+  const theme = useTheme();
   const carToEdit = route.params?.car;
 
   const [name, setName] = useState(carToEdit?.name || '');
   const [initialOdometer, setInitialOdometer] = useState(carToEdit?.initial_odometer?.toString() || '');
-  const [preference, setPreference] = useState<MileagePreference>(carToEdit?.mileage_input_preference || 'odometer');
+  const [preference, setPreference] = useState<MileagePreference>(carToEdit?.mileage_input_preference || 'distance');
+  
+  // Validation State
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
 
   React.useEffect(() => {
     if (carToEdit) {
@@ -23,18 +27,61 @@ export default function AddCarScreen() {
     }
   }, [carToEdit, navigation]);
 
+  // Real-time Validation
+  useEffect(() => {
+    const newErrors: { [key: string]: string } = {};
+
+    // Name Validation
+    if (!name.trim()) {
+       // Optional: could mark as required here if desired, but button disable is safer
+    } else if (name.length > 100) {
+        newErrors.name = 'Nazwa jest zbyt długa';
+    }
+
+    // Odometer Validation
+    if (initialOdometer) {
+        const odo = parseFloat(initialOdometer.replace(',', '.'));
+        if (isNaN(odo)) {
+            newErrors.initial_odometer = 'Nieprawidłowa liczba';
+        } else if (odo < 0) {
+            newErrors.initial_odometer = 'Przebieg nie może być ujemny';
+        } else if (!Number.isInteger(odo)) {
+             newErrors.initial_odometer = 'Tylko liczby całkowite';
+        }
+    }
+
+    setErrors(newErrors);
+  }, [name, initialOdometer]);
+
+  const handleBlurOdometer = () => {
+      if (!initialOdometer) return;
+      const val = initialOdometer.replace(',', '.');
+      const num = parseFloat(val);
+      if (!isNaN(num)) {
+          // Truncate decimals for integer requirement
+          const integerVal = Math.floor(num);
+          setInitialOdometer(integerVal.toString());
+      }
+  };
+
+  const isFormValid = () => {
+      const hasErrors = Object.keys(errors).length > 0;
+      const isNameEmpty = !name.trim();
+      return !hasErrors && !isNameEmpty;
+  };
+
   const handleSave = async () => {
+    if (!isFormValid()) return;
+
     // Validate with Zod
     const validationResult = createCarCommandSchema.safeParse({
       name: name.trim(),
-      initial_odometer: initialOdometer ? parseFloat(initialOdometer) : undefined,
+      initial_odometer: initialOdometer ? parseInt(initialOdometer.replace(',', '.'), 10) : undefined,
       mileage_input_preference: preference,
     });
 
     if (!validationResult.success) {
-      // For simplicity, just show the first error. In a real app, map errors to fields.
-      const firstError = validationResult.error.errors[0];
-      setError(firstError.message);
+      Alert.alert('Błąd walidacji', validationResult.error.errors[0].message);
       return;
     }
 
@@ -59,7 +106,7 @@ export default function AddCarScreen() {
       navigation.goBack();
     } catch (e) {
       console.error(e);
-      setError('Nie udało się zapisać samochodu');
+      Alert.alert('Błąd', 'Nie udało się zapisać samochodu');
     } finally {
       setLoading(false);
     }
@@ -70,26 +117,28 @@ export default function AddCarScreen() {
       <TextInput
         label="Nazwa samochodu (np. Audi A4)"
         value={name}
-        onChangeText={(text) => {
-          setName(text);
-          if (error) setError('');
-        }}
+        onChangeText={setName}
         mode="outlined"
+        maxLength={100}
+        error={!!errors.name}
+        activeOutlineColor={errors.name ? theme.colors.error : undefined}
         style={styles.input}
-        error={!!error}
       />
-      <HelperText type="error" visible={!!error}>
-        {error}
-      </HelperText>
+      {errors.name && <HelperText type="error" visible={true}>{errors.name}</HelperText>}
 
       <TextInput
         label="Początkowy stan licznika (opcjonalne)"
         value={initialOdometer}
-        onChangeText={setInitialOdometer}
+        onChangeText={(text) => setInitialOdometer(text.replace(',', '.'))}
+        onBlur={handleBlurOdometer}
         mode="outlined"
         keyboardType="numeric"
+        maxLength={10}
+        error={!!errors.initial_odometer}
+        activeOutlineColor={errors.initial_odometer ? theme.colors.error : undefined}
         style={styles.input}
       />
+      {errors.initial_odometer && <HelperText type="error" visible={true}>{errors.initial_odometer}</HelperText>}
 
       <HelperText type="info" padding="none" style={styles.label}>
         Preferowany sposób wprowadzania przebiegu:
@@ -113,7 +162,13 @@ export default function AddCarScreen() {
         style={styles.segmentedButton}
       />
 
-      <Button mode="contained" onPress={handleSave} loading={loading} disabled={loading} style={styles.button}>
+      <Button 
+        mode="contained" 
+        onPress={handleSave} 
+        loading={loading} 
+        disabled={loading || !isFormValid()} 
+        style={styles.button}
+      >
         Zapisz
       </Button>
     </ScrollView>
@@ -129,7 +184,9 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   input: {
-    marginBottom: 8,
+    marginTop: 8,
+    marginBottom: 4,
+    backgroundColor: 'white',
   },
   label: {
     marginTop: 16,

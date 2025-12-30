@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, Alert, Platform, TouchableOpacity } from 'react-native';
-import { TextInput, Button, HelperText, Text, Card, useTheme } from 'react-native-paper';
+import { TextInput, Button, HelperText, useTheme } from 'react-native-paper';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { FillupRepository } from '../database/FillupRepository';
 import { CarRepository } from '../database/CarRepository';
@@ -26,14 +26,17 @@ export default function FillupFormScreen() {
   const [date, setDate] = useState<Date>(fillup ? new Date(fillup.date) : new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
 
-  // We keep 'odometerInput' and 'distanceInput' separate to avoid confusion
+  // Inputs
   const [odometerInput, setOdometerInput] = useState(fillup ? fillup.odometer.toString() : '');
   const [distanceInput, setDistanceInput] = useState(
     fillup && fillup.distance_traveled ? fillup.distance_traveled.toString() : ''
   );
-
   const [fuelAmount, setFuelAmount] = useState(fillup ? fillup.fuel_amount.toString() : '');
   const [totalPrice, setTotalPrice] = useState(fillup ? fillup.total_price.toString() : '');
+  
+  // Validation State
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
   const [loading, setLoading] = useState(false);
   const [lastFillup, setLastFillup] = useState<Fillup | null>(null);
 
@@ -63,18 +66,14 @@ export default function FillupFormScreen() {
   const fuel = parseFloat(fuelAmount);
   const price = parseFloat(totalPrice);
 
-  // Logic:
-  // If preference is 'distance': User inputs Distance. Odometer = LastOdometer + Distance.
-  // If preference is 'odometer': User inputs Odometer. Distance = Odometer - LastOdometer.
-
   let finalOdometer = 0;
   let finalDistance = 0;
+  let calculationError = '';
 
   if (car?.mileage_input_preference === 'distance') {
     const dist = parseFloat(distanceInput);
     if (!isNaN(dist)) {
       finalDistance = dist;
-      // If we have a last fillup, we add to it. If not (first fillup), odometer is just distance (assuming starts at 0? or we ask for initial odo in car creation).
       const baseOdometer = lastFillup ? lastFillup.odometer : car.initial_odometer || 0;
       finalOdometer = calculateOdometer(baseOdometer, dist);
     }
@@ -85,11 +84,50 @@ export default function FillupFormScreen() {
       finalOdometer = odo;
       const baseOdometer = lastFillup ? lastFillup.odometer : car?.initial_odometer || 0;
       finalDistance = calculateDistanceTraveled(finalOdometer, baseOdometer);
+      if (finalDistance < 0) {
+        calculationError = `Przebieg musi być wyższy niż poprzedni (${baseOdometer} km)`;
+      }
     }
   }
 
   const consumption = calculateFuelConsumption(finalDistance, fuel);
   const pricePerLiter = calculatePricePerLiter(price, fuel) || 0;
+
+  // Real-time Validation
+  useEffect(() => {
+    const newErrors: { [key: string]: string } = {};
+
+    // Fuel Validation
+    if (fuelAmount) {
+      const f = parseFloat(fuelAmount);
+      if (isNaN(f)) newErrors.fuel_amount = 'Nieprawidłowa liczba';
+      else if (f > 2000) newErrors.fuel_amount = 'Maksymalna ilość to 2000L';
+      else if (!/^\d*\.?\d{0,2}$/.test(fuelAmount)) newErrors.fuel_amount = 'Maksymalnie 2 miejsca po przecinku';
+    }
+
+    // Price Validation
+    if (totalPrice) {
+      const p = parseFloat(totalPrice);
+      if (isNaN(p)) newErrors.total_price = 'Nieprawidłowa liczba';
+      else if (p > 100000) newErrors.total_price = 'Maksymalna kwota to 100 000 PLN';
+      else if (!/^\d*\.?\d{0,2}$/.test(totalPrice)) newErrors.total_price = 'Maksymalnie 2 miejsca po przecinku';
+    }
+    
+    // Distance/Odometer logic
+    if (car?.mileage_input_preference === 'distance') {
+        if (distanceInput) {
+             const d = parseFloat(distanceInput);
+             if (d > 10000) newErrors.distance = 'Dystans wydaje się zbyt duży';
+             else if (!/^\d*\.?\d{0,2}$/.test(distanceInput)) newErrors.distance = 'Maksymalnie 2 miejsca po przecinku';
+        }
+    } else {
+        if (odometerInput && parseFloat(odometerInput) > 2000000) {
+             newErrors.odometer = 'Przebieg wydaje się nieprawdopodobny';
+        }
+    }
+
+    setErrors(newErrors);
+  }, [fuelAmount, totalPrice, distanceInput, odometerInput, car]);
 
   const toggleDatePicker = () => {
     setShowDatePicker(!showDatePicker);
@@ -107,16 +145,33 @@ export default function FillupFormScreen() {
     }
   };
 
+  const handleBlur = (
+    value: string, 
+    setter: React.Dispatch<React.SetStateAction<string>>
+  ) => {
+    if (!value) return;
+    const numericValue = parseFloat(value.replace(',', '.'));
+    if (!isNaN(numericValue)) {
+      // Round to 2 decimal places
+      const formatted = Math.round(numericValue * 100) / 100;
+      setter(formatted.toString());
+    }
+  };
 
+  const isFormValid = () => {
+    const hasErrors = Object.keys(errors).length > 0;
+    const hasCalculationError = !!calculationError;
+    const hasEmptyFields = !fuelAmount || !totalPrice || 
+       (car?.mileage_input_preference === 'distance' ? !distanceInput : !odometerInput);
+    
+    return !hasErrors && !hasCalculationError && !hasEmptyFields;
+  };
 
   const handleSubmit = async () => {
-    // Basic required check for UI feedback
-    if (!fuelAmount || !totalPrice) {
-       Alert.alert('Błąd', 'Uzupełnij wymagane pola (Paliwo, Cena)');
-       return;
-    }
+    // Final validation before submit
+    if (!isFormValid()) return;
 
-    // Prepare payload for validation
+    // Payload preparation
     const payload: any = {
       date: date.toISOString(),
       fuel_amount: fuel,
@@ -124,30 +179,22 @@ export default function FillupFormScreen() {
     };
 
     if (car?.mileage_input_preference === 'distance') {
-      if (!distanceInput) {
-         Alert.alert('Błąd', 'Podaj dystans');
-         return;
-      }
       payload.distance = parseFloat(distanceInput);
     } else {
-      if (!odometerInput) {
-         Alert.alert('Błąd', 'Podaj stan licznika');
-         return;
-      }
       payload.odometer = parseFloat(odometerInput);
     }
 
     const validationResult = createFillupRequestSchema.safeParse(payload);
 
     if (!validationResult.success) {
+      // Should not happen if UI validation works
       Alert.alert('Błąd walidacji', validationResult.error.errors[0].message);
       return;
     }
 
-    const validData = validationResult.data;
-
     setLoading(true);
     try {
+        const validData = validationResult.data;
       if (fillup) {
         // Update existing
         await FillupRepository.updateFillup({
@@ -227,43 +274,65 @@ export default function FillupFormScreen() {
         label="Ilość paliwa (L)"
         value={fuelAmount}
         onChangeText={(text) => setFuelAmount(text.replace(',', '.'))}
+        onBlur={() => handleBlur(fuelAmount, setFuelAmount)}
         keyboardType="numeric"
         mode="outlined"
+        maxLength={10}
+        error={!!errors.fuel_amount}
+        activeOutlineColor={errors.fuel_amount ? theme.colors.error : undefined}
         style={styles.input}
       />
+      {errors.fuel_amount && <HelperText type="error" visible={true}>{errors.fuel_amount}</HelperText>}
+
       <TextInput
         label="Cena całkowita (PLN)"
         value={totalPrice}
         onChangeText={(text) => setTotalPrice(text.replace(',', '.'))}
+        onBlur={() => handleBlur(totalPrice, setTotalPrice)}
         keyboardType="numeric"
         mode="outlined"
+        maxLength={10}
+        error={!!errors.total_price}
+        activeOutlineColor={errors.total_price ? theme.colors.error : undefined}
         style={styles.input}
       />
+      {errors.total_price && <HelperText type="error" visible={true}>{errors.total_price}</HelperText>}
 
       {car?.mileage_input_preference === 'distance' ? (
-        <TextInput
-          label="Przejechany dystans (km)"
-          value={distanceInput}
-          onChangeText={(text) => setDistanceInput(text.replace(',', '.'))}
-          keyboardType="numeric"
-          mode="outlined"
-          style={styles.input}
-        />
+        <View>
+            <TextInput
+            label="Przejechany dystans (km)"
+            value={distanceInput}
+            onChangeText={(text) => setDistanceInput(text.replace(',', '.'))}
+            onBlur={() => handleBlur(distanceInput, setDistanceInput)}
+            keyboardType="numeric"
+            mode="outlined"
+            maxLength={10}
+            error={!!errors.distance}
+            activeOutlineColor={errors.distance ? theme.colors.error : undefined}
+            style={styles.input}
+            />
+            {errors.distance && <HelperText type="error" visible={true}>{errors.distance}</HelperText>}
+        </View>
       ) : (
-        <TextInput
-          label="Aktualny Stan Licznika (km)"
-          value={odometerInput}
-          onChangeText={(text) => setOdometerInput(text.replace(',', '.'))}
-          keyboardType="numeric"
-          mode="outlined"
-          style={styles.input}
-        />
-      )}
-
-      {car?.mileage_input_preference !== 'distance' && finalDistance < 0 && (
-        <HelperText type="error" visible={true}>
-          Przebieg musi być wyższy niż poprzedni ({lastFillup?.odometer || car?.initial_odometer} km).
-        </HelperText>
+        <View>
+            <TextInput
+            label="Aktualny Stan Licznika (km)"
+            value={odometerInput}
+            onChangeText={(text) => setOdometerInput(text.replace(',', '.'))}
+            keyboardType="numeric"
+            mode="outlined"
+            maxLength={8}
+            error={!!errors.odometer || !!calculationError}
+            activeOutlineColor={(errors.odometer || calculationError) ? theme.colors.error : undefined}
+            style={styles.input}
+            />
+             {(errors.odometer || calculationError) && (
+                <HelperText type="error" visible={true}>
+                    {errors.odometer || calculationError}
+                </HelperText>
+             )}
+        </View>
       )}
 
       <Button
@@ -271,7 +340,7 @@ export default function FillupFormScreen() {
         onPress={handleSubmit}
         loading={loading}
         style={styles.button}
-        disabled={loading || (car?.mileage_input_preference !== 'distance' && finalDistance < 0)}
+        disabled={loading || !isFormValid()}
       >
         Zapisz tankowanie
       </Button>
@@ -297,9 +366,12 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   input: {
-    marginBottom: 12,
+    marginTop: 8,
+    marginBottom: 4, 
+    backgroundColor: 'white'
   },
   button: {
-    marginTop: 16,
+    marginTop: 24,
+    paddingVertical: 6,
   },
 });

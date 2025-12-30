@@ -7,7 +7,7 @@ import { FillupRepository } from '../database/FillupRepository';
 import { Fillup, Car } from '../types';
 import { CarRepository } from '../database/CarRepository';
 import { ChartsTab } from '../components/ChartsTab';
-import { ConsumptionDeviation, getConsumptionDeviation } from '@justfuel/shared';
+import { ConsumptionDeviation, getConsumptionDeviation, formatDate } from '@justfuel/shared';
 
 export default function CarDetailsScreen({ route }: any) {
   const { carId, carName } = route.params;
@@ -124,7 +124,7 @@ export default function CarDetailsScreen({ route }: any) {
       <Card style={styles.card} onPress={() => navigation.navigate('FillupForm', { carId, fillup: item })}>
         <View style={styles.cardHeader}>
           <Text variant="titleMedium" style={{ fontWeight: 'bold' }}>
-            {new Date(item.date).toLocaleDateString()}
+            {formatDate(item.date)}
           </Text>
         </View>
         <Divider />
@@ -151,10 +151,12 @@ export default function CarDetailsScreen({ route }: any) {
 
           <View style={styles.statCol}>
             <Text variant="bodySmall" style={styles.label}>
-              Przebieg
+              {car?.mileage_input_preference === 'distance' ? 'Dystans' : 'Przebieg'}
             </Text>
             <Text variant="titleMedium" style={{ fontWeight: 'bold' }}>
-              {item.odometer}
+              {car?.mileage_input_preference === 'distance'
+                ? item.distance_traveled ?? '-'
+                : item.odometer}
             </Text>
             <Text variant="labelSmall" style={{ marginTop: -2 }}>
               km
