@@ -4,6 +4,7 @@ import { TextInput, Button, SegmentedButtons, HelperText } from 'react-native-pa
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { CarRepository } from '../database/CarRepository';
 import { MileagePreference } from '../types';
+import { createCarCommandSchema } from '@justfuel/shared';
 
 export default function AddCarScreen() {
   const navigation = useNavigation();
@@ -23,25 +24,36 @@ export default function AddCarScreen() {
   }, [carToEdit, navigation]);
 
   const handleSave = async () => {
-    if (!name.trim()) {
-      setError('Nazwa jest wymagana');
+    // Validate with Zod
+    const validationResult = createCarCommandSchema.safeParse({
+      name: name.trim(),
+      initial_odometer: initialOdometer ? parseFloat(initialOdometer) : undefined,
+      mileage_input_preference: preference,
+    });
+
+    if (!validationResult.success) {
+      // For simplicity, just show the first error. In a real app, map errors to fields.
+      const firstError = validationResult.error.errors[0];
+      setError(firstError.message);
       return;
     }
+
+    const validData = validationResult.data;
 
     setLoading(true);
     try {
       if (carToEdit) {
         await CarRepository.updateCar({
           ...carToEdit,
-          name: name.trim(),
-          initial_odometer: initialOdometer ? parseFloat(initialOdometer) : 0,
-          mileage_input_preference: preference,
+          name: validData.name,
+          initial_odometer: validData.initial_odometer ?? 0,
+          mileage_input_preference: validData.mileage_input_preference,
         });
       } else {
         await CarRepository.addCar({
-          name: name.trim(),
-          initial_odometer: initialOdometer ? parseFloat(initialOdometer) : 0,
-          mileage_input_preference: preference,
+          name: validData.name,
+          initial_odometer: validData.initial_odometer ?? 0,
+          mileage_input_preference: validData.mileage_input_preference,
         });
       }
       navigation.goBack();

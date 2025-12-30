@@ -121,9 +121,13 @@ justfuel/
       ```
 
     - **Mobile App**:
+
       ```bash
       npm run mobile
       # Press 'a' for Android, 'i' for iOS (requires simulator)
+
+      # If you encounter issues, try clearing the cache:
+      npx expo start --clear --android
       ```
 
 ## Available Scripts

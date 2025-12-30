@@ -10,6 +10,8 @@ import {
   calculatePricePerLiter,
   calculateDistanceTraveled,
   calculateOdometer,
+  formatDate,
+  createFillupRequestSchema,
 } from '@justfuel/shared';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
@@ -105,21 +107,44 @@ export default function FillupFormScreen() {
     }
   };
 
-  // Format date as DD-MM-YYYY
-  const formatDate = (d: Date) => {
-    const day = d.getDate().toString().padStart(2, '0');
-    const month = (d.getMonth() + 1).toString().padStart(2, '0');
-    const year = d.getFullYear();
-    return `${day}-${month}-${year}`;
-  };
+
 
   const handleSubmit = async () => {
-    // Validate inputs
-    if (!fuelAmount || !totalPrice) return;
+    // Basic required check for UI feedback
+    if (!fuelAmount || !totalPrice) {
+       Alert.alert('Błąd', 'Uzupełnij wymagane pola (Paliwo, Cena)');
+       return;
+    }
 
-    // Validate specific inputs based on preference
-    if (car?.mileage_input_preference === 'distance' && !distanceInput) return;
-    if (car?.mileage_input_preference !== 'distance' && !odometerInput) return;
+    // Prepare payload for validation
+    const payload: any = {
+      date: date.toISOString(),
+      fuel_amount: fuel,
+      total_price: price,
+    };
+
+    if (car?.mileage_input_preference === 'distance') {
+      if (!distanceInput) {
+         Alert.alert('Błąd', 'Podaj dystans');
+         return;
+      }
+      payload.distance = parseFloat(distanceInput);
+    } else {
+      if (!odometerInput) {
+         Alert.alert('Błąd', 'Podaj stan licznika');
+         return;
+      }
+      payload.odometer = parseFloat(odometerInput);
+    }
+
+    const validationResult = createFillupRequestSchema.safeParse(payload);
+
+    if (!validationResult.success) {
+      Alert.alert('Błąd walidacji', validationResult.error.errors[0].message);
+      return;
+    }
+
+    const validData = validationResult.data;
 
     setLoading(true);
     try {
@@ -139,10 +164,10 @@ export default function FillupFormScreen() {
         // Create new
         const newFillup: NewFillup = {
           car_id: carId,
-          date: date.toISOString(),
+          date: validData.date,
           odometer: finalOdometer,
-          fuel_amount: fuel,
-          total_price: price,
+          fuel_amount: validData.fuel_amount,
+          total_price: validData.total_price,
         };
 
         (newFillup as any).distance_traveled = finalDistance;

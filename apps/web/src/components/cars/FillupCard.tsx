@@ -1,6 +1,6 @@
 import React from 'react';
 import type { FillupDTO } from '../../types';
-import { ConsumptionDeviation, getConsumptionDeviation } from '@justfuel/shared';
+import { ConsumptionDeviation, getConsumptionDeviation, formatDate, formatNumber } from '@justfuel/shared';
 
 interface FillupCardProps {
   fillup: FillupDTO;
@@ -9,19 +9,7 @@ interface FillupCardProps {
 }
 
 export const FillupCard: React.FC<FillupCardProps> = ({ fillup, averageConsumption, onClick }) => {
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('pl-PL', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    });
-  };
 
-  const formatNumber = (value: number | null | undefined) => {
-    if (value === null || value === undefined) return 'N/A';
-    return value.toFixed(2);
-  };
 
   // Calculate color intensity based on deviation from average
   // Uses 7 color levels according to percentage deviation from average
