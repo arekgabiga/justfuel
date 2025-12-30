@@ -31,7 +31,8 @@ console.warn = (...args) => {
   if (
     msg.includes('The global process.env.EXPO_OS is not defined') ||
     msg.includes('The "EXNativeModulesProxy" native module is not exported') ||
-    msg.includes('CommonActions.setParams') // Navigation warning often seen in tests
+    msg.includes('CommonActions.setParams') || // Navigation warning often seen in tests
+    msg.includes('overflow to hidden on Surface') // react-native-paper Surface component warning
   ) {
     return;
   }

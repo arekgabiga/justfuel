@@ -231,6 +231,7 @@ export default function CarDetailsScreen({ route }: any) {
 
       {activeTab === 'fillups' && (
         <FAB
+          testID="add-fillup-fab"
           icon="plus"
           style={[styles.fab, { backgroundColor: theme.colors.primary, bottom: insets.bottom + 16 }]}
           color="white"

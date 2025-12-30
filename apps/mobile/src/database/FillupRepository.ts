@@ -4,7 +4,6 @@ import { generateUUID } from '../utils/uuid';
 
 export const FillupRepository = {
   getFillupsByCarId: async (carId: string): Promise<Fillup[]> => {
-    console.log('[FillupRepo] getFillupsByCarId calling for:', carId);
     if (!carId) {
       console.error('[FillupRepo] getFillupsByCarId aborting: carId is missing');
       return [];
@@ -12,7 +11,6 @@ export const FillupRepository = {
     try {
       const db = await getDBConnection();
       const result = await db.getAllAsync<Fillup>('SELECT * FROM fillups WHERE car_id = ? ORDER BY date DESC', [carId]);
-      console.log('[FillupRepo] getFillupsByCarId result:', result ? result.length : 'null');
       return result;
     } catch (e) {
       console.error('[FillupRepo] getFillupsByCarId failed:', e);

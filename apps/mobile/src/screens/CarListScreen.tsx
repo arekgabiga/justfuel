@@ -102,6 +102,7 @@ export default function CarListScreen() {
       )}
 
       <FAB
+        testID="add-car-fab"
         style={[styles.fab, { backgroundColor: theme.colors.primary, bottom: insets.bottom + 16 }]}
         icon="plus"
         color="white"
