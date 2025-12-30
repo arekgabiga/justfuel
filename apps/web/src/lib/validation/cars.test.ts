@@ -568,7 +568,7 @@ describe('updateCarCommandSchema', () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toContain('At least one field must be provided');
+        expect(result.error.issues[0].message).toContain('Przynajmniej jedno pole musi zostać podane do aktualizacji');
       }
     });
 
