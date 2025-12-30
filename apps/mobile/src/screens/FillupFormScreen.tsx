@@ -260,6 +260,7 @@ export default function FillupFormScreen() {
           label="Data"
           value={formatDate(date)}
           editable={false}
+          testID="date-input"
           mode="outlined"
           style={styles.input}
           right={<TextInput.Icon icon="calendar" onPress={toggleDatePicker} />}
@@ -278,6 +279,7 @@ export default function FillupFormScreen() {
         keyboardType="numeric"
         mode="outlined"
         maxLength={10}
+        testID="fuel-amount-input"
         error={!!errors.fuel_amount}
         activeOutlineColor={errors.fuel_amount ? theme.colors.error : undefined}
         style={styles.input}
@@ -292,6 +294,7 @@ export default function FillupFormScreen() {
         keyboardType="numeric"
         mode="outlined"
         maxLength={10}
+        testID="total-price-input"
         error={!!errors.total_price}
         activeOutlineColor={errors.total_price ? theme.colors.error : undefined}
         style={styles.input}
@@ -308,6 +311,7 @@ export default function FillupFormScreen() {
             keyboardType="numeric"
             mode="outlined"
             maxLength={10}
+            testID="distance-input"
             error={!!errors.distance}
             activeOutlineColor={errors.distance ? theme.colors.error : undefined}
             style={styles.input}
@@ -323,6 +327,7 @@ export default function FillupFormScreen() {
             keyboardType="numeric"
             mode="outlined"
             maxLength={8}
+            testID="odometer-input"
             error={!!errors.odometer || !!calculationError}
             activeOutlineColor={(errors.odometer || calculationError) ? theme.colors.error : undefined}
             style={styles.input}
@@ -340,6 +345,7 @@ export default function FillupFormScreen() {
         onPress={handleSubmit}
         loading={loading}
         style={styles.button}
+        testID="save-button"
         disabled={loading || !isFormValid()}
       >
         Zapisz tankowanie
@@ -351,6 +357,7 @@ export default function FillupFormScreen() {
           onPress={handleDelete}
           textColor={theme.colors.error}
           style={[styles.button, { borderColor: theme.colors.error, marginTop: 12 }]}
+          testID="delete-button"
           disabled={loading}
         >
           Usuń tankowanie

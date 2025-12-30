@@ -43,7 +43,7 @@ export default function App() {
       try {
         const db = await getDBConnection();
         await createTables(db);
-        console.log('Database initialized');
+        // console.log('Database initialized');
 
         const cars = await CarRepository.getAllCars();
         

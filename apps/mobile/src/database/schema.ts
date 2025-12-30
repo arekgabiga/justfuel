@@ -42,5 +42,5 @@ export const createTables = async (db: SQLite.SQLiteDatabase) => {
     );
   `);
 
-  console.log('Tables created successfully');
+  // console.log('Tables created successfully');
 };

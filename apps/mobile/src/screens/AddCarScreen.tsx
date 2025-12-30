@@ -116,6 +116,7 @@ export default function AddCarScreen() {
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <TextInput
         label="Nazwa samochodu (np. Audi A4)"
+        testID="name-input"
         value={name}
         onChangeText={setName}
         mode="outlined"
@@ -128,6 +129,7 @@ export default function AddCarScreen() {
 
       <TextInput
         label="Początkowy stan licznika (opcjonalne)"
+        testID="odometer-input"
         value={initialOdometer}
         onChangeText={(text) => setInitialOdometer(text.replace(',', '.'))}
         onBlur={handleBlurOdometer}
@@ -164,6 +166,7 @@ export default function AddCarScreen() {
 
       <Button 
         mode="contained" 
+        testID="save-button"
         onPress={handleSave} 
         loading={loading} 
         disabled={loading || !isFormValid()} 

@@ -4,7 +4,7 @@ import { generateUUID } from '../utils/uuid';
 
 export const CarRepository = {
   getAllCars: async (): Promise<Car[]> => {
-    console.log('[CarRepo] getAllCars calling');
+    // console.log('[CarRepo] getAllCars calling');
     try {
       const db = await getDBConnection();
       const result = await db.getAllAsync<Car>(`
@@ -19,18 +19,18 @@ export const CarRepository = {
         GROUP BY cars.id 
         ORDER BY cars.created_at DESC
       `);
-      console.log('[CarRepo] getAllCars result length:', result.length);
+      // console.log('[CarRepo] getAllCars result length:', result.length);
       return result;
     } catch (e) {
-      console.error('[CarRepo] getAllCars failed:', e);
+      // console.error('[CarRepo] getAllCars failed:', e);
       throw e;
     }
   },
 
   getCarById: async (id: string): Promise<Car | null> => {
-    console.log('[CarRepo] getCarById calling for:', id);
+    // console.log('[CarRepo] getCarById calling for:', id);
     if (!id) {
-      console.error('[CarRepo] getCarById aborting: id is missing');
+      // console.error('[CarRepo] getCarById aborting: id is missing');
       return null;
     }
     try {
@@ -50,10 +50,10 @@ export const CarRepository = {
       `,
         [id]
       );
-      console.log('[CarRepo] getCarById result:', result);
+      // console.log('[CarRepo] getCarById result:', result);
       return result;
     } catch (e) {
-      console.error('[CarRepo] getCarById failed:', e);
+      // console.error('[CarRepo] getCarById failed:', e);
       throw e;
     }
   },

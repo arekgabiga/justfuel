@@ -140,6 +140,9 @@ Run these from the **root directory**:
 - `npm run mobile`  
   Starts the Expo mobile app.
 
+- `npm test --workspace=@justfuel/mobile`
+  Runs unit and integration tests for the mobile app.
+
 - `npm run build`  
   Builds all workspaces (Shared, Web).
 
