@@ -30,34 +30,67 @@ const theme = {
   },
 };
 
+import { CarRepository } from './src/database/CarRepository';
+import { getLastActiveCarId } from './src/utils/storage';
+import { ActivityIndicator } from 'react-native-paper';
+
 export default function App() {
-  const [dbInitialized, setDbInitialized] = React.useState(false);
+  const [isReady, setIsReady] = React.useState(false);
+  const [initialState, setInitialState] = React.useState<any>();
 
   React.useEffect(() => {
-    async function initDB() {
+    async function init() {
       try {
         const db = await getDBConnection();
         await createTables(db);
-        setDbInitialized(true);
         console.log('Database initialized');
+
+        const cars = await CarRepository.getAllCars();
+        
+        if (cars.length === 1) {
+          setInitialState({
+            index: 1,
+            routes: [
+              { name: 'CarList' },
+              { name: 'CarDetails', params: { carId: cars[0].id, carName: cars[0].name } },
+            ],
+          });
+        } else if (cars.length > 1) {
+          const lastId = await getLastActiveCarId();
+          if (lastId) {
+            const car = cars.find((c) => c.id === lastId);
+            if (car) {
+              setInitialState({
+                index: 1,
+                routes: [
+                  { name: 'CarList' },
+                  { name: 'CarDetails', params: { carId: car.id, carName: car.name } },
+                ],
+              });
+            }
+          }
+        }
       } catch (e) {
-        console.error('Database init failed', e);
+        console.error('Init failed', e);
+      } finally {
+        setIsReady(true);
       }
     }
-    initDB();
+    init();
   }, []);
 
-  if (!dbInitialized) {
+  if (!isReady) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Text>Initializing Database...</Text>
+        <ActivityIndicator size="large" />
+        <Text style={{ marginTop: 20 }}>Initializing...</Text>
       </View>
     );
   }
 
   return (
     <PaperProvider theme={theme}>
-      <NavigationContainer>
+      <NavigationContainer initialState={initialState}>
         <Stack.Navigator initialRouteName="CarList">
           <Stack.Screen name="CarList" component={CarListScreen} options={{ title: 'Moje Samochody' }} />
           <Stack.Screen name="AddCar" component={AddCarScreen} options={{ title: 'Dodaj Samochód' }} />

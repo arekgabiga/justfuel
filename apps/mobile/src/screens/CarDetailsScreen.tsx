@@ -8,10 +8,17 @@ import { Fillup, Car } from '../types';
 import { CarRepository } from '../database/CarRepository';
 import { ChartsTab } from '../components/ChartsTab';
 import { ConsumptionDeviation, getConsumptionDeviation, formatDate } from '@justfuel/shared';
+import { saveLastActiveCarId } from '../utils/storage';
 
 export default function CarDetailsScreen({ route }: any) {
   const { carId, carName } = route.params;
   const navigation = useNavigation<any>();
+  
+  React.useEffect(() => {
+    if (carId) {
+      saveLastActiveCarId(carId);
+    }
+  }, [carId]);
   const theme = useTheme();
   const insets = useSafeAreaInsets();
 
