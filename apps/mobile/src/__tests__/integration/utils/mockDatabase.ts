@@ -157,7 +157,8 @@ export const createMockDb = () => ({
       const id = params[0];
       mockCars = mockCars.filter(c => c.id !== id);
       mockFillups = mockFillups.filter(f => f.car_id !== id);
-    } else if (sql.includes('UPDATE fillups')) {
+    } else if (sql.includes('UPDATE fillups') && sql.includes('date = ?')) {
+      // Full update
       // SET date=?, fuel_amount=?, total_price=?, odometer=?, distance_traveled=?, fuel_consumption=?, price_per_liter=? WHERE id=?
       // params: [date, fuel, price, odometer, dist, cons, ppl, id]
       const id = params[7];
@@ -174,6 +175,17 @@ export const createMockDb = () => ({
           price_per_liter: params[6],
         };
       }
+    } else if (sql.includes('UPDATE fillups') && sql.includes('distance_traveled = ?')) {
+       // Only partial update
+       const id = params[2];
+       const index = mockFillups.findIndex(f => f.id === id);
+       if (index !== -1) {
+           mockFillups[index] = {
+               ...mockFillups[index],
+               distance_traveled: params[0],
+               fuel_consumption: params[1],
+           };
+       }
     }
     return undefined;
   }),
@@ -183,9 +195,14 @@ export const createMockDb = () => ({
       return mockCars.map(calculateCarAggregates);
     }
     if (sql.includes('FROM fillups') && params?.[0]) {
-      return mockFillups
-        .filter(f => f.car_id === params[0])
-        .sort((a, b) => b.date.localeCompare(a.date));
+      let filtered = mockFillups.filter(f => f.car_id === params[0]);
+      if (sql.toUpperCase().includes('ORDER BY DATE ASC')) {
+         filtered = filtered.sort((a, b) => a.date.localeCompare(b.date));
+      } else {
+         // Default DESC
+         filtered = filtered.sort((a, b) => b.date.localeCompare(a.date));
+      }
+      return filtered;
     }
     return [];
   }),

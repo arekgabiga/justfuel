@@ -102,7 +102,18 @@ export default function CarDetailsScreen({ route }: CarDetailsScreenProps) {
     }, [loadData])
   );
 
-  const renderFillupItem = ({ item }: { item: Fillup }) => {
+  const renderFillupItem = ({ item, index }: { item: Fillup; index: number }) => {
+    // Check consistency with the previous fillup (which is next in the list sorted DESC)
+    let isInvalid = false;
+    if (index < fillups.length - 1) {
+      const olderFillup = fillups[index + 1];
+      // Basic check: Current odometer must be >= older fillup odometer
+      // This applies regardless of input preference because 'odometer' field stores the absolute total.
+      if (item.odometer < olderFillup.odometer) {
+        isInvalid = true;
+      }
+    }
+
     const getConsumptionColor = (consumption: number | null | undefined, avg: number | undefined) => {
       if (avg === undefined) return theme.colors.onSurface;
       const deviation = getConsumptionDeviation(consumption, avg);
@@ -129,11 +140,19 @@ export default function CarDetailsScreen({ route }: CarDetailsScreenProps) {
     const consumptionColor = getConsumptionColor(item.fuel_consumption, car?.average_consumption);
 
     return (
-      <Card style={styles.card} onPress={() => navigation.navigate('FillupForm', { carId, fillup: item })}>
-        <View style={styles.cardHeader}>
-          <Text variant="titleMedium" style={{ fontWeight: 'bold' }}>
-            {formatDate(item.date)}
-          </Text>
+      <Card style={[styles.card, isInvalid && styles.invalidCard]} onPress={() => navigation.navigate('FillupForm', { carId, fillup: item })}>
+        <View style={[styles.cardHeader, isInvalid && styles.invalidCardHeader]}>
+          <View style={styles.row}>
+             <Text variant="titleMedium" style={{ fontWeight: 'bold', color: isInvalid ? theme.colors.error : theme.colors.onSurface }}>
+                {item.date ? formatDate(item.date) : 'Invalid Date'}
+             </Text>
+             {isInvalid && (
+                 <View style={styles.row} testID={`warning-icon-${item.id}`}>
+                    <Text style={{ color: theme.colors.error, marginRight: 4, fontWeight: 'bold' }}>Błąd przebiegu</Text>
+                    <Appbar.Action icon="alert-circle" size={20} color={theme.colors.error} style={{ margin: 0, padding: 0 }} />
+                 </View>
+             )}
+          </View>
         </View>
         <Divider />
         <Card.Content style={styles.cardContent}>
@@ -141,7 +160,7 @@ export default function CarDetailsScreen({ route }: CarDetailsScreenProps) {
             <Text variant="bodySmall" style={styles.label}>
               Spalanie
             </Text>
-            {item.fuel_consumption ? (
+            {typeof item.fuel_consumption === 'number' ? (
               <>
                 <Text variant="titleLarge" style={{ fontWeight: 'bold', color: consumptionColor }}>
                   {item.fuel_consumption.toFixed(2)}
@@ -214,9 +233,13 @@ export default function CarDetailsScreen({ route }: CarDetailsScreenProps) {
       </View>
 
       {activeTab === 'fillups' ? (
-        <FlatList
+        <React.Fragment>
+          {/* Fillups List */}
+          <FlatList
           style={{ flex: 1 }}
           data={fillups}
+          extraData={fillups} // Force re-render when the array changes, important for relative checks (index+1)
+          removeClippedSubviews={false} // Prevent blank views issues on Android
           keyExtractor={(item) => item.id}
           renderItem={renderFillupItem}
           contentContainerStyle={[styles.listContent, { paddingBottom: 140 }]}
@@ -226,6 +249,7 @@ export default function CarDetailsScreen({ route }: CarDetailsScreenProps) {
             </View>
           }
         />
+        </React.Fragment>
       ) : (
         <ChartsTab fillups={fillups} />
       )}
@@ -285,6 +309,8 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     elevation: 2,
     overflow: 'hidden', // for header radius
+    borderWidth: 1,
+    borderColor: 'transparent',
   },
   cardHeader: {
     paddingHorizontal: 16,
@@ -324,5 +350,11 @@ const styles = StyleSheet.create({
     position: 'absolute',
     margin: 16,
     right: 0,
+  },
+  invalidCard: {
+    borderColor: '#dc2626', // error color
+  },
+  invalidCardHeader: {
+    backgroundColor: '#fef2f2', // light red
   },
 });

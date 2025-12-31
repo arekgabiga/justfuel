@@ -236,7 +236,7 @@ export default function FillupFormScreen() {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <TouchableOpacity onPress={toggleDatePicker}>
+      <TouchableOpacity onPress={toggleDatePicker} testID="date-picker-trigger">
         <TextInput
           label="Data"
           value={formatDate(date)}

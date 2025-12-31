@@ -98,10 +98,62 @@ export const FillupRepository = {
         fillup.id,
       ]
     );
+
+    // Ensure chain consistency
+    await FillupRepository.recalculateStats(fillup.car_id);
   },
 
   deleteFillup: async (id: string): Promise<void> => {
     const db = await getDBConnection();
+    // Get carID before delete to recalc
+    const fillup = await db.getFirstAsync<Fillup>('SELECT car_id FROM fillups WHERE id = ?', [id]);
     await db.runAsync('DELETE FROM fillups WHERE id = ?', [id]);
+    if (fillup) {
+      await FillupRepository.recalculateStats(fillup.car_id);
+    }
+  },
+
+  recalculateStats: async (carId: string): Promise<void> => {
+    const db = await getDBConnection();
+    const fillups = await db.getAllAsync<Fillup>(
+      'SELECT * FROM fillups WHERE car_id = ? ORDER BY date ASC',
+      [carId]
+    );
+
+    for (let i = 0; i < fillups.length; i++) {
+        const current = fillups[i];
+        let previous = i > 0 ? fillups[i - 1] : null;
+        
+        let newDist: number | null = null;
+        let newCons: number | null = null;
+
+        if (previous) {
+            newDist = current.odometer - previous.odometer;
+            if (newDist > 0) {
+                newCons = (current.fuel_amount / newDist) * 100;
+            } else {
+                newDist = 0;
+                newCons = null;
+            }
+        } else {
+             // For the first fillup (no previous), preserve existing distance (e.g. manual input)
+             newDist = current.distance_traveled;
+             if (newDist && newDist > 0) {
+                 newCons = (current.fuel_amount / newDist) * 100;
+             } else {
+                 newCons = null;
+             }
+        }
+
+        const distChanged = current.distance_traveled !== newDist;
+        const consChanged = Math.abs((current.fuel_consumption || 0) - (newCons || 0)) > 0.001;
+        
+        if (distChanged || consChanged) {
+             await db.runAsync(
+                 'UPDATE fillups SET distance_traveled = ?, fuel_consumption = ? WHERE id = ?',
+                 [newDist, newCons, current.id] // Params: index 0, 1, 2
+             );
+        }
+    }
   },
 };
