@@ -72,15 +72,40 @@ export const FillupsListView: React.FC<FillupsListViewProps> = ({
 
   return (
     <div ref={containerRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {fillups.map((fillup) => (
-        <FillupCard
-          key={fillup.id}
-          fillup={fillup}
-          averageConsumption={averageConsumption}
-          onClick={() => onFillupClick(fillup.id)}
-          mileageInputPreference={mileageInputPreference}
-        />
-      ))}
+      {fillups.map((fillup, index) => {
+        // Calculate validation status
+        // Assuming fillups are sorted by date DESC (newest first)
+        // Check if NEXT fillup (older) has specific relationship
+        let isOdometerInvalid = false;
+        
+        // We can only validate if we have a next item
+        if (index < fillups.length - 1) {
+          const olderFillup = fillups[index + 1];
+          // If current odometer is defined AND older odometer is defined
+          if (
+            fillup.odometer !== null && 
+            fillup.odometer !== undefined && 
+            olderFillup.odometer !== null && 
+            olderFillup.odometer !== undefined
+          ) {
+            // It is invalid if current (newer) < older
+            if (fillup.odometer < olderFillup.odometer) {
+              isOdometerInvalid = true;
+            }
+          }
+        }
+
+        return (
+          <FillupCard
+            key={fillup.id}
+            fillup={fillup}
+            averageConsumption={averageConsumption}
+            onClick={() => onFillupClick(fillup.id)}
+            mileageInputPreference={mileageInputPreference}
+            isOdometerInvalid={isOdometerInvalid}
+          />
+        );
+      })}
 
       {/* Infinite scroll trigger */}
       {pagination.has_more && (
