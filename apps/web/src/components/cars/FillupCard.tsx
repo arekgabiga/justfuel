@@ -6,9 +6,15 @@ interface FillupCardProps {
   fillup: FillupDTO;
   averageConsumption: number;
   onClick: () => void;
+  mileageInputPreference?: 'odometer' | 'distance';
 }
 
-export const FillupCard: React.FC<FillupCardProps> = ({ fillup, averageConsumption, onClick }) => {
+export const FillupCard: React.FC<FillupCardProps> = ({ 
+  fillup, 
+  averageConsumption, 
+  onClick,
+  mileageInputPreference = 'odometer' 
+}) => {
 
 
   // Calculate color intensity based on deviation from average
@@ -63,9 +69,17 @@ export const FillupCard: React.FC<FillupCardProps> = ({ fillup, averageConsumpti
           </span>
         </div>
 
-        {/* Bottom Left: Distance */}
+        {/* Bottom Left: Distance or Odometer */}
         <div className="text-lg md:text-sm font-medium text-gray-900 dark:text-gray-200">
-          {formatNumber(fillup.distance_traveled)} <span className="text-gray-500 font-normal">km</span>
+          {mileageInputPreference === 'odometer' && fillup.odometer !== null && fillup.odometer !== undefined ? (
+            <>
+              {formatNumber(fillup.odometer)} <span className="text-gray-500 font-normal">km</span>
+            </>
+          ) : (
+            <>
+              {formatNumber(fillup.distance_traveled)} <span className="text-gray-500 font-normal">km</span>
+            </>
+          )}
         </div>
 
         {/* Bottom Right: Price */}

@@ -86,6 +86,7 @@ export const FillupsView: React.FC<FillupsViewProps> = ({ carId }) => {
         onFillupClick={handleFillupClick}
         onRetry={retry}
         onAddFillup={handleAddFillupClick}
+        mileageInputPreference={(car?.mileage_input_preference as 'odometer' | 'distance') || 'odometer'}
       />
     </main>
   );

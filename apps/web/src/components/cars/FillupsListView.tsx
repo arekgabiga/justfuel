@@ -17,6 +17,7 @@ interface FillupsListViewProps {
   onFillupClick: (fillupId: string) => void;
   onRetry?: () => void;
   onAddFillup?: () => void;
+  mileageInputPreference?: 'odometer' | 'distance';
 }
 
 export const FillupsListView: React.FC<FillupsListViewProps> = ({
@@ -29,6 +30,7 @@ export const FillupsListView: React.FC<FillupsListViewProps> = ({
   onFillupClick,
   onRetry,
   onAddFillup,
+  mileageInputPreference,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const observerTargetRef = useRef<HTMLDivElement>(null);
@@ -76,6 +78,7 @@ export const FillupsListView: React.FC<FillupsListViewProps> = ({
           fillup={fillup}
           averageConsumption={averageConsumption}
           onClick={() => onFillupClick(fillup.id)}
+          mileageInputPreference={mileageInputPreference}
         />
       ))}
 

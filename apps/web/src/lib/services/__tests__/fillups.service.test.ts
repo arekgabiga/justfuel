@@ -260,14 +260,15 @@ describe('fillups.service', () => {
         if (table === 'fillups') {
           const calls = vi.mocked(mockSupabase.from).mock.calls.filter((c) => c[0] === 'fillups').length;
 
-          // First call: get previous fillup (none exists)
           if (calls === 1) {
             return {
               select: vi.fn().mockReturnValue({
                 eq: vi.fn().mockReturnValue({
-                  order: vi.fn().mockReturnValue({
-                    limit: vi.fn().mockReturnValue({
-                      maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
+                  lt: vi.fn().mockReturnValue({
+                    order: vi.fn().mockReturnValue({
+                      limit: vi.fn().mockReturnValue({
+                        maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
+                      }),
                     }),
                   }),
                 }),
@@ -275,13 +276,28 @@ describe('fillups.service', () => {
             } as any;
           }
           // Second call: insert new fillup
-          return {
-            insert: vi.fn().mockReturnValue({
-              select: vi.fn().mockReturnValue({
-                single: vi.fn().mockResolvedValue({ data: mockCreatedFillup, error: null }),
-              }),
-            }),
-          } as any;
+          if (calls === 2) {
+             return {
+               insert: vi.fn().mockReturnValue({
+                 select: vi.fn().mockReturnValue({
+                   single: vi.fn().mockResolvedValue({ data: mockCreatedFillup, error: null }),
+                 }),
+               }),
+             } as any;
+          }
+           // Third call: chain recalculation
+           if (calls === 3) {
+             return {
+                select: vi.fn().mockReturnValue({
+                    eq: vi.fn().mockReturnValue({
+                        gte: vi.fn().mockReturnValue({
+                            order: vi.fn().mockResolvedValue({ data: [], error: null }),
+                        }),
+                    }),
+                }),
+             } as any;
+           }
+          return {} as any; // fallback
         }
         return {} as any;
       });
@@ -339,9 +355,11 @@ describe('fillups.service', () => {
             return {
               select: vi.fn().mockReturnValue({
                 eq: vi.fn().mockReturnValue({
-                  order: vi.fn().mockReturnValue({
-                    limit: vi.fn().mockReturnValue({
-                      maybeSingle: vi.fn().mockResolvedValue({ data: mockPreviousFillup, error: null }),
+                  lt: vi.fn().mockReturnValue({
+                    order: vi.fn().mockReturnValue({
+                       limit: vi.fn().mockReturnValue({
+                         maybeSingle: vi.fn().mockResolvedValue({ data: mockPreviousFillup, error: null }),
+                       }),
                     }),
                   }),
                 }),
@@ -411,22 +429,39 @@ describe('fillups.service', () => {
             return {
               select: vi.fn().mockReturnValue({
                 eq: vi.fn().mockReturnValue({
-                  order: vi.fn().mockReturnValue({
-                    limit: vi.fn().mockReturnValue({
-                      maybeSingle: vi.fn().mockResolvedValue({ data: mockPreviousFillup, error: null }),
+                  lt: vi.fn().mockReturnValue({
+                    order: vi.fn().mockReturnValue({
+                       limit: vi.fn().mockReturnValue({
+                         maybeSingle: vi.fn().mockResolvedValue({ data: mockPreviousFillup, error: null }),
+                       }),
                     }),
                   }),
                 }),
               }),
             } as any;
           }
-          return {
-            insert: vi.fn().mockReturnValue({
-              select: vi.fn().mockReturnValue({
-                single: vi.fn().mockResolvedValue({ data: mockCreatedFillup, error: null }),
-              }),
-            }),
-          } as any;
+          if (calls === 2) {
+             return {
+                insert: vi.fn().mockReturnValue({
+                  select: vi.fn().mockReturnValue({
+                    single: vi.fn().mockResolvedValue({ data: mockCreatedFillup, error: null }),
+                  }),
+                }),
+             } as any;
+          }
+           // Third call: chain recalculation
+           if (calls === 3) {
+             return {
+                select: vi.fn().mockReturnValue({
+                    eq: vi.fn().mockReturnValue({
+                        gte: vi.fn().mockReturnValue({
+                            order: vi.fn().mockResolvedValue({ data: [], error: null }),
+                        }),
+                    }),
+                }),
+             } as any;
+           }
+          return {} as any;
         }
         return {} as any;
       });
