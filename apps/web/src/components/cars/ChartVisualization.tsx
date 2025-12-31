@@ -62,6 +62,8 @@ const CustomTooltip = ({ active, payload }: any) => {
         </p>
         {data.odometer != null ? (
           <p className="text-xs text-gray-500 dark:text-gray-400">Licznik: {data.odometer.toLocaleString('pl-PL')} km</p>
+        ) : data.distance != null ? (
+          <p className="text-xs text-gray-500 dark:text-gray-400">Dystans: {data.distance.toLocaleString('pl-PL')} km</p>
         ) : (
           <p className="text-xs text-gray-500 dark:text-gray-400">Licznik: --</p>
         )}
@@ -135,6 +137,7 @@ export const ChartVisualization: React.FC<ChartVisualizationProps> = ({
         date: point.date,
         value: point.value,
         odometer: point.odometer,
+        distance: point.distance,
       }));
   }, [chartData.data]);
 
@@ -174,7 +177,7 @@ export const ChartVisualization: React.FC<ChartVisualizationProps> = ({
     margin: {
       top: 5,
       right: 10,
-      left: -20,
+      left: 0,
       bottom: 5,
     },
   };

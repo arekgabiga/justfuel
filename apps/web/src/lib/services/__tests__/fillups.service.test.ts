@@ -324,7 +324,7 @@ describe('fillups.service', () => {
               eq: vi.fn().mockReturnValue({
                 eq: vi.fn().mockReturnValue({
                   limit: vi.fn().mockReturnValue({
-                    maybeSingle: vi.fn().mockResolvedValue({ data: mockCar, error: null }),
+                    maybeSingle: vi.fn().mockResolvedValue({ data: { ...mockCar, mileage_input_preference: 'distance' }, error: null }),
                   }),
                 }),
               }),
@@ -492,7 +492,7 @@ describe('fillups.service', () => {
         if (table === 'fillups') {
           const calls = vi.mocked(mockSupabase.from).mock.calls.filter((c) => c[0] === 'fillups').length;
 
-          // First call: fetch existing
+          // First call: fetch existing fillup
           if (calls === 1) {
             return {
               select: vi.fn().mockReturnValue({
@@ -504,15 +504,25 @@ describe('fillups.service', () => {
               }),
             } as any;
           }
-          // Second call: update
-          return {
-            update: vi.fn().mockReturnValue({
-              eq: vi.fn().mockReturnValue({
+          // Second call: update the fillup
+          if (calls === 2) {
+            return {
+              update: vi.fn().mockReturnValue({
                 eq: vi.fn().mockReturnValue({
-                  select: vi.fn().mockReturnValue({
-                    single: vi.fn().mockResolvedValue({ data: updatedFillup, error: null }),
+                  eq: vi.fn().mockReturnValue({
+                    select: vi.fn().mockReturnValue({
+                      single: vi.fn().mockResolvedValue({ data: updatedFillup, error: null }),
+                    }),
                   }),
                 }),
+              }),
+            } as any;
+          }
+          // Third call: refresh/recalculate logic (fetch all fillups)
+          return {
+            select: vi.fn().mockReturnValue({
+              eq: vi.fn().mockReturnValue({
+                order: vi.fn().mockResolvedValue({ data: [], error: null }), 
               }),
             }),
           } as any;

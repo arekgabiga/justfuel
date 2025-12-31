@@ -78,6 +78,8 @@ describe('charts.service', () => {
       expect(result?.metadata.min).toBe(7.5);
       expect(result?.metadata.max).toBe(8.0);
       expect(result?.metadata.count).toBe(2);
+      expect(result?.data[0].distance).toBe(500);
+      expect(result?.data[1].distance).toBe(480);
     });
 
     it('should return price_per_liter chart data', async () => {

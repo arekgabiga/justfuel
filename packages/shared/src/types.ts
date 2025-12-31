@@ -225,6 +225,7 @@ export interface ChartDataPointDTO {
   date: string; // ISO 8601 timestamp
   value: number;
   odometer: number | null;
+  distance: number | null;
 }
 
 /**

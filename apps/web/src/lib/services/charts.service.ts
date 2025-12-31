@@ -113,6 +113,7 @@ export async function getChartData(
         date: fillup.date,
         value: value,
         odometer: fillup.odometer,
+        distance: fillup.distance_traveled,
       });
     }
   }
