@@ -127,7 +127,7 @@ export const FillupRepository = {
         let newDist: number | null = null;
         let newCons: number | null = null;
 
-        if (previous) {
+        if (previous && current.odometer != null && previous.odometer != null) {
             newDist = current.odometer - previous.odometer;
             if (newDist > 0) {
                 newCons = (current.fuel_amount / newDist) * 100;
@@ -136,7 +136,7 @@ export const FillupRepository = {
                 newCons = null;
             }
         } else {
-             // For the first fillup (no previous), preserve existing distance (e.g. manual input)
+             // For the first fillup, or if odometer chain is broken (distance-based), preserve existing distance
              newDist = current.distance_traveled;
              if (newDist && newDist > 0) {
                  newCons = (current.fuel_amount / newDist) * 100;

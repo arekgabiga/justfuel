@@ -26,7 +26,7 @@ export default function FillupFormScreen() {
   const [showDatePicker, setShowDatePicker] = useState(false);
 
   // Inputs
-  const [odometerInput, setOdometerInput] = useState(fillup ? fillup.odometer.toString() : '');
+  const [odometerInput, setOdometerInput] = useState(fillup && fillup.odometer != null ? fillup.odometer.toString() : '');
   const [distanceInput, setDistanceInput] = useState(
     fillup && fillup.distance_traveled ? fillup.distance_traveled.toString() : ''
   );

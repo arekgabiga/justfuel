@@ -107,9 +107,9 @@ export default function CarDetailsScreen({ route }: CarDetailsScreenProps) {
     let isInvalid = false;
     if (index < fillups.length - 1) {
       const olderFillup = fillups[index + 1];
-      // Basic check: Current odometer must be >= older fillup odometer
-      // This applies regardless of input preference because 'odometer' field stores the absolute total.
-      if (item.odometer < olderFillup.odometer) {
+      // Check consistency with the previous fillup (which is next in the list sorted DESC)
+      // Only enforce this for Odometer preference, as Distance preference can have disconnected odometers due to calculation logic
+      if (car?.mileage_input_preference !== 'distance' && item.odometer != null && olderFillup.odometer != null && item.odometer < olderFillup.odometer) {
         isInvalid = true;
       }
     }
@@ -183,7 +183,7 @@ export default function CarDetailsScreen({ route }: CarDetailsScreenProps) {
             <Text variant="titleMedium" style={{ fontWeight: 'bold' }}>
               {car?.mileage_input_preference === 'distance'
                 ? item.distance_traveled ?? '-'
-                : item.odometer}
+                : item.odometer ?? '-'}
             </Text>
             <Text variant="labelSmall" style={{ marginTop: -2 }}>
               km

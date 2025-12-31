@@ -25,7 +25,7 @@ export interface MockFillup {
   date: string;
   fuel_amount: number;
   total_price: number;
-  odometer: number;
+  odometer: number | null;
   distance_traveled: number | null;
   fuel_consumption: number | null;
   price_per_liter: number;
@@ -90,7 +90,7 @@ export const seedFillup = (carId: string, overrides: Partial<MockFillup> = {}): 
     date: overrides.date || new Date().toISOString().split('T')[0],
     fuel_amount: overrides.fuel_amount ?? 50,
     total_price: overrides.total_price ?? 300,
-    odometer: overrides.odometer ?? 10500,
+    odometer: overrides.odometer !== undefined ? overrides.odometer : 10500,
     distance_traveled: overrides.distance_traveled ?? 500,
     fuel_consumption: overrides.fuel_consumption ?? 10,
     price_per_liter: overrides.price_per_liter ?? 6,

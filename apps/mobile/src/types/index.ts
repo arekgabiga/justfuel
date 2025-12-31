@@ -10,7 +10,8 @@ export interface Car extends Omit<CarDB, 'mileage_input_preference' | 'user_id'>
   fillups_count?: number;
 }
 
-export interface Fillup extends FillupDB {
+export interface Fillup extends Omit<FillupDB, 'odometer'> {
+  odometer: number | null;
   // Mobile specific extensions if any
 }
 
