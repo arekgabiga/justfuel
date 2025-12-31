@@ -47,6 +47,7 @@ The project is structured as a **Monorepo**, sharing core logic between:
 - **Persistence**: Expo SQLite (Local-First architecture)
 - **Navigation**: React Navigation 7
 - **Charts**: React Native Chart Kit
+- **Testing**: Jest, React Native Testing Library
 
 ### Infrastructure
 
@@ -145,6 +146,9 @@ Run these from the **root directory**:
 
 - `npm run build`  
   Builds all workspaces (Shared, Web).
+
+- `npm run test:e2e`
+  Runs end-to-end tests for the Web App (Playwright).
 
 - `npm run clean`  
   Removes `node_modules` and build artifacts from all workspaces.
@@ -499,6 +503,50 @@ Error responses:
 - `401 Unauthorized` - Missing or invalid authentication token
 - `404 Not Found` - Fillup or car not found, or doesn't belong to user
 - `500 Internal Server Error` - An unexpected error occurred while deleting fillup
+
+### GET /api/cars/{carId}/charts
+
+Returns chart data and statistics for a specific car.
+
+Path params:
+
+- `carId`: UUID
+
+Query params:
+
+- `type`: `consumption | price_per_liter | distance` (required)
+- `start_date`: string (optional, ISO 8601)
+- `end_date`: string (optional, ISO 8601)
+- `limit`: number (optional, default: 50)
+
+Response (200 OK):
+
+```json
+{
+  "type": "consumption",
+  "data": [
+    {
+      "date": "2025-01-01T00:00:00Z",
+      "value": 5.5,
+      "odometer": 10500,
+      "distance": 500
+    }
+  ],
+  "average": 5.2,
+  "metadata": {
+    "count": 1,
+    "min": 5.5,
+    "max": 5.5
+  }
+}
+```
+
+Error responses:
+
+- `400 Bad Request` - Invalid carId, chart type, or date format
+- `401 Unauthorized` - Missing or invalid authentication token
+- `404 Not Found` - Car not found or doesn't belong to user
+- `500 Internal Server Error` - Server error
 
 ## Project Scope
 
