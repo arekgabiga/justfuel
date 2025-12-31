@@ -4,7 +4,6 @@ export interface NewFillupFormData {
   date: string;
   fuelAmount: string;
   totalPrice: string;
-  inputMode: 'odometer' | 'distance';
   odometer?: string;
   distance?: string;
 }
@@ -35,9 +34,7 @@ export class NewFillupPage {
     return this.page.getByTestId('fillup-total-price-input');
   }
 
-  get inputModeSelect(): Locator {
-    return this.page.getByTestId('fillup-input-mode-select');
-  }
+
 
   get odometerInput(): Locator {
     return this.page.getByTestId('fillup-odometer-input');
@@ -75,14 +72,11 @@ export class NewFillupPage {
     await this.totalPriceInput.fill(data.totalPrice);
     await this.totalPriceInput.blur();
 
-    // Select mode (this waits for the correct field to appear)
-    await this.selectInputMode(data.inputMode);
-
     // Fill mode-specific field
-    if (data.inputMode === 'odometer' && data.odometer) {
+    if (data.odometer) {
       await this.odometerInput.fill(data.odometer);
       await this.odometerInput.blur();
-    } else if (data.inputMode === 'distance' && data.distance) {
+    } else if (data.distance) {
       await this.distanceInput.fill(data.distance);
       await this.distanceInput.blur();
     }
@@ -91,27 +85,7 @@ export class NewFillupPage {
     await this.page.waitForTimeout(100);
   }
 
-  async selectInputMode(mode: 'odometer' | 'distance'): Promise<void> {
-    // Focus the select trigger
-    await this.inputModeSelect.click();
 
-    // Wait a bit for the dropdown to open
-    await this.page.waitForTimeout(100);
-
-    // Select the option by text content
-    if (mode === 'distance') {
-      await this.page.getByRole('option', { name: 'Przejechany dystans' }).click();
-    } else {
-      await this.page.getByRole('option', { name: 'Stan licznika' }).click();
-    }
-
-    // Wait for the mode-specific input to appear
-    if (mode === 'odometer') {
-      await this.odometerInput.waitFor({ state: 'visible' });
-    } else {
-      await this.distanceInput.waitFor({ state: 'visible' });
-    }
-  }
 
   async submit(): Promise<void> {
     await this.saveButton.click();

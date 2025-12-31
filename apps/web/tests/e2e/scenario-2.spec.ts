@@ -97,7 +97,6 @@ test.describe('Scenario 2: Zarządzanie Samochodami', () => {
       date: '2024-01-15',
       fuelAmount: '45.5',
       totalPrice: '250.00',
-      inputMode: 'distance',
       distance: '500',
     });
     await newFillupPage.submit();
@@ -111,7 +110,6 @@ test.describe('Scenario 2: Zarządzanie Samochodami', () => {
       date: '2024-02-01',
       fuelAmount: '40.0',
       totalPrice: '220.00',
-      inputMode: 'distance',
       distance: '450',
     });
     await newFillupPage.submit();
