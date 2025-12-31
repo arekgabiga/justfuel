@@ -37,7 +37,7 @@ export const createTables = async (db: SQLite.SQLiteDatabase) => {
       distance_traveled REAL,
       fuel_consumption REAL,
       price_per_liter REAL NOT NULL,
-      created_at TEXT NOT NULL,
+      created_at TEXT NOT NULL
     );
     CREATE INDEX IF NOT EXISTS idx_fillups_car_id ON fillups(car_id);
     CREATE INDEX IF NOT EXISTS idx_fillups_date ON fillups(date);

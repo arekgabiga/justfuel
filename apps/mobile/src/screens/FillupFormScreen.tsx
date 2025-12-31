@@ -50,7 +50,7 @@ export default function FillupFormScreen() {
       try {
         const [carData, previousFillup] = await Promise.all([
           CarRepository.getCarById(carId),
-          FillupRepository.getPreviousFillup(carId, date.toISOString()),
+          FillupRepository.getPreviousFillup(carId, date.toISOString(), fillup?.id),
         ]);
         setCar(carData);
         setLastFillup(previousFillup);

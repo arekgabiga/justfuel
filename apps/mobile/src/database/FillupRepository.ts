@@ -59,12 +59,19 @@ export const FillupRepository = {
     };
   },
 
-  getPreviousFillup: async (carId: string, date: string): Promise<Fillup | null> => {
+  getPreviousFillup: async (carId: string, date: string, excludeFillupId?: string): Promise<Fillup | null> => {
     const db = await getDBConnection();
-    const result = await db.getFirstAsync<Fillup>(
-      'SELECT * FROM fillups WHERE car_id = ? AND date < ? ORDER BY date DESC LIMIT 1',
-      [carId, date]
-    );
+    let query = 'SELECT * FROM fillups WHERE car_id = ? AND date < ?';
+    const params = [carId, date];
+
+    if (excludeFillupId) {
+      query += ' AND id != ?';
+      params.push(excludeFillupId);
+    }
+
+    query += ' ORDER BY date DESC LIMIT 1';
+    
+    const result = await db.getFirstAsync<Fillup>(query, params);
     return result;
   },
 
