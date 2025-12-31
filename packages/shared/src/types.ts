@@ -224,7 +224,7 @@ export type ChartType = 'consumption' | 'price_per_liter' | 'distance';
 export interface ChartDataPointDTO {
   date: string; // ISO 8601 timestamp
   value: number;
-  odometer: number;
+  odometer: number | null;
 }
 
 /**

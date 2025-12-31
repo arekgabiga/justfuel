@@ -56,7 +56,7 @@ export interface Database {
           fuel_amount: number;
           fuel_consumption: number | null;
           id: string;
-          odometer: number;
+          odometer: number | null;
           price_per_liter: number | null;
           total_price: number;
         };
@@ -68,7 +68,7 @@ export interface Database {
           fuel_amount: number;
           fuel_consumption?: number | null;
           id?: string;
-          odometer: number;
+          odometer: number | null;
           price_per_liter?: number | null;
           total_price: number;
         };

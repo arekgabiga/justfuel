@@ -39,12 +39,12 @@ export const FillupRepository = {
         newFillup.date,
         newFillup.fuel_amount,
         newFillup.total_price,
-        newFillup.odometer,
-        // Default to nulls/calculated values if not in newFillup type, but I updated interface to match generic logic
-        // We really should computing this in a Service or Hook, but for repository we just insert
-        (newFillup as any).distance_traveled || null,
+        newFillup.odometer ?? null,
+        // If odometer is present, we don't assume distance yet (recalc will fix it). 
+        // If odometer is MISSING (distance-mode), we use the provided distance.
+        newFillup.odometer == null ? (newFillup as any).distance_traveled : null,
         (newFillup as any).fuel_consumption || null,
-        newFillup.total_price / newFillup.fuel_amount, // simple calc
+        newFillup.total_price / newFillup.fuel_amount,
         now,
       ]
     );
@@ -136,8 +136,19 @@ export const FillupRepository = {
                 newCons = null;
             }
         } else {
-             // For the first fillup, or if odometer chain is broken (distance-based), preserve existing distance
-             newDist = current.distance_traveled;
+             // If odometer is missing (distance-based mode) OR chain is broken:
+             // We MUST preserve the existing distance if it was manually entered (distance mode).
+             // However, our logic here is "recalculate".
+             // If current.odometer is NULL, it means it's a distance-based entry. We trust its distance_traveled.
+             
+             if (current.odometer == null) {
+                 newDist = current.distance_traveled;
+             } else {
+                 // It has odometer, but previous is missing or broken chain.
+                 // In this case, we default to current distance, effectively "resetting" the chain or keeping manual edit.
+                 newDist = current.distance_traveled;
+             }
+
              if (newDist && newDist > 0) {
                  newCons = (current.fuel_amount / newDist) * 100;
              } else {

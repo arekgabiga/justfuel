@@ -60,7 +60,11 @@ const CustomTooltip = ({ active, payload }: any) => {
         <p className="text-sm text-gray-700 dark:text-gray-300">
           <span className="font-medium">{label}:</span> {value.toFixed(decimals)} {unit}
         </p>
-        <p className="text-xs text-gray-500 dark:text-gray-400">Licznik: {data.odometer.toLocaleString('pl-PL')} km</p>
+        {data.odometer != null ? (
+          <p className="text-xs text-gray-500 dark:text-gray-400">Licznik: {data.odometer.toLocaleString('pl-PL')} km</p>
+        ) : (
+          <p className="text-xs text-gray-500 dark:text-gray-400">Licznik: --</p>
+        )}
       </div>
     </div>
   );
@@ -120,7 +124,10 @@ export const ChartVisualization: React.FC<ChartVisualizationProps> = ({
     return [...chartData.data]
       .filter((point) => {
         return (
-          point.value != null && !isNaN(point.value) && point.date && point.odometer != null && !isNaN(point.odometer)
+          point.value != null && !isNaN(point.value) && point.date && 
+          // Allow odometer to be null, but if it is present it must be valid number? 
+          // Actually if it's null it's valid for "distance" mode.
+          (point.odometer == null || !isNaN(point.odometer))
         );
       })
       .reverse()

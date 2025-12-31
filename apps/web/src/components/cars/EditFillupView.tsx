@@ -224,32 +224,7 @@ const EditFillupView: React.FC<EditFillupViewProps> = ({ carId, fillupId }) => {
             )}
           </div>
 
-          {/* Row 3: Input Mode | Active Field */}
-          <div className="space-y-2">
-            <Label htmlFor="inputMode" aria-required="true">
-              Tryb wprowadzania przebiegu
-              <span aria-label="Pole wymagane" className="text-destructive ml-1">
-                *
-              </span>
-            </Label>
-            <Select
-              value={formState.inputMode}
-              onValueChange={(value: 'odometer' | 'distance') => handleModeToggle(value)}
-              disabled={isSubmitting}
-            >
-              <SelectTrigger
-                id="inputMode"
-                aria-invalid={!!formErrors.inputMode}
-                className={touchedFields.has('inputMode') && formErrors.inputMode ? 'border-destructive' : ''}
-              >
-                <SelectValue placeholder="Wybierz tryb" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="odometer">Stan licznika</SelectItem>
-                <SelectItem value="distance">Przejechany dystans</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+
 
           <div className="space-y-2">
             {formState.inputMode === 'odometer' ? (
