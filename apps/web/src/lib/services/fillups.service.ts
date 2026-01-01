@@ -1015,4 +1015,172 @@ export async function deleteFillup(
     message: 'Fillup deleted successfully',
     updated_entries_count: updatedEntriesCount,
   };
+} // ----------------------------------------------------------------------------
+// Batch operations
+// ----------------------------------------------------------------------------
+
+/**
+ * Creates multiple fillups for a specific car (Batch Import)
+ *
+ * Logic:
+ * - Verifies car ownership
+ * - Inserts all fillups in a single operation
+ * - Recalculates stats for the whole chain
+ */
+export async function batchCreateFillups(
+  supabase: AppSupabaseClient,
+  userId: string,
+  carId: string,
+  fillups: CreateFillupCommand[]
+): Promise<void> {
+  // 1. Verify Car
+  const { data: car, error: carError } = await supabase
+    .from('cars')
+    .select('id, initial_odometer, mileage_input_preference')
+    .eq('id', carId)
+    .eq('user_id', userId)
+    .limit(1)
+    .maybeSingle();
+
+  if (carError || !car) {
+    throw new Error('Car not found or access denied');
+  }
+
+  // 2. Prepare Data
+  // We assume input is already validated on client side regarding strict rules (parser/validator)
+  // But we must compute hidden fields if missing?
+  // actually parser returns all fields.
+  // We map them to DB columns.
+
+  // 3. Insert and Type Casting
+  // We need to strictly type insertData to satisfy tables definition
+  // and handle the fact that CreateFillupCommand (input) has union types that might confuse TS
+  const insertData = fillups.map((f) => {
+    return {
+      car_id: carId,
+      date: f.date,
+      fuel_amount: Number(f.fuel_amount),
+      total_price: Number(f.total_price),
+      odometer: f.odometer ?? null,
+      distance_traveled: f.distance ?? null,
+      fuel_consumption: null,
+      price_per_liter: f.price_per_liter ?? (f.fuel_amount > 0 ? Number(f.total_price) / Number(f.fuel_amount) : 0),
+    } as any; // Cast to any to bypass specific union mismatch, Supabase generic will Validate against TablesInsert
+  });
+
+  const { error: insertError } = await supabase.from('fillups').insert(insertData);
+
+  if (insertError) {
+    throw new Error(`Batch insert failed: ${insertError.message}`);
+  }
+
+  // 4. Recalculate Chain
+  // We reuse the Recalculation Loop logic from updateFillup/createFillup but applied to ALL fillups of the car
+  // This is expensive but necessary for consistency after bulk import.
+
+  const preference = car.mileage_input_preference ?? 'odometer';
+
+  if (preference === 'odometer') {
+    const { data: allFillups } = await supabase
+      .from('fillups')
+      .select('id, odometer, fuel_amount, total_price, distance_traveled, fuel_consumption')
+      .eq('car_id', carId)
+      .order('date', { ascending: true });
+
+    if (allFillups) {
+      let lastOdometer = car.initial_odometer ?? 0;
+      const updates = [];
+
+      for (const fillup of allFillups) {
+        const update: any = { id: fillup.id };
+        let shouldUpdate = false;
+
+        if (fillup.odometer !== null) {
+          const dist = Math.max(0, fillup.odometer - lastOdometer);
+          if (Math.abs(dist - (fillup.distance_traveled ?? 0)) > 0.1) {
+            update.distance_traveled = dist;
+            shouldUpdate = true;
+          }
+          lastOdometer = fillup.odometer;
+
+          // Calc consumption
+          const cons = calculateFuelConsumption(dist, fillup.fuel_amount);
+          if (Math.abs((cons ?? 0) - (fillup.fuel_consumption ?? 0)) > 0.01) {
+            update.fuel_consumption = cons;
+            shouldUpdate = true;
+          }
+        }
+
+        if (shouldUpdate) updates.push(update);
+      }
+
+      if (updates.length > 0) {
+        // We use Promise.all with individual updates instead of upsert
+        // because upsert might require all columns or have issues with partial data if strict RLS/Defaults apply
+        // and we want to be safe with just patching the calculated fields.
+        await Promise.all(
+          updates.map((u) => {
+            const { id, ...rest } = u;
+            return supabase.from('fillups').update(rest).eq('id', id);
+          })
+        );
+      }
+    }
+  } else {
+    // Distance Mode
+    // We just need to ensure fuel consumption is calculated
+    const { data: allFillups } = await supabase
+      .from('fillups')
+      .select('id, distance_traveled, fuel_amount, fuel_consumption')
+      .eq('car_id', carId);
+
+    if (allFillups) {
+      const updates = [];
+      for (const fillup of allFillups) {
+        const cons = calculateFuelConsumption(fillup.distance_traveled ?? 0, fillup.fuel_amount);
+        if (Math.abs((cons ?? 0) - (fillup.fuel_consumption ?? 0)) > 0.01) {
+          updates.push({ id: fillup.id, fuel_consumption: cons });
+        }
+      }
+      if (updates.length > 0) {
+        await Promise.all(
+          updates.map((u) => {
+            const { id, ...rest } = u;
+            return supabase.from('fillups').update(rest).eq('id', id);
+          })
+        );
+      }
+    }
+  }
+}
+
+/**
+ * Fetches ALL fillups for export (no pagination)
+ */
+export async function getAllFillups(supabase: AppSupabaseClient, userId: string, carId: string): Promise<FillupDTO[]> {
+  const { data: fillups, error } = await supabase
+    .from('fillups')
+    .select('*')
+    .eq('car_id', carId)
+    .order('date', { ascending: false });
+
+  if (error) throw new Error(error.message);
+
+  if (!fillups || fillups.length === 0) {
+    const { data: car } = await supabase.from('cars').select('id').eq('id', carId).eq('user_id', userId).maybeSingle();
+    if (!car) throw new Error('Car not found or access denied');
+    return [];
+  }
+
+  return fillups.map((f) => ({
+    id: f.id,
+    car_id: f.car_id,
+    date: f.date,
+    fuel_amount: f.fuel_amount,
+    total_price: f.total_price,
+    odometer: f.odometer,
+    distance_traveled: f.distance_traveled,
+    fuel_consumption: f.fuel_consumption,
+    price_per_liter: f.price_per_liter,
+  }));
 }

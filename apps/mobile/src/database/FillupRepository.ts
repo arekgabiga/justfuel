@@ -1,4 +1,5 @@
 import { Fillup, NewFillup } from '../types';
+import { ValidatedFillup } from '@justfuel/shared';
 import { getDBConnection } from './schema';
 import { generateUUID } from '../utils/uuid';
 
@@ -17,6 +18,48 @@ export const FillupRepository = {
       throw e;
     }
   },
+
+  batchImportFillups: async (carId: string, fillups: ValidatedFillup[]): Promise<void> => {
+    const db = await getDBConnection();
+    try {
+        await db.runAsync('BEGIN TRANSACTION');
+        const now = new Date().toISOString();
+        
+        for (const fillup of fillups) {
+            const id = generateUUID();
+            await db.runAsync(
+               `INSERT INTO fillups (
+                id, car_id, date, fuel_amount, total_price, odometer,
+                distance_traveled, fuel_consumption, price_per_liter, created_at
+               ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+               [
+                   id,
+                   carId,
+                   fillup.date.toISOString(),
+                   fillup.fuel_amount,
+                   fillup.total_price,
+                   fillup.odometer ?? null,
+                   fillup.distance_traveled ?? null,
+                   null, // consumption will be recalculated
+                   fillup.price_per_liter,
+                   now
+               ]
+            );
+        }
+        
+        await db.runAsync('COMMIT');
+        
+        // Recalculate stats for the car to ensure consistency
+        await FillupRepository.recalculateStats(carId);
+    } catch (error) {
+        console.error('Batch import failed:', error);
+        try {
+           await db.runAsync('ROLLBACK');
+        } catch (e) { /* ignore */ }
+        throw error;
+    }
+  },
+
 
   addFillup: async (newFillup: NewFillup): Promise<Fillup> => {
     const db = await getDBConnection();

@@ -10,6 +10,14 @@ import { ChartsTab } from '../components/ChartsTab';
 import { ConsumptionDeviation, getConsumptionDeviation, formatDate } from '@justfuel/shared';
 import { saveLastActiveCarId } from '../utils/storage';
 import { CarDetailsScreenProps, RootStackNavigationProp } from '../navigation/types';
+import * as Sharing from 'expo-sharing';
+// Using legacy API as per Expo SDK 52+ deprecation warning for writeAsStringAsync
+// The error message explicitly suggests importing from "expo-file-system/legacy"
+// We cast to 'any' initially if types are missing, or rely on standard types if they support it.
+// However, the cleanest way based on the error is:
+import * as FileSystem from 'expo-file-system/legacy';
+import * as DocumentPicker from 'expo-document-picker';
+import { generateCsv, parseCsv, validateImportAgainstCar } from '@justfuel/shared';
 
 export default function CarDetailsScreen({ route }: CarDetailsScreenProps) {
   const { carId, carName } = route.params;
@@ -32,12 +40,117 @@ export default function CarDetailsScreen({ route }: CarDetailsScreenProps) {
   const openMenu = () => setMenuVisible(true);
   const closeMenu = () => setMenuVisible(false);
 
+  const loadData = useCallback(async () => {
+    try {
+      setLoading(true);
+      const [carData, fillupsData] = await Promise.all([
+        CarRepository.getCarById(carId),
+        FillupRepository.getFillupsByCarId(carId),
+      ]);
+      setCar(carData);
+      setFillups(fillupsData);
+    } catch (e) {
+      console.error('Failed to load details', e);
+    } finally {
+      setLoading(false);
+    }
+  }, [carId]);
+
   const handleEdit = useCallback(() => {
     closeMenu();
     if (car) {
       navigation.navigate('AddCar', { car });
     }
   }, [car, navigation]);
+
+  const handleExport = useCallback(async () => {
+    closeMenu();
+    try {
+      setLoading(true);
+      const csvData = generateCsv(fillups);
+      const fileName = `justfuel_${carName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.csv`;
+      const filePath = `${FileSystem.documentDirectory}${fileName}`;
+      
+      await FileSystem.writeAsStringAsync(filePath, csvData, { encoding: 'utf8' });
+      
+      if (await Sharing.isAvailableAsync()) {
+          await Sharing.shareAsync(filePath);
+      } else {
+          Alert.alert('Eksport', 'Udostępnianie niedostępne na tym urządzeniu');
+      }
+    } catch (e) {
+      console.error(e);
+      Alert.alert('Błąd', 'Nie udało się wyeksportować danych.');
+    } finally {
+      setLoading(false);
+    }
+  }, [fillups, carName]);
+
+  const handleImport = useCallback(async () => {
+    closeMenu();
+    try {
+        const result = await DocumentPicker.getDocumentAsync({ type: ['text/csv', 'text/comma-separated-values', 'application/csv'] });
+        
+        if (result.canceled) return;
+        
+        const fileUri = result.assets[0].uri;
+        const fileContent = await FileSystem.readAsStringAsync(fileUri);
+        
+        setLoading(true);
+        const { fillups: parsedFillups, errors, uniqueDates } = await parseCsv(fileContent);
+        
+        if (errors.length > 0) {
+            Alert.alert('Błąd Importu', `Znaleziono błędy:\n${errors.map(e => `Wiersz ${e.row}: ${e.message}`).join('\n').slice(0, 500)}...`);
+            setLoading(false);
+            return;
+        }
+
+        if (!car) {
+             setLoading(false);
+             return;
+        }
+
+        // Validate against Car Config
+        // We cast car to match expected type because shared/types CarDTO vs mobile/types Car might differ slightly but structure is key
+        const configErrors = validateImportAgainstCar(parsedFillups, { mileage_input_preference: car.mileage_input_preference });
+        if (configErrors.length > 0) {
+             Alert.alert('Błąd Konfiguracji', `Dane niezgodne z ustawieniami auta:\n${configErrors.map(e => `Wiersz ${e.row}: ${e.message}`).join('\n')}`);
+             setLoading(false);
+             return;
+        }
+
+        // Preview Logic
+        const newCount = parsedFillups.length;
+        const replaceCount = uniqueDates.length; // Approximation of "batches" to replace. Ideally we check DB overlap.
+        
+        Alert.alert(
+            'Potwierdzenie Importu',
+            `Gotowy do zaimportowania ${newCount} tankowań.\n\nJest to operacja "Dodaj" (Append Only). Nowe wpisy zostaną dodane do historii.`,
+            [
+                { text: 'Anuluj', style: 'cancel', onPress: () => setLoading(false) },
+                { 
+                    text: 'Importuj', 
+                    onPress: async () => {
+                        try {
+                           await FillupRepository.batchImportFillups(carId, parsedFillups);
+                           Alert.alert('Sukces', 'Dane zaimportowane pomyślnie.');
+                           loadData(); // Reload
+                        } catch (e) {
+                           console.error(e);
+                           Alert.alert('Błąd', 'Import nie powiódł się.');
+                           setLoading(false);
+                        }
+                    } 
+                }
+            ]
+        );
+
+    } catch (e) {
+        console.error(e);
+        Alert.alert('Błąd', 'Wystąpił błąd podczas importu.');
+        setLoading(false);
+    }
+  }, [car, carId, loadData]);
 
   const handleDelete = useCallback(() => {
     closeMenu();
@@ -74,27 +187,14 @@ export default function CarDetailsScreen({ route }: CarDetailsScreenProps) {
           anchor={<Appbar.Action icon="dots-vertical" onPress={openMenu} testID="menu-action" />}
         >
           <Menu.Item onPress={handleEdit} title="Edytuj" leadingIcon="pencil" />
+          <Menu.Item onPress={handleExport} title="Eksportuj (CSV)" leadingIcon="export" />
+          <Menu.Item onPress={handleImport} title="Importuj (CSV)" leadingIcon="import" />
+          <Divider />
           <Menu.Item onPress={handleDelete} title="Usuń" leadingIcon="delete" />
         </Menu>
       ),
     });
   }, [navigation, menuVisible, handleEdit, handleDelete]);
-
-  const loadData = useCallback(async () => {
-    try {
-      setLoading(true);
-      const [carData, fillupsData] = await Promise.all([
-        CarRepository.getCarById(carId),
-        FillupRepository.getFillupsByCarId(carId),
-      ]);
-      setCar(carData);
-      setFillups(fillupsData);
-    } catch (e) {
-      console.error('Failed to load details', e);
-    } finally {
-      setLoading(false);
-    }
-  }, [carId]);
 
   useFocusEffect(
     useCallback(() => {

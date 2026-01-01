@@ -174,6 +174,7 @@ export interface BaseFillupInput {
   date: string; // ISO 8601 timestamp
   fuel_amount: number;
   total_price: number;
+  price_per_liter?: number;
 }
 
 /**

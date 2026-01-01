@@ -59,3 +59,22 @@ jest.mock('expo-sqlite', () => ({
 jest.mock('expo-crypto', () => ({
   randomUUID: jest.fn(() => 'test-uuid-' + Math.random().toString(36).substring(7)),
 }));
+
+// Mock expo-file-system
+jest.mock('expo-file-system', () => ({
+  documentDirectory: 'file:///test-directory/',
+  EncodingType: { UTF8: 'utf8' },
+  writeAsStringAsync: jest.fn().mockResolvedValue(undefined),
+  readAsStringAsync: jest.fn().mockResolvedValue('date,fuel_amount,total_price\n01.01.2023,50,300'),
+}));
+
+// Mock expo-sharing
+jest.mock('expo-sharing', () => ({
+  isAvailableAsync: jest.fn().mockResolvedValue(true),
+  shareAsync: jest.fn().mockResolvedValue(undefined),
+}));
+
+// Mock expo-document-picker
+jest.mock('expo-document-picker', () => ({
+  getDocumentAsync: jest.fn().mockResolvedValue({ canceled: true, assets: [] }),
+}));

@@ -21,6 +21,9 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "@types/papaparse": "^5.5.2",
+    "date-fns": "^4.1.0",
+    "papaparse": "^5.5.3",
     "zod": "^3.25.76"
   }
 }

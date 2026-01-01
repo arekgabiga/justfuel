@@ -11,9 +11,20 @@ interface CarHeaderProps {
   showActions?: boolean;
   onEdit?: () => void;
   onDelete?: () => void;
+  onExport?: () => void;
+  onImport?: () => void;
 }
 
-export const CarHeader: React.FC<CarHeaderProps> = ({ car, carName, onBack, showActions = true, onEdit, onDelete }) => {
+export const CarHeader: React.FC<CarHeaderProps> = ({
+  car,
+  carName,
+  onBack,
+  showActions = true,
+  onEdit,
+  onDelete,
+  onExport,
+  onImport,
+}) => {
   const [showMenu, setShowMenu] = useState(false);
 
   const handleEditClick = () => {
@@ -87,6 +98,65 @@ export const CarHeader: React.FC<CarHeaderProps> = ({ car, carName, onBack, show
                     >
                       <Trash2 className="h-4 w-4" />
                       Usuń pojazd
+                    </button>
+                  )}
+                  {onExport && (
+                    <>
+                      <div className="h-px bg-gray-200 dark:bg-gray-700 my-1" />
+                      <button
+                        onClick={() => {
+                          setShowMenu(false);
+                          onExport();
+                        }}
+                        className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+                        data-test-id="car-export-button"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="lucide lucide-download"
+                        >
+                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                          <polyline points="7 10 12 15 17 10" />
+                          <line x1="12" x2="12" y1="15" y2="3" />
+                        </svg>
+                        Eksportuj (CSV)
+                      </button>
+                    </>
+                  )}
+                  {onImport && (
+                    <button
+                      onClick={() => {
+                        setShowMenu(false);
+                        onImport();
+                      }}
+                      className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+                      data-test-id="car-import-button"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="lucide lucide-upload"
+                      >
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="17 8 12 3 7 8" />
+                        <line x1="12" x2="12" y1="3" y2="15" />
+                      </svg>
+                      Importuj (CSV)
                     </button>
                   )}
                 </div>
