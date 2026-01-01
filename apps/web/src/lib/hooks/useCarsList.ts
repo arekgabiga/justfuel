@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { navigateTo } from '../utils/navigation';
 import type { CarWithStatisticsDTO } from '../../types';
 
 interface CarsListState {
@@ -37,9 +38,7 @@ export const useCarsList = () => {
       if (!response.ok) {
         if (response.status === 401) {
           // Redirect to login on auth error - session expired or missing
-          if (typeof window !== 'undefined') {
-            window.location.href = '/auth/login';
-          }
+          navigateTo('/auth/login');
           return;
         }
 
@@ -142,16 +141,12 @@ export const useCarsList = () => {
 
   const handleCarClick = useCallback((carId: string) => {
     // Navigate to car details page using Astro router
-    if (typeof window !== 'undefined') {
-      window.location.href = `/cars/${carId}`;
-    }
+    navigateTo(`/cars/${carId}`);
   }, []);
 
   const handleAddCar = useCallback(() => {
     // Navigate to add car form using Astro router
-    if (typeof window !== 'undefined') {
-      window.location.href = '/cars/new';
-    }
+    navigateTo('/cars/new');
   }, []);
 
   // Initial data fetch

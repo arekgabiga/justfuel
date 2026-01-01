@@ -1,6 +1,11 @@
 import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { useResetPasswordForm } from '../useResetPasswordForm';
+import { navigateTo } from '../../utils/navigation';
+
+vi.mock('../../utils/navigation', () => ({
+  navigateTo: vi.fn(),
+}));
 
 describe('useResetPasswordForm', () => {
   const mockFetch = vi.fn();
@@ -9,14 +14,14 @@ describe('useResetPasswordForm', () => {
 
   beforeEach(() => {
     global.fetch = mockFetch;
-    delete (window as any).location;
-    window.location = { ...originalLocation, href: '', assign: mockAssign } as any;
+    // Reset URL
+    window.history.replaceState({}, '', '/');
     vi.useFakeTimers();
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
-    window.location = originalLocation as any;
+    vi.unstubAllGlobals();
     vi.useRealTimers();
     mockAssign.mockClear();
   });
@@ -152,7 +157,7 @@ describe('useResetPasswordForm', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password: 'password123' }),
       });
-      expect(mockAssign).toHaveBeenCalledWith('/auth/login?reset=success');
+      expect(navigateTo).toHaveBeenCalledWith('/auth/login?reset=success');
     });
 
     it('should handle INVALID_TOKEN error', async () => {

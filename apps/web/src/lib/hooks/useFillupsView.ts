@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { navigateTo } from '../utils/navigation';
 import type { CarDetailsDTO, FillupDTO, PaginatedFillupsResponseDTO, PaginationDTO } from '../../types';
 
 /**
@@ -243,9 +244,7 @@ export const useFillupsView = (carId: string) => {
    */
   const handleFillupClick = useCallback(
     (fillupId: string) => {
-      if (typeof window !== 'undefined') {
-        window.location.href = `/cars/${carId}/fillups/${fillupId}/edit`;
-      }
+      navigateTo(`/cars/${carId}/fillups/${fillupId}/edit`);
     },
     [carId]
   );
@@ -256,9 +255,7 @@ export const useFillupsView = (carId: string) => {
    * Navigates to add fillup form: /cars/{carId}/fillups/new
    */
   const handleAddFillupClick = useCallback(() => {
-    if (typeof window !== 'undefined') {
-      window.location.href = `/cars/${carId}/fillups/new`;
-    }
+    navigateTo(`/cars/${carId}/fillups/new`);
   }, [carId]);
 
   /**
@@ -267,9 +264,7 @@ export const useFillupsView = (carId: string) => {
    * Navigates to cars list: /cars
    */
   const handleBack = useCallback(() => {
-    if (typeof window !== 'undefined') {
-      window.location.href = '/cars';
-    }
+    navigateTo('/cars');
   }, []);
 
   /**

@@ -32,3 +32,8 @@ playwright-report
 # Vercel
 .vercel
 .env*.local
+
+# test artifacts
+hooks_report.json
+test_output.txt
+test_output_basic.txt

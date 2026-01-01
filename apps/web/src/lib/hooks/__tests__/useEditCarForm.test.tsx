@@ -1,10 +1,14 @@
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { useEditCarForm } from '../useEditCarForm';
+import { navigateTo } from '../../utils/navigation';
+
+vi.mock('../../utils/navigation', () => ({
+  navigateTo: vi.fn(),
+}));
 
 describe('useEditCarForm', () => {
   const mockFetch = vi.fn();
-  const originalLocation = window.location;
   const carId = 'car-123';
   const mockCarData = {
     id: carId,
@@ -14,9 +18,6 @@ describe('useEditCarForm', () => {
 
   beforeEach(() => {
     global.fetch = mockFetch;
-    delete (window as any).location;
-    window.location = { ...originalLocation, href: '' };
-
     // Mock localStorage
     const localStorageMock = {
       getItem: vi.fn(),
@@ -28,7 +29,6 @@ describe('useEditCarForm', () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
-    window.location = originalLocation;
   });
 
   describe('Initialization', () => {
@@ -134,11 +134,14 @@ describe('useEditCarForm', () => {
       expect(updateCall[1].method).toBe('PATCH');
       expect(JSON.parse(updateCall[1].body)).toEqual({ name: 'Updated Name' });
 
+
+
       // Check redirect
       act(() => {
         vi.runAllTimers();
       });
-      expect(window.location.href).toBe(`/cars/${carId}`);
+      // expect(window.location.href).toBe(`/cars/${carId}`);
+      expect(navigateTo).toHaveBeenCalledWith(`/cars/${carId}`);
 
       vi.useRealTimers();
     });
@@ -186,6 +189,8 @@ describe('useEditCarForm', () => {
         json: async () => ({ message: 'Deleted' }),
       });
 
+
+      
       await act(async () => {
         await result.current.handleDeleteConfirm({ confirmation_name: 'Test Car' });
       });
@@ -195,7 +200,7 @@ describe('useEditCarForm', () => {
       expect(deleteCall[0]).toBe(`/api/cars/${carId}`);
       expect(deleteCall[1].method).toBe('DELETE');
 
-      expect(window.location.href).toBe('/cars');
+      expect(navigateTo).toHaveBeenCalledWith('/cars');
     });
 
     it('should handle delete error', async () => {

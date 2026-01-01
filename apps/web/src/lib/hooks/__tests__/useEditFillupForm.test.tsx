@@ -1,10 +1,14 @@
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { useEditFillupForm } from '../useEditFillupForm';
+import { navigateTo } from '../../utils/navigation';
+
+vi.mock('../../utils/navigation', () => ({
+  navigateTo: vi.fn(),
+}));
 
 describe('useEditFillupForm', () => {
   const mockFetch = vi.fn();
-  const originalLocation = window.location;
   const carId = 'car-123';
   const fillupId = 'fillup-456';
   const mockCarData = {
@@ -24,9 +28,7 @@ describe('useEditFillupForm', () => {
 
   beforeEach(() => {
     global.fetch = mockFetch;
-    delete (window as any).location;
-    window.location = { ...originalLocation, href: '' };
-
+    // Reset URL to clean state
     // Mock localStorage
     const localStorageMock = {
       getItem: vi.fn(),
@@ -38,7 +40,6 @@ describe('useEditFillupForm', () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
-    window.location = originalLocation;
   });
 
   describe('Initialization', () => {
@@ -149,7 +150,7 @@ describe('useEditFillupForm', () => {
       act(() => {
         vi.runAllTimers();
       });
-      expect(window.location.href).toBe(`/cars/${carId}?tab=fillups`);
+      expect(navigateTo).toHaveBeenCalledWith(`/cars/${carId}?tab=fillups`);
 
       vi.useRealTimers();
     });
@@ -204,7 +205,7 @@ describe('useEditFillupForm', () => {
       expect(deleteCall[0]).toBe(`/api/cars/${carId}/fillups/${fillupId}`);
       expect(deleteCall[1].method).toBe('DELETE');
 
-      expect(window.location.href).toBe(`/cars/${carId}?tab=fillups`);
+      expect(navigateTo).toHaveBeenCalledWith(`/cars/${carId}?tab=fillups`);
     });
   });
 });

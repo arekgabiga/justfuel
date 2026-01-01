@@ -1,22 +1,23 @@
 import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { useNewCarForm } from '../useNewCarForm';
+import { navigateTo } from '../../utils/navigation';
+
+vi.mock('../../utils/navigation', () => ({
+  navigateTo: vi.fn(),
+}));
 
 describe('useNewCarForm', () => {
   const mockFetch = vi.fn();
-  const originalLocation = window.location;
 
   beforeEach(() => {
     global.fetch = mockFetch;
-    delete (window as any).location;
-    window.location = { ...originalLocation, href: '' };
-
+    // Reset URL
     vi.useFakeTimers();
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
-    window.location = originalLocation;
     vi.useRealTimers();
   });
 
@@ -125,7 +126,7 @@ describe('useNewCarForm', () => {
         vi.runAllTimers();
       });
 
-      expect(window.location.href).toBe('/cars');
+      expect(navigateTo).toHaveBeenCalledWith('/cars');
     });
 
     it('should handle conflict error (409)', async () => {

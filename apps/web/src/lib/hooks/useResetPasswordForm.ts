@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
+import { navigateTo } from '../utils/navigation';
 
 interface ResetPasswordFormState {
   password: string;
@@ -173,7 +174,7 @@ export const useResetPasswordForm = (token: string | null) => {
         }
 
         // Success - redirect to login page
-        window.location.assign('/auth/login?reset=success');
+        navigateTo('/auth/login?reset=success');
       } catch (error) {
         console.error('Error during reset password:', error);
         setFormErrors({

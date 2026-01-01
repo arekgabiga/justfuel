@@ -12,4 +12,4 @@ export default getViteConfig({
       reporter: ['text', 'json', 'html'],
     },
   },
-});
+} as any);

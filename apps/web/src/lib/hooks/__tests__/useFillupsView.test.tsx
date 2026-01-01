@@ -1,10 +1,14 @@
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { useFillupsView } from '../useFillupsView';
+import { navigateTo } from '../../utils/navigation';
+
+vi.mock('../../utils/navigation', () => ({
+  navigateTo: vi.fn(),
+}));
 
 describe('useFillupsView', () => {
   const mockFetch = vi.fn();
-  const originalLocation = window.location;
   const carId = 'car-123';
   const mockCarData = {
     id: carId,
@@ -17,9 +21,7 @@ describe('useFillupsView', () => {
 
   beforeEach(() => {
     global.fetch = mockFetch;
-    delete (window as any).location;
-    window.location = { ...originalLocation, href: '' };
-
+    // Reset URL
     // Mock localStorage
     const localStorageMock = {
       getItem: vi.fn(),
@@ -31,7 +33,6 @@ describe('useFillupsView', () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
-    window.location = originalLocation;
   });
 
   describe('Navigation', () => {
@@ -42,7 +43,7 @@ describe('useFillupsView', () => {
         result.current.handleFillupClick('fillup-1');
       });
 
-      expect(window.location.href).toBe(`/cars/${carId}/fillups/fillup-1/edit`);
+      expect(navigateTo).toHaveBeenCalledWith(`/cars/${carId}/fillups/fillup-1/edit`);
     });
 
     it('should navigate to add fillup', () => {
@@ -52,7 +53,7 @@ describe('useFillupsView', () => {
         result.current.handleAddFillupClick();
       });
 
-      expect(window.location.href).toBe(`/cars/${carId}/fillups/new`);
+      expect(navigateTo).toHaveBeenCalledWith(`/cars/${carId}/fillups/new`);
     });
 
     it('should navigate back', () => {
@@ -62,7 +63,7 @@ describe('useFillupsView', () => {
         result.current.handleBack();
       });
 
-      expect(window.location.href).toBe('/cars');
+      expect(navigateTo).toHaveBeenCalledWith('/cars');
     });
   });
 });

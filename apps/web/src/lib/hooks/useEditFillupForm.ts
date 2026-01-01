@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
+import { navigateTo } from '../utils/navigation';
 import type {
   UpdateFillupCommand,
   FillupDTO,
@@ -110,7 +111,7 @@ export const useEditFillupForm = ({ carId, fillupId }: UseEditFillupFormProps) =
             setFormErrors({ submit: 'Tankowanie nie zostało znalezione. Przekierowywanie...' });
             if (typeof window !== 'undefined') {
               setTimeout(() => {
-                window.location.href = `/cars/${carId}?tab=fillups`;
+                navigateTo(`/cars/${carId}?tab=fillups`);
               }, 3000);
             }
             setIsLoading(false);
@@ -670,7 +671,7 @@ export const useEditFillupForm = ({ carId, fillupId }: UseEditFillupFormProps) =
               setFormErrors({ submit: 'Wymagana autoryzacja. Przekierowywanie...' });
               if (typeof window !== 'undefined') {
                 setTimeout(() => {
-                  window.location.href = '/login';
+                  navigateTo('/login');
                 }, 2000);
               }
             }
@@ -680,7 +681,7 @@ export const useEditFillupForm = ({ carId, fillupId }: UseEditFillupFormProps) =
             setFormErrors({ submit: 'Tankowanie nie zostało znalezione. Przekierowywanie...' });
             if (typeof window !== 'undefined') {
               setTimeout(() => {
-                window.location.href = `/cars/${carId}?tab=fillups`;
+                navigateTo(`/cars/${carId}?tab=fillups`);
               }, 3000);
             }
             setIsSubmitting(false);
@@ -714,7 +715,7 @@ export const useEditFillupForm = ({ carId, fillupId }: UseEditFillupFormProps) =
                 setRedirectIn((prev) => {
                   if (prev === null || prev <= 1) {
                     clearInterval(countdown);
-                    window.location.href = `/cars/${carId}?tab=fillups`;
+                    navigateTo(`/cars/${carId}?tab=fillups`);
                     return null;
                   }
                   return prev - 1;
@@ -722,7 +723,7 @@ export const useEditFillupForm = ({ carId, fillupId }: UseEditFillupFormProps) =
               }, 1000);
             } else {
               setTimeout(() => {
-                window.location.href = `/cars/${carId}?tab=fillups`;
+                navigateTo(`/cars/${carId}?tab=fillups`);
               }, 300);
             }
           }
@@ -760,14 +761,14 @@ export const useEditFillupForm = ({ carId, fillupId }: UseEditFillupFormProps) =
   // Handle cancel
   const handleCancel = useCallback(() => {
     if (typeof window !== 'undefined') {
-      window.location.href = `/cars/${carId}?tab=fillups`;
+      navigateTo(`/cars/${carId}?tab=fillups`);
     }
   }, [carId]);
 
   // Handle skip countdown
   const handleSkipCountdown = useCallback(() => {
     if (typeof window !== 'undefined') {
-      window.location.href = `/cars/${carId}?tab=fillups`;
+      navigateTo(`/cars/${carId}?tab=fillups`);
     }
   }, [carId]);
 
@@ -820,7 +821,7 @@ export const useEditFillupForm = ({ carId, fillupId }: UseEditFillupFormProps) =
         if (response.status === 401) {
           // Unauthorized - redirect to login
           if (typeof window !== 'undefined') {
-            window.location.href = '/login';
+            navigateTo('/login');
           }
           return;
         }
@@ -828,7 +829,7 @@ export const useEditFillupForm = ({ carId, fillupId }: UseEditFillupFormProps) =
         if (response.status === 404) {
           // Not found - redirect to fillups list
           if (typeof window !== 'undefined') {
-            window.location.href = `/cars/${carId}?tab=fillups`;
+            navigateTo(`/cars/${carId}?tab=fillups`);
           }
           return;
         }
@@ -857,7 +858,7 @@ export const useEditFillupForm = ({ carId, fillupId }: UseEditFillupFormProps) =
         setIsDeleting(false);
 
         if (typeof window !== 'undefined') {
-          window.location.href = `/cars/${carId}?tab=fillups`;
+          navigateTo(`/cars/${carId}?tab=fillups`);
         }
       } catch (parseError) {
         console.error('Error parsing delete response:', parseError);

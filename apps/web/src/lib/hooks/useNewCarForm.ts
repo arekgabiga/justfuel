@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef } from 'react';
+import { navigateTo } from '../utils/navigation';
 import type { CreateCarCommand, ErrorResponseDTO } from '../../types';
 
 const REQUEST_TIMEOUT = 10000; // 10 seconds
@@ -300,7 +301,7 @@ export const useNewCarForm = () => {
             setFormErrors({ submit: 'Sesja wygasła. Przekierowywanie do logowania...' });
             if (typeof window !== 'undefined') {
               setTimeout(() => {
-                window.location.href = '/auth/login';
+                navigateTo('/auth/login');
               }, 2000);
             }
             setIsSubmitting(false);
@@ -333,7 +334,7 @@ export const useNewCarForm = () => {
           if (typeof window !== 'undefined') {
             // Small delay to let user see success state
             setTimeout(() => {
-              window.location.href = '/cars';
+              navigateTo('/cars');
             }, 300);
           }
         } catch {
@@ -370,7 +371,7 @@ export const useNewCarForm = () => {
   // Handle cancel
   const handleCancel = useCallback(() => {
     if (typeof window !== 'undefined') {
-      window.location.href = '/cars';
+      navigateTo('/cars');
     }
   }, []);
 

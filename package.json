@@ -17,5 +17,8 @@
   "devDependencies": {
     "prettier": "^3.0.0",
     "typescript": "^5.0.0"
+  },
+  "overrides": {
+    "react-test-renderer": "19.2.3"
   }
 }

@@ -192,7 +192,7 @@ describe('auth.service', () => {
       vi.mocked(mockSupabase.auth.signInWithPassword).mockResolvedValue({
         data: { user: null, session: mockSession },
         error: null,
-      });
+      } as any);
 
       // Act & Assert
       await expect(loginUser(mockSupabase, 'test@example.com', 'password123')).rejects.toThrow(SupabaseAuthError);
@@ -206,7 +206,7 @@ describe('auth.service', () => {
       vi.mocked(mockSupabase.auth.signInWithPassword).mockResolvedValue({
         data: { user: mockUser, session: null },
         error: null,
-      });
+      } as any);
 
       // Act & Assert
       await expect(loginUser(mockSupabase, 'test@example.com', 'password123')).rejects.toThrow(SupabaseAuthError);
@@ -422,7 +422,7 @@ describe('auth.service', () => {
       vi.mocked(mockSupabase.auth.getUser).mockResolvedValue({
         data: { user: null },
         error: null,
-      });
+      } as any);
 
       // Act
       const result = await getCurrentUser(mockSupabase);

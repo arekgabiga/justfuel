@@ -53,7 +53,7 @@ test.describe('Scenario 2: Zarządzanie Samochodami', () => {
     await newCarPage.fillCarForm({
       name: testCarName,
       initialOdometer: '50000',
-      mileagePreference: 'odometer',
+      mileagePreference: 'distance',
     });
     await newCarPage.submit();
 
@@ -80,7 +80,6 @@ test.describe('Scenario 2: Zarządzanie Samochodami', () => {
 
     await editCarPage.updateCar({
       name: updatedCarName,
-      mileagePreference: 'distance',
     });
     await editCarPage.submit();
 

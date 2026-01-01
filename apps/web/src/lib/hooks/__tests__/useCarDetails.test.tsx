@@ -24,8 +24,8 @@ describe('useCarDetails', () => {
 
   beforeEach(() => {
     global.fetch = mockFetch;
-    delete (window as any).location;
-    window.location = { ...originalLocation, href: '', search: '' };
+    // Reset URL
+    window.history.replaceState({}, '', '/');
 
     // Mock localStorage
     const localStorageMock = {
@@ -38,7 +38,7 @@ describe('useCarDetails', () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
-    window.location = originalLocation;
+    window.history.replaceState({}, '', originalLocation.href);
   });
 
   describe('Initialization', () => {

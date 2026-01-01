@@ -258,7 +258,7 @@ describe('fillups.service', () => {
           } as any;
         }
         if (table === 'fillups') {
-          const calls = vi.mocked(mockSupabase.from).mock.calls.filter((c) => c[0] === 'fillups').length;
+          const calls = vi.mocked(mockSupabase.from).mock.calls.filter((c) => (c[0] as string) === 'fillups').length;
 
           if (calls === 1) {
             return {
@@ -350,7 +350,7 @@ describe('fillups.service', () => {
           } as any;
         }
         if (table === 'fillups') {
-          const calls = vi.mocked(mockSupabase.from).mock.calls.filter((c) => c[0] === 'fillups').length;
+          const calls = vi.mocked(mockSupabase.from).mock.calls.filter((c) => (c[0] as string) === 'fillups').length;
 
           // First call: get previous fillup
           if (calls === 1) {
@@ -425,7 +425,7 @@ describe('fillups.service', () => {
           } as any;
         }
         if (table === 'fillups') {
-          const calls = vi.mocked(mockSupabase.from).mock.calls.filter((c) => c[0] === 'fillups').length;
+          const calls = vi.mocked(mockSupabase.from).mock.calls.filter((c) => (c[0] as string) === 'fillups').length;
 
           if (calls === 1) {
             return {
@@ -527,7 +527,7 @@ describe('fillups.service', () => {
 
       vi.mocked(mockSupabase.from).mockImplementation((table: string) => {
         if (table === 'fillups') {
-          const calls = vi.mocked(mockSupabase.from).mock.calls.filter((c) => c[0] === 'fillups').length;
+          const calls = vi.mocked(mockSupabase.from).mock.calls.filter((c) => (c[0] as string) === 'fillups').length;
 
           // First call: fetch existing fillup
           if (calls === 1) {
@@ -624,7 +624,7 @@ describe('fillups.service', () => {
 
       vi.mocked(mockSupabase.from).mockImplementation((table: string) => {
         if (table === 'fillups') {
-          const calls = vi.mocked(mockSupabase.from).mock.calls.filter((c) => c[0] === 'fillups').length;
+          const calls = vi.mocked(mockSupabase.from).mock.calls.filter((c) => (c[0] as string) === 'fillups').length;
 
           // First call: fetch existing fillup
           if (calls === 1) {

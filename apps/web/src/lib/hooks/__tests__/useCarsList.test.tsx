@@ -1,10 +1,14 @@
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { useCarsList } from '../useCarsList';
+import { navigateTo } from '../../utils/navigation';
+
+vi.mock('../../utils/navigation', () => ({
+  navigateTo: vi.fn(),
+}));
 
 describe('useCarsList', () => {
   const mockFetch = vi.fn();
-  const originalLocation = window.location;
   const mockCars = [
     {
       id: 'car-1',
@@ -34,18 +38,10 @@ describe('useCarsList', () => {
 
   beforeEach(() => {
     global.fetch = mockFetch;
-    Object.defineProperty(window, 'location', {
-      writable: true,
-      value: { ...originalLocation, href: '' },
-    });
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
-    Object.defineProperty(window, 'location', {
-      writable: true,
-      value: originalLocation,
-    });
   });
 
   describe('Initialization and Fetching', () => {
@@ -101,7 +97,7 @@ describe('useCarsList', () => {
       renderHook(() => useCarsList());
 
       await waitFor(() => {
-        expect(window.location.href).toBe('/auth/login');
+        expect(navigateTo).toHaveBeenCalledWith('/auth/login');
       });
     });
 
@@ -170,7 +166,7 @@ describe('useCarsList', () => {
         result.current.handleCarClick('car-1');
       });
 
-      expect(window.location.href).toBe('/cars/car-1');
+      expect(navigateTo).toHaveBeenCalledWith('/cars/car-1');
     });
 
     it('should navigate to add car', () => {
@@ -180,7 +176,7 @@ describe('useCarsList', () => {
         result.current.handleAddCar();
       });
 
-      expect(window.location.href).toBe('/cars/new');
+      expect(navigateTo).toHaveBeenCalledWith('/cars/new');
     });
   });
 });

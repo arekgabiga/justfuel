@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
+import { navigateTo } from '../utils/navigation';
 import type { CreateFillupCommand, FillupWithWarningsDTO, ErrorResponseDTO, ValidationWarningDTO } from '../../types';
 
 const REQUEST_TIMEOUT = 10000; // 10 seconds
@@ -491,7 +492,7 @@ export const useNewFillupForm = ({ carId, initialInputMode = 'odometer' }: UseNe
             setFormErrors({ submit: 'Sesja wygasła. Przekierowywanie do logowania...' });
             if (typeof window !== 'undefined') {
               setTimeout(() => {
-                window.location.href = '/auth/login';
+                navigateTo('/auth/login');
               }, 2000);
             }
             setIsSubmitting(false);
@@ -501,7 +502,7 @@ export const useNewFillupForm = ({ carId, initialInputMode = 'odometer' }: UseNe
             setFormErrors({ submit: 'Samochód nie został znaleziony. Przekierowywanie...' });
             if (typeof window !== 'undefined') {
               setTimeout(() => {
-                window.location.href = '/cars';
+                navigateTo('/cars');
               }, 3000);
             }
             setIsSubmitting(false);
@@ -538,7 +539,7 @@ export const useNewFillupForm = ({ carId, initialInputMode = 'odometer' }: UseNe
                 setRedirectIn((prev) => {
                   if (prev === null || prev <= 1) {
                     clearInterval(countdown);
-                    window.location.href = `/cars/${carId}?tab=fillups`;
+                    navigateTo(`/cars/${carId}?tab=fillups`);
                     return null;
                   }
                   return prev - 1;
@@ -547,7 +548,7 @@ export const useNewFillupForm = ({ carId, initialInputMode = 'odometer' }: UseNe
             } else {
               // No warnings, quick redirect
               setTimeout(() => {
-                window.location.href = `/cars/${carId}?tab=fillups`;
+                navigateTo(`/cars/${carId}?tab=fillups`);
               }, 300);
             }
           }
@@ -585,14 +586,14 @@ export const useNewFillupForm = ({ carId, initialInputMode = 'odometer' }: UseNe
   // Handle cancel
   const handleCancel = useCallback(() => {
     if (typeof window !== 'undefined') {
-      window.location.href = `/cars/${carId}?tab=fillups`;
+      navigateTo(`/cars/${carId}?tab=fillups`);
     }
   }, [carId]);
 
   // Handle immediate redirect (skip countdown)
   const handleSkipCountdown = useCallback(() => {
     if (typeof window !== 'undefined') {
-      window.location.href = `/cars/${carId}?tab=fillups`;
+      navigateTo(`/cars/${carId}?tab=fillups`);
     }
   }, [carId]);
 

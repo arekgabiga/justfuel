@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
+import { navigateTo } from '../utils/navigation';
 import type { UpdateCarCommand, CarDetailsDTO, ErrorResponseDTO, DeleteCarCommand } from '../../types';
 
 const REQUEST_TIMEOUT = 10000; // 10 seconds
@@ -90,9 +91,7 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
           } else if (response.status === 404) {
             setFormErrors({ submit: 'Samochód nie został znaleziony' });
             setTimeout(() => {
-              if (typeof window !== 'undefined') {
-                window.location.href = '/cars';
-              }
+              navigateTo('/cars');
             }, 3000);
             setIsLoading(false);
             return;
@@ -110,7 +109,9 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
         setOriginalCarData(carData);
         setFormState({
           name: carData.name,
-          mileageInputPreference: carData.mileage_input_preference,
+          mileageInputPreference: carData.mileage_input_preference as
+            | 'odometer'
+            | 'distance',
         });
         setIsLoading(false);
 
@@ -434,22 +435,18 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
             } else {
               // Token was invalid - redirect to login
               setFormErrors({ submit: 'Wymagana autoryzacja. Przekierowywanie...' });
-              if (typeof window !== 'undefined') {
-                setTimeout(() => {
-                  window.location.href = '/login';
-                }, 2000);
-              }
+              setTimeout(() => {
+                navigateTo('/login');
+              }, 2000);
             }
             setIsSubmitting(false);
             return;
           } else if (response.status === 404) {
             // Not found - redirect to cars list
             setFormErrors({ submit: 'Samochód nie został znaleziony' });
-            if (typeof window !== 'undefined') {
-              setTimeout(() => {
-                window.location.href = '/cars';
-              }, 3000);
-            }
+            setTimeout(() => {
+              navigateTo('/cars');
+            }, 3000);
           } else if (response.status === 409) {
             // Conflict - car name already exists
             setFormErrors({
@@ -475,12 +472,9 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
           setFormErrors({});
           setIsSubmitting(false);
 
-          if (typeof window !== 'undefined') {
-            // Small delay to let user see success state
             setTimeout(() => {
-              window.location.href = `/cars/${carId}`;
+              navigateTo(`/cars/${carId}`);
             }, 300);
-          }
         } catch (parseError) {
           console.error('Error parsing response:', parseError);
           setFormErrors({ submit: 'Nie udało się przetworzyć odpowiedzi serwera' });
@@ -517,9 +511,7 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
 
   // Handle cancel
   const handleCancel = useCallback(() => {
-    if (typeof window !== 'undefined') {
-      window.location.href = `/cars/${carId}`;
-    }
+    navigateTo(`/cars/${carId}`);
   }, [carId]);
 
   // Handle delete click - opens delete dialog
@@ -604,21 +596,17 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
             } else {
               errorMessage = 'Wymagana autoryzacja. Przekierowywanie...';
               setDeleteError(errorMessage);
-              if (typeof window !== 'undefined') {
-                setTimeout(() => {
-                  window.location.href = '/login';
-                }, 2000);
-              }
+              setTimeout(() => {
+                navigateTo('/login');
+              }, 2000);
             }
           } else if (response.status === 404) {
             // Not found
             errorMessage = 'Samochód nie został znaleziony';
             setDeleteError(errorMessage);
-            if (typeof window !== 'undefined') {
-              setTimeout(() => {
-                window.location.href = '/cars';
-              }, 3000);
-            }
+            setTimeout(() => {
+              navigateTo('/cars');
+            }, 3000);
           } else if (response.status === 500) {
             // Server error
             errorMessage = 'Wystąpił błąd serwera. Spróbuj ponownie później';
@@ -637,15 +625,11 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
         try {
           await response.json(); // Consume response body
 
-          if (typeof window !== 'undefined') {
-            window.location.href = '/cars';
-          }
+            navigateTo('/cars');
         } catch (parseError) {
           console.error('[useEditCarForm] Error parsing response:', parseError);
           // Even if parsing fails, redirect if status was OK
-          if (typeof window !== 'undefined') {
-            window.location.href = '/cars';
-          }
+            navigateTo('/cars');
         }
       } catch (error) {
         // Handle different error types

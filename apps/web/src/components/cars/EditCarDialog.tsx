@@ -14,7 +14,7 @@ interface EditCarDialogProps {
 
 export const EditCarDialog: React.FC<EditCarDialogProps> = ({ car, isOpen, onUpdate, onCancel }) => {
   const [name, setName] = useState(car.name);
-  const [mileagePreference, setMileagePreference] = useState<'odometer' | 'distance'>(car.mileage_input_preference);
+  const [mileagePreference, setMileagePreference] = useState<'odometer' | 'distance'>(car.mileage_input_preference as 'odometer' | 'distance');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

@@ -65,7 +65,7 @@ describe('fillups.service consistency', () => {
 
     vi.mocked(mockSupabase.from).mockImplementation((table: string) => {
       if (table === 'fillups') {
-        const calls = vi.mocked(mockSupabase.from).mock.calls.filter((c) => c[0] === 'fillups').length;
+        const calls = vi.mocked(mockSupabase.from).mock.calls.filter((c) => (c[0] as string) === 'fillups').length;
 
         // 1. Fetch existing fillup (updateFillup -> getFillupById/select)
         if (calls === 1) {
