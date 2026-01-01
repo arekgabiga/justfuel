@@ -12,7 +12,7 @@ export default defineConfig({
   integrations: [react(), sitemap()],
   server: { port: 3000 },
   vite: {
-    // @ts-ignore
+    // @ts-expect-error: tailwindcss vite plugin type mismatch
     plugins: [tailwindcss()],
   },
   adapter: vercel(),

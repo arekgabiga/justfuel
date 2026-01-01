@@ -109,9 +109,7 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
         setOriginalCarData(carData);
         setFormState({
           name: carData.name,
-          mileageInputPreference: carData.mileage_input_preference as
-            | 'odometer'
-            | 'distance',
+          mileageInputPreference: carData.mileage_input_preference as 'odometer' | 'distance',
         });
         setIsLoading(false);
 
@@ -472,9 +470,9 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
           setFormErrors({});
           setIsSubmitting(false);
 
-            setTimeout(() => {
-              navigateTo(`/cars/${carId}`);
-            }, 300);
+          setTimeout(() => {
+            navigateTo(`/cars/${carId}`);
+          }, 300);
         } catch (parseError) {
           console.error('Error parsing response:', parseError);
           setFormErrors({ submit: 'Nie udało się przetworzyć odpowiedzi serwera' });
@@ -625,11 +623,11 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
         try {
           await response.json(); // Consume response body
 
-            navigateTo('/cars');
+          navigateTo('/cars');
         } catch (parseError) {
           console.error('[useEditCarForm] Error parsing response:', parseError);
           // Even if parsing fails, redirect if status was OK
-            navigateTo('/cars');
+          navigateTo('/cars');
         }
       } catch (error) {
         // Handle different error types

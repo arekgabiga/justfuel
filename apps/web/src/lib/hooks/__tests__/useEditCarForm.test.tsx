@@ -134,8 +134,6 @@ describe('useEditCarForm', () => {
       expect(updateCall[1].method).toBe('PATCH');
       expect(JSON.parse(updateCall[1].body)).toEqual({ name: 'Updated Name' });
 
-
-
       // Check redirect
       act(() => {
         vi.runAllTimers();
@@ -189,8 +187,6 @@ describe('useEditCarForm', () => {
         json: async () => ({ message: 'Deleted' }),
       });
 
-
-      
       await act(async () => {
         await result.current.handleDeleteConfirm({ confirmation_name: 'Test Car' });
       });
