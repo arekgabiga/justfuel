@@ -6,28 +6,68 @@
 
 1. [Project Description](#project-description)
 2. [Tech Stack](#tech-stack)
-3. [Getting Started Locally](#getting-started-locally)
-4. [Available Scripts](#available-scripts)
-5. [Project Scope](#project-scope)
+3. [Monorepo Structure](#monorepo-structure)
+4. [Getting Started Locally](#getting-started-locally)
+5. [Available Scripts](#available-scripts)
+6. [Project Scope](#project-scope)
    - [In Scope](#in-scope)
    - [Out of Scope](#out-of-scope)
-6. [Project Status](#project-status)
-7. [License](#license)
+7. [Project Status](#project-status)
+8. [License](#license)
 
 ## Project Description
 
-JustFuel is a minimalist web application designed to simplify manual tracking of fuel consumption and costs. It provides an intuitive interface for logging refuels, managing multiple vehicles, and visualizing key statistics—without unnecessary complexity.
+JustFuel is a comprehensive solution designed to simplify manual tracking of fuel consumption and costs. It provides an intuitive interface for logging refuels, managing multiple vehicles, and visualizing key statistics—without unnecessary complexity.
+
+The project is structured as a **Monorepo**, sharing core logic between:
+
+- **Web App**: A modern, responsive web application for desktop and mobile browsers.
+- **Mobile App**: A native mobile application (using Expo) for on-the-go tracking.
 
 ## Tech Stack
 
-- **Frontend**: Astro 5 with React 19 components
+### Shared (`packages/shared`)
+
 - **Language**: TypeScript 5
-- **Styling**: Tailwind 4 & Shadcn/ui
+- **Logic**: Shared types (DTOs), database definitions, and calculation logic.
+
+### Frontend Web (`apps/web`)
+
+- **Framework**: Astro 5
+- **UI Library**: React 19
+- **Styling**: Tailwind CSS 4 & Shadcn/ui
 - **State & Utilities**: clsx, class-variance-authority, lucide-react, tailwind-merge
 - **Backend**: Supabase (PostgreSQL, Auth, SDK)
-- **Testing**: Vitest (Unit), Playwright (E2E), React Testing Library, MSW
+- **Testing**: Vitest (Unit), Playwright (E2E)
+
+### Mobile App (`apps/mobile`)
+
+- **Framework**: Expo (React Native 0.81)
+- **UI Library**: React Native Paper
+- **Persistence**: Expo SQLite (Local-First architecture)
+- **Navigation**: React Navigation 7
+- **Charts**: React Native Chart Kit
+- **Testing**: Jest, React Native Testing Library
+
+### Infrastructure
+
 - **CI/CD**: GitHub Actions
-- **Hosting**: DigitalOcean (Docker)
+- **Hosting**: Vercel (Web), EAS/Local Build (Mobile)
+
+## Monorepo Structure
+
+This project uses **npm workspaces** to manage multiple packages:
+
+```text
+justfuel/
+├── apps/
+│   ├── web/            # Astro + React Web App
+│   └── mobile/         # Expo + React Native Mobile App
+├── packages/
+│   └── shared/         # Shared Types and Calculations
+├── package.json        # Root configuration
+└── README.md
+```
 
 ## Getting Started Locally
 
@@ -35,62 +75,90 @@ JustFuel is a minimalist web application designed to simplify manual tracking of
 
 - [Node.js 22.14.0](https://nodejs.org/) (managed via NVM)
 - [npm](https://www.npmjs.com/) (bundled with Node.js)
-- A Supabase project with API URL and Anon Key
+- A Supabase project with API URL and Anon Key (for Web App)
 
 ### Setup
 
-```bash
-# Use the Node version defined in .nvmrc
-nvm install
-nvm use
+1.  **Clone repositories and install dependencies**:
 
-# Clone the repository
-git clone https://github.com/your-org/justfuel.git
-cd justfuel
+    ```bash
+    # Use the Node version defined in .nvmrc
+    nvm install
+    nvm use
 
-# Install dependencies
-npm install
+    # Clone the repository
+    git clone https://github.com/your-org/justfuel.git
+    cd justfuel
 
-# Create a .env file with the following variables:
-# SUPABASE_URL=<your-supabase-url>
-# SUPABASE_KEY=<your-supabase-anon-key>
+    # Install dependencies for all workspaces
+    npm install
+    ```
 
-# Start the development server
-npm run dev
-```
+2.  **Web App Setup**:
 
-Open `http://localhost:3000` in your browser to see the app.
+    Create `apps/web/.env` with your Supabase credentials:
 
-### Development Auth Fallback (optional)
+    ```bash
+    SUPABASE_URL=<your-supabase-url>
+    SUPABASE_KEY=<your-supabase-anon-key>
+    ```
 
-During early development you can bypass Bearer auth for server endpoints by enabling a fallback user.
+3.  **Shared Package Build**:
 
-Add the following to your `.env` to enable the fallback:
+    The shared package must be built before starting applications:
 
-```bash
-DEV_AUTH_FALLBACK=true
-```
+    ```bash
+    npm run build --workspace=@justfuel/shared
+    # OR from root
+    npm run build
+    ```
 
-Behavior when enabled:
+4.  **Start Development Servers**:
+    - **Web App**:
 
-- If an incoming request lacks a valid `Authorization: Bearer <token>` header, the backend will scope queries to the development user id defined as `DEFAULT_USER_ID` in `src/db/supabase.client.ts`.
-- When a valid Bearer token is present, normal RLS-based auth is used.
+      ```bash
+      npm run web
+      # Opens http://localhost:3000
+      ```
 
-Endpoint example (dev fallback enabled, no token):
+    - **Mobile App**:
 
-```bash
-curl -X GET "http://localhost:3000/api/cars"
-```
+      ```bash
+      npm run mobile
+      # Press 'a' for Android, 'i' for iOS (requires simulator)
 
-Endpoint example (production-like):
+      # If you encounter issues, try clearing the cache:
+      npx expo start --clear --android
+      ```
 
-```bash
-curl -H "Authorization: Bearer <token>" -X GET "http://localhost:3000/api/cars"
-```
+## Available Scripts
 
-### API Endpoints
+Run these from the **root directory**:
 
-#### GET /api/cars
+- `npm run web`  
+  Starts the Astro web app in development mode.
+
+- `npm run mobile`  
+  Starts the Expo mobile app.
+
+- `npm test --workspace=@justfuel/mobile`
+  Runs unit and integration tests for the mobile app.
+
+- `npm run build`  
+  Builds all workspaces (Shared, Web).
+
+- `npm run test:e2e`
+  Runs end-to-end tests for the Web App (Playwright).
+
+- `npm run clean`  
+  Removes `node_modules` and build artifacts from all workspaces.
+
+- `npm run lint`  
+  Runs ESLint across all workspaces.
+
+## API Endpoints (Web App)
+
+### GET /api/cars
 
 Returns a list of user's cars with aggregated statistics.
 
@@ -122,7 +190,7 @@ Response:
 }
 ```
 
-#### GET /api/cars/{carId}
+### GET /api/cars/{carId}
 
 Returns a single car with aggregated statistics and creation timestamp.
 
@@ -150,7 +218,7 @@ Response:
 }
 ```
 
-#### PATCH /api/cars/{carId}
+### PATCH /api/cars/{carId}
 
 Updates an existing car's information. Allows partial updates of car name and mileage input preference.
 
@@ -195,7 +263,7 @@ Error responses:
 - `409 Conflict` - Car name already exists for this user
 - `500 Internal Server Error` - Server error
 
-#### DELETE /api/cars/{carId}
+### DELETE /api/cars/{carId}
 
 Permanently deletes a car and all associated fillups. Requires confirmation by providing the exact car name.
 
@@ -226,7 +294,7 @@ Error responses:
 - `404 Not Found` - Car not found or doesn't belong to user
 - `500 Internal Server Error` - Server error
 
-#### GET /api/cars/{carId}/fillups
+### GET /api/cars/{carId}/fillups
 
 Returns a paginated list of fillups for a specific car, sorted by date or odometer.
 
@@ -273,7 +341,7 @@ Error responses:
 - `404 Not Found` - Car not found or doesn't belong to user
 - `500 Internal Server Error` - Server error
 
-#### GET /api/cars/{carId}/fillups/{fillupId}
+### GET /api/cars/{carId}/fillups/{fillupId}
 
 Returns detailed information about a specific fillup for a car.
 
@@ -305,7 +373,7 @@ Error responses:
 - `404 Not Found` - Fillup not found, doesn't belong to car, or car doesn't belong to user
 - `500 Internal Server Error` - Server error
 
-#### POST /api/cars/{carId}/fillups
+### POST /api/cars/{carId}/fillups
 
 Creates a new fillup for a specific car. Supports two input methods: odometer reading or distance traveled (mutually exclusive).
 
@@ -366,7 +434,7 @@ Error responses:
 - `404 Not Found` - Car not found or doesn't belong to user
 - `500 Internal Server Error` - Server error
 
-#### PATCH /api/cars/{carId}/fillups/{fillupId}
+### PATCH /api/cars/{carId}/fillups/{fillupId}
 
 Updates an existing fillup for a specific car. Supports partial updates and two input methods: odometer reading or distance traveled (mutually exclusive).
 
@@ -411,7 +479,7 @@ Error responses:
 - `404 Not Found` - Fillup not found, doesn't belong to car, or car doesn't belong to user
 - `500 Internal Server Error` - Server error
 
-#### DELETE /api/cars/{carId}/fillups/{fillupId}
+### DELETE /api/cars/{carId}/fillups/{fillupId}
 
 Deletes a specific fillup for a specific car. Automatically recalculates statistics for subsequent fillups to maintain data consistency.
 
@@ -436,37 +504,56 @@ Error responses:
 - `404 Not Found` - Fillup or car not found, or doesn't belong to user
 - `500 Internal Server Error` - An unexpected error occurred while deleting fillup
 
-## Available Scripts
+### GET /api/cars/{carId}/charts
 
-In the project directory, run:
+Returns chart data and statistics for a specific car.
 
-- `npm run dev`  
-  Launches the Astro dev server with hot reload.
+Path params:
 
-- `npm run build`  
-  Builds the production-ready site to `dist/`.
+- `carId`: UUID
 
-- `npm run preview`  
-  Serves the build output locally for testing.
+Query params:
 
-- `npm run astro`  
-  Access Astro CLI commands.
+- `type`: `consumption | price_per_liter | distance` (required)
+- `start_date`: string (optional, ISO 8601)
+- `end_date`: string (optional, ISO 8601)
+- `limit`: number (optional, default: 50)
 
-- `npm run lint`  
-  Runs ESLint on the codebase.
+Response (200 OK):
 
-- `npm run lint:fix`  
-  Runs ESLint and auto-fixes issues.
+```json
+{
+  "type": "consumption",
+  "data": [
+    {
+      "date": "2025-01-01T00:00:00Z",
+      "value": 5.5,
+      "odometer": 10500,
+      "distance": 500
+    }
+  ],
+  "average": 5.2,
+  "metadata": {
+    "count": 1,
+    "min": 5.5,
+    "max": 5.5
+  }
+}
+```
 
-- `npm run format`  
-  Formats code with Prettier.
+Error responses:
+
+- `400 Bad Request` - Invalid carId, chart type, or date format
+- `401 Unauthorized` - Missing or invalid authentication token
+- `404 Not Found` - Car not found or doesn't belong to user
+- `500 Internal Server Error` - Server error
 
 ## Project Scope
 
 ### In Scope
 
-- **User Account Management**: register, login, logout.
-- **Vehicle Management (CRUD)**: add, list, edit, delete vehicles (with confirmation).
+- **User Account Management**: register, login, logout (Web).
+- **Vehicle Management (CRUD)**: add, list, edit, delete vehicles.
 - **Fuel Entry Management (CRUD)**:
   - Log refuels with date, volume, cost, odometer or distance.
   - Infinite scroll grid of entries, color-coded consumption.
@@ -474,29 +561,18 @@ In the project directory, run:
 - **Statistics & Visualizations**:
   - Compute L/100km, cost per liter, distance between refuels.
   - Color-coded fuel consumption based on deviation from average.
-  - Three charts: consumption over time, price per liter, distance per refuel.
-- **Onboarding**: guide new users to add first vehicle and refuel entry.
+  - Charts: consumption over time, price per liter, distance per refuel.
+- **Cross-Platform Access**: Web and Mobile interfaces sharing core business logic.
 
 ### Out of Scope
 
-- Data export (CSV/PDF).
 - Social features or data sharing.
-- Native mobile apps (iOS/Android).
 - In-app feedback collection.
 - Automatic GPS/OBD-II integrations.
 
 ## Project Status
 
-This project is currently in **MVP development**. Core features are implemented; UI and UX improvements, testing, and documentation are ongoing.
-
-## Logging and Diagnostics
-
-- Correlate requests using `x-request-id` header. If present, include it in all server logs for the request lifecycle (e.g., `console.error("[GET /api/cars/{carId}] requestId=...", err)`).
-- Log only non-sensitive context. Avoid PII such as raw Authorization headers, tokens, or user emails. Prefer IDs and counts.
-- Favor structured messages that include: route, requestId, outcome (success/error), and brief reason on error.
-- On validation failures (Zod), include parser message in `details.issues` of `ErrorResponseDTO`; avoid logging user-provided payloads.
-- For upstream errors (e.g., Supabase failures), log the error object and return `INTERNAL_ERROR` with a generic message.
-- In development, surface stack traces in the console; in production, keep responses minimal and leverage external log collectors if needed.
+This project is currently in **MVP development**. Core features are implemented for both Web and Mobile platforms. Refactoring to a Monorepo structure has been completed to facilitate code sharing.
 
 ## License
 
