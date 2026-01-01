@@ -24,7 +24,9 @@ import CarListScreen from '../../../screens/CarListScreen';
 import AddCarScreen from '../../../screens/AddCarScreen';
 import CarDetailsScreen from '../../../screens/CarDetailsScreen';
 
-const Stack = createNativeStackNavigator();
+import { RootStackParamList } from '../../../navigation/types';
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const theme = {
   ...MD3LightTheme,
