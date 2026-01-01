@@ -68,6 +68,14 @@ jest.mock('expo-file-system', () => ({
   readAsStringAsync: jest.fn().mockResolvedValue('date,fuel_amount,total_price\n01.01.2023,50,300'),
 }));
 
+// Mock expo-file-system/legacy
+jest.mock('expo-file-system/legacy', () => ({
+  documentDirectory: 'file:///test-directory/',
+  EncodingType: { UTF8: 'utf8' },
+  writeAsStringAsync: jest.fn().mockResolvedValue(undefined),
+  readAsStringAsync: jest.fn().mockResolvedValue('date,fuel_amount,total_price\n01.01.2023,50,300'),
+}));
+
 // Mock expo-sharing
 jest.mock('expo-sharing', () => ({
   isAvailableAsync: jest.fn().mockResolvedValue(true),
