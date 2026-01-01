@@ -230,8 +230,6 @@ const NewFillupView: React.FC<NewFillupViewProps> = ({ carId, initialInputMode =
             )}
           </div>
 
-
-
           <div className="space-y-2">
             {formState.inputMode === 'odometer' ? (
               <>

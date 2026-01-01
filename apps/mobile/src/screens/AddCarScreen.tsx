@@ -149,21 +149,36 @@ export default function AddCarScreen() {
 
       <SegmentedButtons
         value={preference}
-        onValueChange={(val) => setPreference(val as MileagePreference)}
+        onValueChange={(val) => {
+            if (carToEdit) return;
+            setPreference(val as MileagePreference);
+        }}
         buttons={[
           {
             value: 'odometer',
             label: 'Stan Licznika',
             showSelectedCheck: true,
+            disabled: !!carToEdit,
           },
           {
             value: 'distance',
             label: 'Dystans',
             showSelectedCheck: true,
+            disabled: !!carToEdit,
           },
         ]}
         style={styles.segmentedButton}
       />
+      
+      {!!carToEdit ? (
+        <HelperText type="info" visible={true} style={styles.infoText}>
+          Tego ustawienia nie można zmienić po utworzeniu samochodu.
+        </HelperText>
+      ) : (
+        <HelperText type="info" visible={true} style={styles.infoText}>
+          Uwaga: Tego ustawienia nie będzie można później zmienić.
+        </HelperText>
+      )}
 
       <Button 
         mode="contained" 
@@ -203,5 +218,8 @@ const styles = StyleSheet.create({
   button: {
     marginTop: 8,
     paddingVertical: 6,
+  },
+  infoText: {
+    marginBottom: 8,
   },
 });

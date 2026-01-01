@@ -71,7 +71,7 @@ export default function CarDetailsScreen({ route }: CarDetailsScreenProps) {
         <Menu
           visible={menuVisible}
           onDismiss={closeMenu}
-          anchor={<Appbar.Action icon="dots-vertical" onPress={openMenu} />}
+          anchor={<Appbar.Action icon="dots-vertical" onPress={openMenu} testID="menu-action" />}
         >
           <Menu.Item onPress={handleEdit} title="Edytuj" leadingIcon="pencil" />
           <Menu.Item onPress={handleDelete} title="Usuń" leadingIcon="delete" />

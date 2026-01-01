@@ -370,44 +370,44 @@ export async function createFillup(
   const preference = car.mileage_input_preference ?? 'odometer';
 
   if (preference === 'odometer') {
-     // STRICT ODOMETER MODE
-     if (input.odometer === undefined) {
-         throw new Error('Odometer reading is required for this car');
-     }
-     odometer = input.odometer;
+    // STRICT ODOMETER MODE
+    if (input.odometer === undefined) {
+      throw new Error('Odometer reading is required for this car');
+    }
+    odometer = input.odometer;
 
-     if (previousFillup) {
-         distance_traveled = calculateDistanceTraveled(odometer, previousFillup.odometer);
-         // Validate odometer consistency
-         if (distance_traveled < 0) {
-             warnings.push({
-                 field: 'odometer',
-                 message: 'Stan licznika jest mniejszy niż w poprzednim tankowaniu',
-             });
-         } else if (distance_traveled === 0) {
-             warnings.push({
-                 field: 'odometer',
-                 message: 'Stan licznika jest taki sam jak w poprzednim tankowaniu',
-             });
-         }
-     } else {
-         // First fillup
-         const initialOdometer = car.initial_odometer ?? 0;
-         distance_traveled = calculateDistanceTraveled(odometer, initialOdometer);
-         if (distance_traveled < 0) {
-             warnings.push({
-                 field: 'odometer',
-                 message: 'Stan licznika jest mniejszy niż początkowy stan licznika samochodu',
-             });
-         }
-     }
-  } else {
-      // STRICT DISTANCE MODE
-      if (input.distance === undefined) {
-          throw new Error('Distance traveled is required for this car');
+    if (previousFillup) {
+      distance_traveled = calculateDistanceTraveled(odometer, previousFillup.odometer);
+      // Validate odometer consistency
+      if (distance_traveled < 0) {
+        warnings.push({
+          field: 'odometer',
+          message: 'Stan licznika jest mniejszy niż w poprzednim tankowaniu',
+        });
+      } else if (distance_traveled === 0) {
+        warnings.push({
+          field: 'odometer',
+          message: 'Stan licznika jest taki sam jak w poprzednim tankowaniu',
+        });
       }
-      distance_traveled = input.distance;
-      odometer = null; // Enforce NULL odometer for distance-based cars
+    } else {
+      // First fillup
+      const initialOdometer = car.initial_odometer ?? 0;
+      distance_traveled = calculateDistanceTraveled(odometer, initialOdometer);
+      if (distance_traveled < 0) {
+        warnings.push({
+          field: 'odometer',
+          message: 'Stan licznika jest mniejszy niż początkowy stan licznika samochodu',
+        });
+      }
+    }
+  } else {
+    // STRICT DISTANCE MODE
+    if (input.distance === undefined) {
+      throw new Error('Distance traveled is required for this car');
+    }
+    distance_traveled = input.distance;
+    odometer = null; // Enforce NULL odometer for distance-based cars
   }
 
   // Calculate fuel consumption and price per liter
@@ -424,7 +424,7 @@ export async function createFillup(
     distance_traveled,
     fuel_consumption,
     price_per_liter,
-    // created_at is handled by DB default or we should omit it if type doesn't demand it, 
+    // created_at is handled by DB default or we should omit it if type doesn't demand it,
     // strictly speaking types usually have created_at as readonly/generated.
   };
 
@@ -462,105 +462,105 @@ export async function createFillup(
   // We need to trigger recalculation for all fillups AFTER this new fillup
   // logic reused from updateFillup loop structure
   if (preference === 'odometer') {
-      // Fetch all fillups ordered by date to rebuild the chain
-      // We could optimize to only fetch starting from this date, but fetching all is safer for consistency
-      const { data: allFillups, error: chainError } = await supabase
-        .from('fillups')
-        .select('id, odometer, date, fuel_amount, total_price, distance_traveled, fuel_consumption, price_per_liter')
-        .eq('car_id', carId)
-        .gte('date', input.date) // Optimization: Only fetch from this fillup onwards
-        .order('date', { ascending: true });
+    // Fetch all fillups ordered by date to rebuild the chain
+    // We could optimize to only fetch starting from this date, but fetching all is safer for consistency
+    const { data: allFillups, error: chainError } = await supabase
+      .from('fillups')
+      .select('id, odometer, date, fuel_amount, total_price, distance_traveled, fuel_consumption, price_per_liter')
+      .eq('car_id', carId)
+      .gte('date', input.date) // Optimization: Only fetch from this fillup onwards
+      .order('date', { ascending: true });
 
-      if (!chainError && allFillups && allFillups.length > 0) {
-          // We need the odometer BEFORE the first fillup in our list (which is the one we just created, or one at same date)
-          // Actually, since we just inserted 'newFillup', it should be in 'allFillups' list (inclusive gte).
-          
-          // We need to initialize 'lastOdometer'.
-          // If the first item in the list is our new fillup, 'lastOdometer' should be the odometer of the fillup BEFORE it.
-          // We already fetched 'previousFillup' (the variable) at the top of function! 
-          // But that was BEFORE insertion. Is it still valid? Yes, insertion doesn't change what was before.
-          
-          let lastOdometer = 0;
-          if (previousFillup) {
-              lastOdometer = previousFillup.odometer; // This is the odometer of the fillup BEFORE our new one.
-          } else {
-              // No fillup before our new one. Use car initial odometer.
-              lastOdometer = car.initial_odometer ?? 0;
-          }
+    if (!chainError && allFillups && allFillups.length > 0) {
+      // We need the odometer BEFORE the first fillup in our list (which is the one we just created, or one at same date)
+      // Actually, since we just inserted 'newFillup', it should be in 'allFillups' list (inclusive gte).
 
-          const updates: any[] = [];
-          
-          // Careful: allFillups includes the one we JUST created?
-          // If we filter gte date.
-          // If we iterate through them, we might "re-update" our just-created fillup?
-          // That's fine, it should be a no-op if logic is consistent, or it might correct it if our initial calc was slightly off (unlikely).
-          // But 'previousFillup' variable at top doesn't account for our new fillup.
-          
-          // Wait, if we use the loop, the loop will set `distance` for the first item based on `lastOdometer`.
-          // `lastOdometer` is from `previousFillup`.
-          // `firstItem` is our `newFillup`.
-          // `newFillup.odometer` - `previousFillup.odometer`.
-          // This matches exactly what we did in initial create logic. so it is safe.
-          
-          for (const fillup of allFillups) {
-              // Skip updating the fillup we just created if needed, BUT we surely need to update 'lastOdometer' state 
-              // so subsequent fillups are correct.
-              
-              let shouldUpdate = false;
-              const currentUpdate: any = { id: fillup.id };
+      // We need to initialize 'lastOdometer'.
+      // If the first item in the list is our new fillup, 'lastOdometer' should be the odometer of the fillup BEFORE it.
+      // We already fetched 'previousFillup' (the variable) at the top of function!
+      // But that was BEFORE insertion. Is it still valid? Yes, insertion doesn't change what was before.
 
-              // Determine current effective odometer
-              let currentOdometer = fillup.odometer;
-
-              // Calculate distance based on previous odometer
-              let calculatedDistance = 0;
-              if (currentOdometer !== null) {
-                  // Odometer mode entry
-                  calculatedDistance = Math.max(0, currentOdometer - lastOdometer);
-                  
-                  const currentDistance = fillup.distance_traveled ?? 0;
-                  // If this is the fillup we just created, distance should match already.
-                  if (Math.abs(calculatedDistance - currentDistance) > 0.1) { 
-                      currentUpdate.distance_traveled = calculatedDistance;
-                      shouldUpdate = true;
-                  }
-              } else {
-                  // Distance mode entry (odometer is null)
-                  calculatedDistance = fillup.distance_traveled ?? 0;
-              }
-
-              // Recalculate consumption
-              const newConsumption = calculateFuelConsumption(calculatedDistance, fillup.fuel_amount);
-              const oldConsumption = fillup.fuel_consumption ?? 0;
-              const diff = Math.abs((newConsumption ?? 0) - oldConsumption);
-              
-              if (diff > 0.01) { 
-                  currentUpdate.fuel_consumption = newConsumption;
-                  shouldUpdate = true;
-              }
-
-              // Update lastOdometer for next iteration
-              if (currentOdometer !== null) {
-                  lastOdometer = currentOdometer;
-              } else {
-                  lastOdometer += calculatedDistance;
-              }
-
-              // If this fillup needs update, and it's NOT the one we just created (to save a DB call, although it's fine to update it)
-              // Actually, if we just created it, we already saved it. So unless we drifted, no need.
-              if (shouldUpdate) { 
-                   updates.push(currentUpdate);
-              }
-          }
-          
-          // Execute updates
-          if (updates.length > 0) {
-              for (const update of updates) {
-                  const { id, ...rest } = update;
-                  await supabase.from('fillups').update(rest).eq('id', id);
-              }
-          }
+      let lastOdometer = 0;
+      if (previousFillup) {
+        lastOdometer = previousFillup.odometer; // This is the odometer of the fillup BEFORE our new one.
+      } else {
+        // No fillup before our new one. Use car initial odometer.
+        lastOdometer = car.initial_odometer ?? 0;
       }
+
+      const updates: any[] = [];
+
+      // Careful: allFillups includes the one we JUST created?
+      // If we filter gte date.
+      // If we iterate through them, we might "re-update" our just-created fillup?
+      // That's fine, it should be a no-op if logic is consistent, or it might correct it if our initial calc was slightly off (unlikely).
+      // But 'previousFillup' variable at top doesn't account for our new fillup.
+
+      // Wait, if we use the loop, the loop will set `distance` for the first item based on `lastOdometer`.
+      // `lastOdometer` is from `previousFillup`.
+      // `firstItem` is our `newFillup`.
+      // `newFillup.odometer` - `previousFillup.odometer`.
+      // This matches exactly what we did in initial create logic. so it is safe.
+
+      for (const fillup of allFillups) {
+        // Skip updating the fillup we just created if needed, BUT we surely need to update 'lastOdometer' state
+        // so subsequent fillups are correct.
+
+        let shouldUpdate = false;
+        const currentUpdate: any = { id: fillup.id };
+
+        // Determine current effective odometer
+        const currentOdometer = fillup.odometer;
+
+        // Calculate distance based on previous odometer
+        let calculatedDistance = 0;
+        if (currentOdometer !== null) {
+          // Odometer mode entry
+          calculatedDistance = Math.max(0, currentOdometer - lastOdometer);
+
+          const currentDistance = fillup.distance_traveled ?? 0;
+          // If this is the fillup we just created, distance should match already.
+          if (Math.abs(calculatedDistance - currentDistance) > 0.1) {
+            currentUpdate.distance_traveled = calculatedDistance;
+            shouldUpdate = true;
+          }
+        } else {
+          // Distance mode entry (odometer is null)
+          calculatedDistance = fillup.distance_traveled ?? 0;
+        }
+
+        // Recalculate consumption
+        const newConsumption = calculateFuelConsumption(calculatedDistance, fillup.fuel_amount);
+        const oldConsumption = fillup.fuel_consumption ?? 0;
+        const diff = Math.abs((newConsumption ?? 0) - oldConsumption);
+
+        if (diff > 0.01) {
+          currentUpdate.fuel_consumption = newConsumption;
+          shouldUpdate = true;
+        }
+
+        // Update lastOdometer for next iteration
+        if (currentOdometer !== null) {
+          lastOdometer = currentOdometer;
+        } else {
+          lastOdometer += calculatedDistance;
+        }
+
+        // If this fillup needs update, and it's NOT the one we just created (to save a DB call, although it's fine to update it)
+        // Actually, if we just created it, we already saved it. So unless we drifted, no need.
+        if (shouldUpdate) {
+          updates.push(currentUpdate);
+        }
+      }
+
+      // Execute updates
+      if (updates.length > 0) {
+        for (const update of updates) {
+          const { id, ...rest } = update;
+          await supabase.from('fillups').update(rest).eq('id', id);
+        }
+      }
+    }
   }
 
   return {
@@ -665,69 +665,69 @@ export async function updateFillup(
   const preference = car.mileage_input_preference ?? 'odometer';
 
   if (preference === 'odometer') {
-      // STRICT ODOMETER MODE
-      // If user tries to update 'distance', we ignore it or error? 
-      // The Type allows partial updates, but UI should only send odometer.
-      // If odometer is provided, we process it.
-      if (input.odometer !== undefined) {
-          const newOdometer = input.odometer;
-          updateData.odometer = newOdometer;
+    // STRICT ODOMETER MODE
+    // If user tries to update 'distance', we ignore it or error?
+    // The Type allows partial updates, but UI should only send odometer.
+    // If odometer is provided, we process it.
+    if (input.odometer !== undefined) {
+      const newOdometer = input.odometer;
+      updateData.odometer = newOdometer;
 
-          // Calculate distance from previous fillup
-          const fillupDate = input.date ?? existingFillup.date;
-          // Get previous fillup
-          const { data: previousFillup, error: prevError } = await supabase
-            .from('fillups')
-            .select('odometer, date')
-            .eq('car_id', carId)
-            .neq('id', fillupId)
-            .lt('date', fillupDate)
-            .order('date', { ascending: false })
-            .limit(1)
-            .maybeSingle();
+      // Calculate distance from previous fillup
+      const fillupDate = input.date ?? existingFillup.date;
+      // Get previous fillup
+      const { data: previousFillup, error: prevError } = await supabase
+        .from('fillups')
+        .select('odometer, date')
+        .eq('car_id', carId)
+        .neq('id', fillupId)
+        .lt('date', fillupDate)
+        .order('date', { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
-           if (prevError) {
-             throw new Error(`Failed to fetch previous fillup: ${prevError.message}`);
-           }
-
-           let newDistanceTraveled: number;
-           if (previousFillup) {
-             newDistanceTraveled = calculateDistanceTraveled(newOdometer, previousFillup.odometer);
-           } else {
-             const initialOdometer = car.initial_odometer ?? 0;
-             newDistanceTraveled = calculateDistanceTraveled(newOdometer, initialOdometer);
-           }
-
-           // Validate
-           if (newDistanceTraveled < 0) {
-             warnings.push({
-               field: 'odometer',
-               message: 'Stan licznika jest mniejszy niż w poprzednim tankowaniu',
-             });
-           } else if (newDistanceTraveled === 0) {
-             warnings.push({
-               field: 'odometer',
-               message: 'Stan licznika jest taki sam jak w poprzednim tankowaniu',
-             });
-           }
-           updateData.distance_traveled = newDistanceTraveled;
+      if (prevError) {
+        throw new Error(`Failed to fetch previous fillup: ${prevError.message}`);
       }
-      // If only date changed, we should re-check previous fillup to recalc distance? 
-      // Yes, if date moved, the 'previous' fillup might have changed.
-      // For MVP of this refactor, we focus on explicit odometer updates or assume date changes trigger logic if needed. 
-      // Ideally, we should always recalc distance if date OR odometer changes in Odometer mode.
+
+      let newDistanceTraveled: number;
+      if (previousFillup) {
+        newDistanceTraveled = calculateDistanceTraveled(newOdometer, previousFillup.odometer);
+      } else {
+        const initialOdometer = car.initial_odometer ?? 0;
+        newDistanceTraveled = calculateDistanceTraveled(newOdometer, initialOdometer);
+      }
+
+      // Validate
+      if (newDistanceTraveled < 0) {
+        warnings.push({
+          field: 'odometer',
+          message: 'Stan licznika jest mniejszy niż w poprzednim tankowaniu',
+        });
+      } else if (newDistanceTraveled === 0) {
+        warnings.push({
+          field: 'odometer',
+          message: 'Stan licznika jest taki sam jak w poprzednim tankowaniu',
+        });
+      }
+      updateData.distance_traveled = newDistanceTraveled;
+    }
+    // If only date changed, we should re-check previous fillup to recalc distance?
+    // Yes, if date moved, the 'previous' fillup might have changed.
+    // For MVP of this refactor, we focus on explicit odometer updates or assume date changes trigger logic if needed.
+    // Ideally, we should always recalc distance if date OR odometer changes in Odometer mode.
   } else {
-      // STRICT DISTANCE MODE
-      if (input.distance !== undefined) {
-          updateData.distance_traveled = input.distance;
-          updateData.odometer = null; 
-      }
-      // If they try to set odometer in distance mode, it should be ignored or nulled?
-      // Lets ensure it stays null.
-      if (existingFillup.odometer != null) {
-          // Migration fix on the fly?
-          updateData.odometer = null;
-      }
+    // STRICT DISTANCE MODE
+    if (input.distance !== undefined) {
+      updateData.distance_traveled = input.distance;
+      updateData.odometer = null;
+    }
+    // If they try to set odometer in distance mode, it should be ignored or nulled?
+    // Lets ensure it stays null.
+    if (existingFillup.odometer != null) {
+      // Migration fix on the fly?
+      updateData.odometer = null;
+    }
   }
 
   // Calculate fuel consumption and price per liter for the updated fillup
@@ -761,75 +761,75 @@ export async function updateFillup(
   let updatedEntriesCount = 1;
 
   if (preference === 'odometer') {
-      const { data: allFillups, error: chainError } = await supabase
-        .from('fillups')
-        .select('id, odometer, fuel_amount, total_price, distance_traveled, fuel_consumption, price_per_liter')
-        .eq('car_id', carId)
-        .order('date', { ascending: true });
+    const { data: allFillups, error: chainError } = await supabase
+      .from('fillups')
+      .select('id, odometer, fuel_amount, total_price, distance_traveled, fuel_consumption, price_per_liter')
+      .eq('car_id', carId)
+      .order('date', { ascending: true });
 
-      if (!chainError && allFillups && allFillups.length > 0) {
-          let lastOdometer = car.initial_odometer ?? 0;
-          const updates: any[] = [];
+    if (!chainError && allFillups && allFillups.length > 0) {
+      let lastOdometer = car.initial_odometer ?? 0;
+      const updates: any[] = [];
 
-          for (const fillup of allFillups) {
-              let shouldUpdate = false;
-              const currentUpdate: any = { id: fillup.id };
+      for (const fillup of allFillups) {
+        let shouldUpdate = false;
+        const currentUpdate: any = { id: fillup.id };
 
-              // Determine current effective odometer
-              let currentOdometer = fillup.odometer;
+        // Determine current effective odometer
+        const currentOdometer = fillup.odometer;
 
-              // Calculate distance based on previous odometer
-              let calculatedDistance = 0;
-              if (currentOdometer !== null) {
-                  // Odometer mode entry
-                  calculatedDistance = Math.max(0, currentOdometer - lastOdometer);
-                  // Check if calculated distance differs from stored distance
-                  // Default fillup.distance_traveled to 0 if null (though schema should enforce non-null or we handle it)
-                  const currentDistance = fillup.distance_traveled ?? 0;
-                  if (Math.abs(calculatedDistance - currentDistance) > 0.1) { 
-                      currentUpdate.distance_traveled = calculatedDistance;
-                      shouldUpdate = true;
-                  }
-              } else {
-                  // Distance mode entry (odometer is null)
-                  // Trust the stored distance, but update "lastOdometer" for next entries
-                  calculatedDistance = fillup.distance_traveled ?? 0;
-              }
-
-              // Recalculate consumption if distance changed or fuel_amount changed
-              const newConsumption = calculateFuelConsumption(calculatedDistance, fillup.fuel_amount);
-              // Check if consumption changed (allow small float diff/null handling)
-              const oldConsumption = fillup.fuel_consumption ?? 0;
-              const diff = Math.abs((newConsumption ?? 0) - oldConsumption);
-              
-              if (diff > 0.01) { 
-                  currentUpdate.fuel_consumption = newConsumption;
-                  shouldUpdate = true;
-              }
-
-              // Update lastOdometer for next iteration
-              if (currentOdometer !== null) {
-                  lastOdometer = currentOdometer;
-              } else {
-                  lastOdometer += calculatedDistance;
-              }
-
-              // If this fillup needs update, add to list
-              if (shouldUpdate) { 
-                   updates.push(currentUpdate);
-              }
+        // Calculate distance based on previous odometer
+        let calculatedDistance = 0;
+        if (currentOdometer !== null) {
+          // Odometer mode entry
+          calculatedDistance = Math.max(0, currentOdometer - lastOdometer);
+          // Check if calculated distance differs from stored distance
+          // Default fillup.distance_traveled to 0 if null (though schema should enforce non-null or we handle it)
+          const currentDistance = fillup.distance_traveled ?? 0;
+          if (Math.abs(calculatedDistance - currentDistance) > 0.1) {
+            currentUpdate.distance_traveled = calculatedDistance;
+            shouldUpdate = true;
           }
+        } else {
+          // Distance mode entry (odometer is null)
+          // Trust the stored distance, but update "lastOdometer" for next entries
+          calculatedDistance = fillup.distance_traveled ?? 0;
+        }
 
-          if (updates.length > 0) {
-              for (const update of updates) {
-                  const { id, ...rest } = update;
-                  await supabase.from('fillups').update(rest).eq('id', id);
-                  if (id !== fillupId) {
-                      updatedEntriesCount++;
-                  }
-              }
-          }
+        // Recalculate consumption if distance changed or fuel_amount changed
+        const newConsumption = calculateFuelConsumption(calculatedDistance, fillup.fuel_amount);
+        // Check if consumption changed (allow small float diff/null handling)
+        const oldConsumption = fillup.fuel_consumption ?? 0;
+        const diff = Math.abs((newConsumption ?? 0) - oldConsumption);
+
+        if (diff > 0.01) {
+          currentUpdate.fuel_consumption = newConsumption;
+          shouldUpdate = true;
+        }
+
+        // Update lastOdometer for next iteration
+        if (currentOdometer !== null) {
+          lastOdometer = currentOdometer;
+        } else {
+          lastOdometer += calculatedDistance;
+        }
+
+        // If this fillup needs update, add to list
+        if (shouldUpdate) {
+          updates.push(currentUpdate);
+        }
       }
+
+      if (updates.length > 0) {
+        for (const update of updates) {
+          const { id, ...rest } = update;
+          await supabase.from('fillups').update(rest).eq('id', id);
+          if (id !== fillupId) {
+            updatedEntriesCount++;
+          }
+        }
+      }
+    }
   }
 
   // Map to FillupDTO
@@ -968,7 +968,10 @@ export async function deleteFillup(
       const previousFillupForCalculation = i === 0 ? previousFillup : subsequentFillups[i - 1];
 
       if (previousFillupForCalculation) {
-        const newDistanceTraveled = calculateDistanceTraveled(currentFillup.odometer, previousFillupForCalculation.odometer);
+        const newDistanceTraveled = calculateDistanceTraveled(
+          currentFillup.odometer,
+          previousFillupForCalculation.odometer
+        );
         const newFuelConsumption = calculateFuelConsumption(newDistanceTraveled, currentFillup.fuel_amount);
 
         updates.push({

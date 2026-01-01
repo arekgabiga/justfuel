@@ -90,4 +90,8 @@ export class EditCarPage {
   async isOnEditCarPage(): Promise<boolean> {
     return await this.form.isVisible();
   }
+
+  async isMileagePreferenceDisabled(): Promise<boolean> {
+    return await this.mileagePreferenceSelect.isDisabled();
+  }
 }

@@ -18,7 +18,7 @@ describe('FillupRepository', () => {
   beforeEach(() => {
     mockDb = {
       runAsync: jest.fn(),
-      getAllAsync: jest.fn(),
+      getAllAsync: jest.fn().mockResolvedValue([]),
       getFirstAsync: jest.fn(),
     };
     (getDBConnection as jest.Mock).mockResolvedValue(mockDb);

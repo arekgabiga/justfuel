@@ -34,8 +34,6 @@ export class NewFillupPage {
     return this.page.getByTestId('fillup-total-price-input');
   }
 
-
-
   get odometerInput(): Locator {
     return this.page.getByTestId('fillup-odometer-input');
   }
@@ -84,8 +82,6 @@ export class NewFillupPage {
     // Wait for validation to complete
     await this.page.waitForTimeout(100);
   }
-
-
 
   async submit(): Promise<void> {
     await this.saveButton.click();

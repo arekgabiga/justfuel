@@ -277,26 +277,26 @@ describe('fillups.service', () => {
           }
           // Second call: insert new fillup
           if (calls === 2) {
-             return {
-               insert: vi.fn().mockReturnValue({
-                 select: vi.fn().mockReturnValue({
-                   single: vi.fn().mockResolvedValue({ data: mockCreatedFillup, error: null }),
-                 }),
-               }),
-             } as any;
-          }
-           // Third call: chain recalculation
-           if (calls === 3) {
-             return {
+            return {
+              insert: vi.fn().mockReturnValue({
                 select: vi.fn().mockReturnValue({
-                    eq: vi.fn().mockReturnValue({
-                        gte: vi.fn().mockReturnValue({
-                            order: vi.fn().mockResolvedValue({ data: [], error: null }),
-                        }),
-                    }),
+                  single: vi.fn().mockResolvedValue({ data: mockCreatedFillup, error: null }),
                 }),
-             } as any;
-           }
+              }),
+            } as any;
+          }
+          // Third call: chain recalculation
+          if (calls === 3) {
+            return {
+              select: vi.fn().mockReturnValue({
+                eq: vi.fn().mockReturnValue({
+                  gte: vi.fn().mockReturnValue({
+                    order: vi.fn().mockResolvedValue({ data: [], error: null }),
+                  }),
+                }),
+              }),
+            } as any;
+          }
           return {} as any; // fallback
         }
         return {} as any;
@@ -340,7 +340,9 @@ describe('fillups.service', () => {
               eq: vi.fn().mockReturnValue({
                 eq: vi.fn().mockReturnValue({
                   limit: vi.fn().mockReturnValue({
-                    maybeSingle: vi.fn().mockResolvedValue({ data: { ...mockCar, mileage_input_preference: 'distance' }, error: null }),
+                    maybeSingle: vi
+                      .fn()
+                      .mockResolvedValue({ data: { ...mockCar, mileage_input_preference: 'distance' }, error: null }),
                   }),
                 }),
               }),
@@ -357,9 +359,9 @@ describe('fillups.service', () => {
                 eq: vi.fn().mockReturnValue({
                   lt: vi.fn().mockReturnValue({
                     order: vi.fn().mockReturnValue({
-                       limit: vi.fn().mockReturnValue({
-                         maybeSingle: vi.fn().mockResolvedValue({ data: mockPreviousFillup, error: null }),
-                       }),
+                      limit: vi.fn().mockReturnValue({
+                        maybeSingle: vi.fn().mockResolvedValue({ data: mockPreviousFillup, error: null }),
+                      }),
                     }),
                   }),
                 }),
@@ -431,9 +433,9 @@ describe('fillups.service', () => {
                 eq: vi.fn().mockReturnValue({
                   lt: vi.fn().mockReturnValue({
                     order: vi.fn().mockReturnValue({
-                       limit: vi.fn().mockReturnValue({
-                         maybeSingle: vi.fn().mockResolvedValue({ data: mockPreviousFillup, error: null }),
-                       }),
+                      limit: vi.fn().mockReturnValue({
+                        maybeSingle: vi.fn().mockResolvedValue({ data: mockPreviousFillup, error: null }),
+                      }),
                     }),
                   }),
                 }),
@@ -441,26 +443,26 @@ describe('fillups.service', () => {
             } as any;
           }
           if (calls === 2) {
-             return {
-                insert: vi.fn().mockReturnValue({
-                  select: vi.fn().mockReturnValue({
-                    single: vi.fn().mockResolvedValue({ data: mockCreatedFillup, error: null }),
+            return {
+              insert: vi.fn().mockReturnValue({
+                select: vi.fn().mockReturnValue({
+                  single: vi.fn().mockResolvedValue({ data: mockCreatedFillup, error: null }),
+                }),
+              }),
+            } as any;
+          }
+          // Third call: chain recalculation
+          if (calls === 3) {
+            return {
+              select: vi.fn().mockReturnValue({
+                eq: vi.fn().mockReturnValue({
+                  gte: vi.fn().mockReturnValue({
+                    order: vi.fn().mockResolvedValue({ data: [], error: null }),
                   }),
                 }),
-             } as any;
+              }),
+            } as any;
           }
-           // Third call: chain recalculation
-           if (calls === 3) {
-             return {
-                select: vi.fn().mockReturnValue({
-                    eq: vi.fn().mockReturnValue({
-                        gte: vi.fn().mockReturnValue({
-                            order: vi.fn().mockResolvedValue({ data: [], error: null }),
-                        }),
-                    }),
-                }),
-             } as any;
-           }
           return {} as any;
         }
         return {} as any;
@@ -557,7 +559,7 @@ describe('fillups.service', () => {
           return {
             select: vi.fn().mockReturnValue({
               eq: vi.fn().mockReturnValue({
-                order: vi.fn().mockResolvedValue({ data: [], error: null }), 
+                order: vi.fn().mockResolvedValue({ data: [], error: null }),
               }),
             }),
           } as any;

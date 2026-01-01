@@ -3,7 +3,6 @@ import type { FillupDTO } from '../../types';
 import { ConsumptionDeviation, getConsumptionDeviation, formatDate, formatNumber } from '@justfuel/shared';
 import { AlertCircle } from 'lucide-react';
 
-
 interface FillupCardProps {
   fillup: FillupDTO;
   averageConsumption: number;
@@ -12,15 +11,13 @@ interface FillupCardProps {
   isOdometerInvalid?: boolean;
 }
 
-export const FillupCard: React.FC<FillupCardProps> = ({ 
-  fillup, 
-  averageConsumption, 
+export const FillupCard: React.FC<FillupCardProps> = ({
+  fillup,
+  averageConsumption,
   onClick,
   mileageInputPreference = 'odometer',
-  isOdometerInvalid = false
+  isOdometerInvalid = false,
 }) => {
-
-
   // Calculate color intensity based on deviation from average
   // Uses 7 color levels according to percentage deviation from average
   const getConsumptionColor = (consumption: number | null | undefined, avg: number) => {
@@ -47,9 +44,7 @@ export const FillupCard: React.FC<FillupCardProps> = ({
   };
 
   const containerClasses = `bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer border hover:border-blue-300 dark:hover:border-blue-600 p-3 md:p-5 ${
-    isOdometerInvalid 
-      ? 'border-red-500 dark:border-red-500' 
-      : 'border-gray-200 dark:border-gray-700'
+    isOdometerInvalid ? 'border-red-500 dark:border-red-500' : 'border-gray-200 dark:border-gray-700'
   }`;
 
   return (
@@ -66,10 +61,10 @@ export const FillupCard: React.FC<FillupCardProps> = ({
       }}
     >
       <div className="grid grid-cols-2 gap-x-4 gap-y-1 relative">
-         {/* Validation Error Icon */}
-         {isOdometerInvalid && (
-          <div 
-            className="absolute -top-2 -right-2 md:-top-3 md:-right-3 z-10 bg-red-100 dark:bg-red-900 rounded-full p-1 cursor-help" 
+        {/* Validation Error Icon */}
+        {isOdometerInvalid && (
+          <div
+            className="absolute -top-2 -right-2 md:-top-3 md:-right-3 z-10 bg-red-100 dark:bg-red-900 rounded-full p-1 cursor-help"
             aria-label="Błąd przebiegu"
             title="Przebieg niższy niż w poprzednim tankowaniu"
           >

@@ -194,6 +194,9 @@ const NewCarFormView: React.FC = () => {
                 {formErrors.mileageInputPreference}
               </p>
             )}
+            <p className="text-xs text-muted-foreground mt-1">
+              Uwaga: Tego ustawienia nie będzie można później zmienić.
+            </p>
           </div>
 
           {/* Submit error message */}

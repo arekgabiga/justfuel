@@ -224,8 +224,6 @@ const EditFillupView: React.FC<EditFillupViewProps> = ({ carId, fillupId }) => {
             )}
           </div>
 
-
-
           <div className="space-y-2">
             {formState.inputMode === 'odometer' ? (
               <>

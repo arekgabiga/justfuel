@@ -22,6 +22,7 @@ jest.mock('../../../database/schema', () => ({
 // Screens - import AFTER mocking dependencies
 import CarListScreen from '../../../screens/CarListScreen';
 import AddCarScreen from '../../../screens/AddCarScreen';
+import CarDetailsScreen from '../../../screens/CarDetailsScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -47,6 +48,7 @@ const TestApp = () => (
       <NavigationContainer>
         <Stack.Navigator initialRouteName="CarList">
           <Stack.Screen name="CarList" component={CarListScreen} options={{ title: 'Moje Samochody' }} />
+          <Stack.Screen name="CarDetails" component={CarDetailsScreen} options={{ title: 'Szczegóły' }} />
           <Stack.Screen name="AddCar" component={AddCarScreen} options={{ title: 'Dodaj Samochód' }} />
         </Stack.Navigator>
       </NavigationContainer>
@@ -59,6 +61,8 @@ describe('Add Car Flow (Integration)', () => {
     resetMockDatabase();
     jest.clearAllMocks();
   });
+
+  // ... existing tests ...
 
   it('shows empty state when no cars exist', async () => {
     const { getByText, getByTestId } = render(<TestApp />);
@@ -202,5 +206,62 @@ describe('Add Car Flow (Integration)', () => {
       expect(cars.map(c => c.name)).toContain('BMW X5');
       expect(cars.map(c => c.name)).toContain('Audi A4');
     });
+  });
+
+  it('prevents changing mileage preference when editing an existing car', async () => {
+    // Setup - add a car first
+    const { getByTestId, getByText, getByLabelText, getAllByText } = render(<TestApp />);
+    
+    // Add a car with 'odometer' preference
+    await waitFor(() => expect(getByTestId('add-car-fab')).toBeTruthy());
+    await act(async () => fireEvent.press(getByTestId('add-car-fab')));
+    
+    await waitFor(() => expect(getByTestId('name-input')).toBeTruthy());
+    await act(async () => {
+      fireEvent.changeText(getByTestId('name-input'), 'Edit Me');
+      fireEvent.changeText(getByTestId('odometer-input'), '100');
+    });
+    
+    // Select odometer explicitly
+    const odometerButton = getByText('Stan Licznika');
+    await act(async () => fireEvent.press(odometerButton));
+    
+    await act(async () => fireEvent.press(getByTestId('save-button')));
+    
+    // Wait for list to update
+    await waitFor(() => expect(getByText('Edit Me')).toBeTruthy());
+    
+    // Navigate to details
+    const carItem = getByText('Edit Me');
+    await act(async () => fireEvent.press(carItem));
+    
+    // In CarDetails
+    await waitFor(() => expect(getByText('Tankowania')).toBeTruthy());
+
+    // Open Menu
+    await waitFor(() => expect(getByTestId('menu-action')).toBeTruthy());
+    await act(async () => fireEvent.press(getByTestId('menu-action')));
+
+    // Click Edit
+    await waitFor(() => expect(getByText('Edytuj')).toBeTruthy());
+    await act(async () => fireEvent.press(getByText('Edytuj')));
+
+    // Verify AddCar screen is in Edit Mode
+    await waitFor(() => expect(getByTestId('name-input')).toBeTruthy());
+    // Should see "Edit Mode" specific text or title
+    expect(getByText('Tego ustawienia nie można zmienić po utworzeniu samochodu.')).toBeTruthy();
+
+    // Try to change preference to 'distance'
+    const distanceButton = getByText('Dystans');
+    await act(async () => fireEvent.press(distanceButton));
+
+    // Save and verify it's still odometer
+    await act(async () => fireEvent.press(getByTestId('save-button')));
+    
+    // Navigate back to details or list, verify car data in DB or logic
+    const cars = getMockCars();
+    const editedCar = cars.find(c => c.name === 'Edit Me');
+    expect(editedCar).toBeDefined();
+    expect(editedCar?.mileage_input_preference).toBe('odometer');
   });
 });

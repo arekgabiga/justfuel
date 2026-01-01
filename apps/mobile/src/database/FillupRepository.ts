@@ -40,14 +40,15 @@ export const FillupRepository = {
         newFillup.fuel_amount,
         newFillup.total_price,
         newFillup.odometer ?? null,
-        // If odometer is present, we don't assume distance yet (recalc will fix it). 
-        // If odometer is MISSING (distance-mode), we use the provided distance.
-        newFillup.odometer == null ? (newFillup as any).distance_traveled : null,
+        (newFillup as any).distance_traveled ?? null,
         (newFillup as any).fuel_consumption || null,
         newFillup.total_price / newFillup.fuel_amount,
         now,
       ]
     );
+
+    // Ensure chain consistency
+    await FillupRepository.recalculateStats(newFillup.car_id);
 
     return {
       id,

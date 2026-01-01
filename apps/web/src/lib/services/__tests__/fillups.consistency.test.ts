@@ -20,11 +20,11 @@ describe('fillups.service consistency', () => {
   it('should recalculate subsequent fillups when odometer is updated', async () => {
     // Arrange
     const fillupId = 'fillup-1';
-    
+
     // Original state:
     // f1: odo 50000 -> 50500 (dist 500)
     // f2: odo 50500 -> 51000 (dist 500)
-    
+
     // Update f1 odometer to 50600 (+100)
     // Expected result:
     // f1: distance 600 (was 500)
@@ -55,12 +55,12 @@ describe('fillups.service consistency', () => {
     };
 
     const mockCar = { id: carId, initial_odometer: 50000, mileage_input_preference: 'odometer' };
-    
+
     // Updated f1 returned from DB after update
-    const updatedFillup = { 
-      ...existingFillup, 
-      odometer: 50600, 
-      distance_traveled: 600 
+    const updatedFillup = {
+      ...existingFillup,
+      odometer: 50600,
+      distance_traveled: 600,
     };
 
     vi.mocked(mockSupabase.from).mockImplementation((table: string) => {
@@ -69,42 +69,42 @@ describe('fillups.service consistency', () => {
 
         // 1. Fetch existing fillup (updateFillup -> getFillupById/select)
         if (calls === 1) {
-             return {
-              select: vi.fn().mockReturnValue({
+          return {
+            select: vi.fn().mockReturnValue({
+              eq: vi.fn().mockReturnValue({
                 eq: vi.fn().mockReturnValue({
-                  eq: vi.fn().mockReturnValue({
-                    maybeSingle: vi.fn().mockResolvedValue({ data: existingFillup, error: null }),
-                  }),
+                  maybeSingle: vi.fn().mockResolvedValue({ data: existingFillup, error: null }),
                 }),
               }),
-            } as any;
+            }),
+          } as any;
         }
 
         // 2. Fetch previous fillup (for calculating new distance of f1)
         if (calls === 2) {
-             return {
-              select: vi.fn().mockReturnValue({
-                eq: vi.fn().mockReturnValue({
-                  neq: vi.fn().mockReturnValue({
-                    lt: vi.fn().mockReturnValue({
-                        order: vi.fn().mockReturnValue({
-                            limit: vi.fn().mockReturnValue({
-                                maybeSingle: vi.fn().mockResolvedValue({ 
-                                    data: { odometer: 50000, date: '2023-12-01' }, 
-                                    error: null 
-                                }),
-                            })
-                        })
-                    })
+          return {
+            select: vi.fn().mockReturnValue({
+              eq: vi.fn().mockReturnValue({
+                neq: vi.fn().mockReturnValue({
+                  lt: vi.fn().mockReturnValue({
+                    order: vi.fn().mockReturnValue({
+                      limit: vi.fn().mockReturnValue({
+                        maybeSingle: vi.fn().mockResolvedValue({
+                          data: { odometer: 50000, date: '2023-12-01' },
+                          error: null,
+                        }),
+                      }),
+                    }),
                   }),
                 }),
               }),
-            } as any;
+            }),
+          } as any;
         }
 
         // 3. Update current fillup (f1)
         if (calls === 3) {
-            return {
+          return {
             update: vi.fn().mockReturnValue({
               eq: vi.fn().mockReturnValue({
                 eq: vi.fn().mockReturnValue({
@@ -118,26 +118,27 @@ describe('fillups.service consistency', () => {
         }
         // 4. Fetch subsequent fillups (should happen to recalc chain)
         if (calls === 4) {
-             return {
-               select: vi.fn().mockReturnValue({
-                 eq: vi.fn().mockReturnValue({
-                   order: vi.fn().mockResolvedValue({ // .order is the end of this chain as written in service
-                      data: [nextFillup],
-                      error: null
-                   })
-                 }),
-               }),
-             } as any;
+          return {
+            select: vi.fn().mockReturnValue({
+              eq: vi.fn().mockReturnValue({
+                order: vi.fn().mockResolvedValue({
+                  // .order is the end of this chain as written in service
+                  data: [nextFillup],
+                  error: null,
+                }),
+              }),
+            }),
+          } as any;
         }
 
         // 5. Update subsequent fillup (f2)
         // This is what we primarily want to verify is called
         if (calls === 5) {
-             return {
-                update: vi.fn().mockReturnValue({
-                    eq: vi.fn().mockResolvedValue({ error: null })
-                })
-             } as any;
+          return {
+            update: vi.fn().mockReturnValue({
+              eq: vi.fn().mockResolvedValue({ error: null }),
+            }),
+          } as any;
         }
 
         return {} as any;
@@ -166,6 +167,6 @@ describe('fillups.service consistency', () => {
     // Assert
     expect(result.odometer).toBe(50600);
     // This expectation will FAIL because the current implementation hardcoded returns 1
-    expect(result.updated_entries_count).toBeGreaterThan(1); 
+    expect(result.updated_entries_count).toBeGreaterThan(1);
   });
 });

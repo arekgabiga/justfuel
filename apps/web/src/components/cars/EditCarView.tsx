@@ -151,34 +151,18 @@ const EditCarView: React.FC<EditCarViewProps> = ({ carId }) => {
           <div className="space-y-2 md:col-span-2">
             <Label htmlFor="mileageInputPreference" aria-required="true">
               Preferencja wprowadzania przebiegu
-              <span aria-label="Pole wymagane" className="text-destructive ml-1">
-                *
-              </span>
             </Label>
             <Select
               value={formState.mileageInputPreference}
               onValueChange={(value) => {
-                handleFieldChange('mileageInputPreference', value);
+                // Read-only in edit mode
               }}
-              disabled={isSubmitting || isDeleting}
+              disabled={true}
             >
               <SelectTrigger
                 id="mileageInputPreference"
                 name="mileageInputPreference"
-                aria-invalid={!!formErrors.mileageInputPreference}
-                aria-describedby={
-                  formErrors.mileageInputPreference
-                    ? 'mileageInputPreference-error mileageInputPreference-help'
-                    : touchedFields.has('mileageInputPreference')
-                      ? 'mileageInputPreference-help'
-                      : undefined
-                }
-                aria-required="true"
-                className={
-                  touchedFields.has('mileageInputPreference') && formErrors.mileageInputPreference
-                    ? 'border-destructive'
-                    : ''
-                }
+                className="bg-muted text-muted-foreground opacity-100" // Ensure it looks readable but disabled
                 data-test-id="edit-car-mileage-preference-select"
               >
                 <SelectValue placeholder="Wybierz preferencję" />
@@ -188,19 +172,9 @@ const EditCarView: React.FC<EditCarViewProps> = ({ carId }) => {
                 <SelectItem value="distance">Przejechany dystans</SelectItem>
               </SelectContent>
             </Select>
-            <p id="mileageInputPreference-help" className="sr-only">
-              Wybierz jak będziesz wprowadzać przebieg: stan licznika lub przejechany dystans
+            <p className="text-xs text-muted-foreground mt-1">
+              Wybrany sposób wprowadzania przebiegu jest przypisany do samochodu na stałe i nie może zostać zmieniony.
             </p>
-            {touchedFields.has('mileageInputPreference') && formErrors.mileageInputPreference && (
-              <p
-                id="mileageInputPreference-error"
-                className="text-sm text-destructive mt-1"
-                role="alert"
-                aria-live="polite"
-              >
-                {formErrors.mileageInputPreference}
-              </p>
-            )}
           </div>
 
           {/* Submit error message */}

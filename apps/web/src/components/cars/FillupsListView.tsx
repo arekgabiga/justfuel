@@ -77,15 +77,15 @@ export const FillupsListView: React.FC<FillupsListViewProps> = ({
         // Assuming fillups are sorted by date DESC (newest first)
         // Check if NEXT fillup (older) has specific relationship
         let isOdometerInvalid = false;
-        
+
         // We can only validate if we have a next item
         if (index < fillups.length - 1) {
           const olderFillup = fillups[index + 1];
           // If current odometer is defined AND older odometer is defined
           if (
-            fillup.odometer !== null && 
-            fillup.odometer !== undefined && 
-            olderFillup.odometer !== null && 
+            fillup.odometer !== null &&
+            fillup.odometer !== undefined &&
+            olderFillup.odometer !== null &&
             olderFillup.odometer !== undefined
           ) {
             // It is invalid if current (newer) < older

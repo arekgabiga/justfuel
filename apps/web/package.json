@@ -20,8 +20,8 @@
   "dependencies": {
     "@astrojs/react": "^4.3.1",
     "@astrojs/sitemap": "^3.5.1",
-    "@justfuel/shared": "*",
     "@astrojs/vercel": "^9.0.2",
+    "@justfuel/shared": "*",
     "@radix-ui/react-label": "^2.1.7",
     "@radix-ui/react-select": "^2.2.6",
     "@radix-ui/react-slot": "^1.1.2",
@@ -60,7 +60,7 @@
     "eslint-plugin-import": "2.31.0",
     "eslint-plugin-jsx-a11y": "6.10.2",
     "eslint-plugin-prettier": "5.2.5",
-    "eslint-plugin-react": "7.37.4",
+    "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-compiler": "19.0.0-beta-aeaed83-20250323",
     "eslint-plugin-react-hooks": "5.2.0",
     "husky": "9.1.7",

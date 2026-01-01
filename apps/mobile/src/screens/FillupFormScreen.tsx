@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, Alert, Platform, TouchableOpacity } from 'react-native';
-import { TextInput, Button, HelperText, useTheme } from 'react-native-paper';
+import { TextInput, Button, HelperText, useTheme, ActivityIndicator } from 'react-native-paper';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { FillupRepository } from '../database/FillupRepository';
 import { CarRepository } from '../database/CarRepository';
@@ -39,6 +39,8 @@ export default function FillupFormScreen() {
   const [loading, setLoading] = useState(false);
   const [lastFillup, setLastFillup] = useState<Fillup | null>(null);
 
+  const [initializing, setInitializing] = useState(true);
+
   React.useEffect(() => {
     if (fillup) {
       navigation.setOptions({ title: 'Edytuj tankowanie' });
@@ -56,6 +58,8 @@ export default function FillupFormScreen() {
         setLastFillup(previousFillup);
       } catch (e) {
         console.error('Failed to load data', e);
+      } finally {
+        setInitializing(false);
       }
     }
     loadData();
@@ -236,6 +240,10 @@ export default function FillupFormScreen() {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      {initializing ? (
+        <ActivityIndicator style={styles.loader} animating={true} size="large" />
+      ) : (
+        <>
       <TouchableOpacity onPress={toggleDatePicker} testID="date-picker-trigger">
         <TextInput
           label="Data"
@@ -344,6 +352,8 @@ export default function FillupFormScreen() {
           Usuń tankowanie
         </Button>
       )}
+      </>
+      )}
     </ScrollView>
   );
 }
@@ -352,6 +362,10 @@ const styles = StyleSheet.create({
   container: {
     padding: 16,
     paddingBottom: 40,
+    flexGrow: 1,
+  },
+  loader: {
+    marginTop: 40,
   },
   input: {
     marginTop: 8,
