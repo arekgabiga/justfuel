@@ -384,25 +384,30 @@ export default function CarDetailsScreen({ route }: CarDetailsScreenProps) {
                 {...panResponder.panHandlers}
             >
                 <View style={styles.modalHandle} />
-                <Text variant="headlineSmall" style={styles.modalTitle}>Opcje pojazdu</Text>
+                <Text style={styles.sectionHeader}>POJAZD</Text>
                 
                 <List.Item 
-                    title="Edytuj pojazd" 
+                    title="Edytuj" 
                     titleStyle={{ color: theme.colors.onSurface }}
                     left={props => <List.Icon {...props} icon="pencil" color={theme.colors.primary} />} 
                     onPress={handleEdit} 
                 />
+
+                <Text style={styles.sectionHeader}>HISTORIA TANKOWAŃ</Text>
+
                 <List.Item 
                     title="Eksportuj (CSV)" 
-                    left={props => <List.Icon {...props} icon="file-export" color={theme.colors.primary} />} 
+                    left={props => <List.Icon {...props} icon="file-upload-outline" color={theme.colors.primary} />} 
                     onPress={handleExport} 
                 />
                 <List.Item 
                     title="Importuj (CSV)" 
-                    left={props => <List.Icon {...props} icon="file-import" color={theme.colors.primary} />} 
+                    left={props => <List.Icon {...props} icon="file-download-outline" color={theme.colors.primary} />} 
                     onPress={handleImport} 
                 />
+                
                 <Divider style={styles.divider} />
+                
                 <List.Item 
                     title="Usuń pojazd" 
                     titleStyle={{color: theme.colors.error}}
@@ -457,10 +462,10 @@ const styles = StyleSheet.create({
   },
   menuCard: {
       backgroundColor: 'white',
-      padding: 24,
-      paddingTop: 12,
-      margin: 12,
-      borderRadius: 28,
+      paddingVertical: 12,
+      paddingHorizontal: 8, // Further reduced from 16 to 8
+      margin: 8,
+      borderRadius: 28, // Material 3 style
       borderTopLeftRadius: 28,
       borderTopRightRadius: 28,
       // Shadow for elevation
@@ -478,6 +483,15 @@ const styles = StyleSheet.create({
       marginBottom: 16,
       fontWeight: 'bold',
       marginLeft: 8, // Align with list items text approx
+  },
+  sectionHeader: {
+      fontSize: 12,
+      color: '#666',
+      fontWeight: 'bold',
+      marginLeft: 16,
+      marginBottom: 4,
+      marginTop: 8,
+      letterSpacing: 0.5,
   },
   modalHandle: {
       width: 32,
