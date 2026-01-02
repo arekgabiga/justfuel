@@ -56,12 +56,7 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
 
         const token = authToken || cookieToken || devToken;
 
-        console.log('[useEditCarForm] Auth tokens:', {
-          localStorage_auth_token: authToken ? 'exists' : 'missing',
-          cookie_auth_token: cookieToken ? 'exists' : 'missing',
-          localStorage_dev_token: devToken ? 'exists' : 'missing',
-          final_token: token ? `${token.substring(0, 20)}...` : 'missing',
-        });
+
 
         // Build headers - only include Authorization if we have a valid token
         const headers: Record<string, string> = {
@@ -77,7 +72,7 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
           headers,
         });
 
-        console.log('[useEditCarForm] API response:', response.status, response.statusText);
+
 
         if (!response.ok) {
           if (response.status === 401) {
@@ -104,7 +99,7 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
         }
 
         const carData: CarDetailsDTO = await response.json();
-        console.log('[useEditCarForm] Car loaded:', carData?.name);
+
 
         setOriginalCarData(carData);
         setFormState({
@@ -363,12 +358,7 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
           headers.Authorization = `Bearer ${token}`;
         }
 
-        console.log('[useEditCarForm] Sending PATCH request to:', `/api/cars/${carId}`);
-        console.log('[useEditCarForm] Request body:', requestBody);
-        console.log('[useEditCarForm] Headers:', {
-          ...headers,
-          Authorization: headers.Authorization ? '***' : undefined,
-        });
+
 
         // API call with timeout
         const fetchRequest = abortableFetch(`/api/cars/${carId}`, {
@@ -381,7 +371,7 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
 
         const response = await fetchRequest.ready;
 
-        console.log('[useEditCarForm] PATCH API response:', response.status, response.statusText);
+
 
         if (!response.ok) {
           let errorData: ErrorResponseDTO | undefined;
@@ -552,8 +542,7 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
           headers.Authorization = `Bearer ${token}`;
         }
 
-        console.log('[useEditCarForm] Sending DELETE request to:', `/api/cars/${carId}`);
-        console.log('[useEditCarForm] Request body:', data);
+
 
         // API call with timeout
         const fetchRequest = abortableFetch(`/api/cars/${carId}`, {
@@ -566,7 +555,7 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
 
         const response = await fetchRequest.ready;
 
-        console.log('[useEditCarForm] DELETE API response:', response.status, response.statusText);
+
 
         if (!response.ok) {
           let errorData: ErrorResponseDTO | undefined;
