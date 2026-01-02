@@ -13,6 +13,7 @@ describe('useEditCarForm', () => {
   const mockCarData = {
     id: carId,
     name: 'Test Car',
+    initial_odometer: 1000,
     mileage_input_preference: 'odometer',
   };
 
@@ -29,6 +30,7 @@ describe('useEditCarForm', () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+    vi.useRealTimers();
   });
 
   describe('Initialization', () => {
@@ -50,6 +52,7 @@ describe('useEditCarForm', () => {
 
       expect(result.current.formState).toEqual({
         name: 'Test Car',
+        initialOdometer: 1000,
         mileageInputPreference: 'odometer',
       });
       expect(result.current.originalCarData).toEqual(mockCarData);
@@ -141,6 +144,34 @@ describe('useEditCarForm', () => {
       // expect(window.location.href).toBe(`/cars/${carId}`);
       expect(navigateTo).toHaveBeenCalledWith(`/cars/${carId}`);
 
+      vi.useRealTimers();
+    });
+
+    it('should submit initial odometer change', async () => {
+      const { result } = renderHook(() => useEditCarForm({ carId }));
+      await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+      vi.useFakeTimers();
+      const event = { preventDefault: vi.fn() } as unknown as React.FormEvent;
+
+      act(() => {
+        result.current.handleFieldChange('initialOdometer', '2000');
+      });
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({ ...mockCarData, initial_odometer: 2000 }),
+      });
+
+      await act(async () => {
+        await result.current.handleSubmit(event);
+      });
+
+      expect(mockFetch).toHaveBeenCalledTimes(2);
+      const updateCall = mockFetch.mock.calls[1];
+      expect(JSON.parse(updateCall[1].body)).toEqual({ initial_odometer: 2000 });
+      
       vi.useRealTimers();
     });
   });

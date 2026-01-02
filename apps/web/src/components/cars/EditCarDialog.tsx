@@ -14,6 +14,7 @@ interface EditCarDialogProps {
 
 export const EditCarDialog: React.FC<EditCarDialogProps> = ({ car, isOpen, onUpdate, onCancel }) => {
   const [name, setName] = useState(car.name);
+  const [initialOdometer, setInitialOdometer] = useState(car.initial_odometer ?? 0);
   const [mileagePreference, setMileagePreference] = useState<'odometer' | 'distance'>(
     car.mileage_input_preference as 'odometer' | 'distance'
   );
@@ -28,6 +29,7 @@ export const EditCarDialog: React.FC<EditCarDialogProps> = ({ car, isOpen, onUpd
     try {
       await onUpdate({
         name,
+        initial_odometer: initialOdometer,
         mileage_input_preference: mileagePreference,
       });
     } catch (err) {
@@ -52,6 +54,19 @@ export const EditCarDialog: React.FC<EditCarDialogProps> = ({ car, isOpen, onUpd
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
+              required
+              className="mt-1"
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="initialOdometer">Początkowy stan licznika</Label>
+            <Input
+              id="initialOdometer"
+              type="number"
+              min="0"
+              value={initialOdometer}
+              onChange={(e) => setInitialOdometer(parseInt(e.target.value) || 0)}
               required
               className="mt-1"
             />

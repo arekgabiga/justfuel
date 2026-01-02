@@ -6,11 +6,13 @@ const REQUEST_TIMEOUT = 10000; // 10 seconds
 
 interface EditCarFormState {
   name: string;
+  initialOdometer: number;
   mileageInputPreference: 'odometer' | 'distance';
 }
 
 interface EditCarFormErrors {
   name?: string;
+  initialOdometer?: string;
   mileageInputPreference?: string;
   submit?: string;
 }
@@ -27,6 +29,7 @@ interface UseEditCarFormProps {
 export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
   const [formState, setFormState] = useState<EditCarFormState>({
     name: '',
+    initialOdometer: 0,
     mileageInputPreference: 'odometer',
   });
 
@@ -104,6 +107,7 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
         setOriginalCarData(carData);
         setFormState({
           name: carData.name,
+          initialOdometer: carData.initial_odometer ?? 0,
           mileageInputPreference: carData.mileage_input_preference as 'odometer' | 'distance',
         });
         setIsLoading(false);
@@ -149,6 +153,18 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
     if (preference !== 'odometer' && preference !== 'distance') {
       return 'Wybierz preferencję wprowadzania przebiegu';
     }
+    return undefined;
+  }, []);
+
+  const validateInitialOdometer = useCallback((value: unknown): string | undefined => {
+    const num = Number(value);
+    // Allow empty string as valid input during typing, but transform to 0 or check required on submit?
+    // Actually input type="number" returns empty string if invalid.
+    if (value === '' || value === undefined) return undefined;
+    
+    if (isNaN(num)) return 'Początkowy stan licznika musi być liczbą';
+    if (num < 0) return 'Początkowy stan licznika nie może być ujemny';
+    if (!Number.isInteger(num)) return 'Początkowy stan licznika musi być liczbą całkowitą';
     return undefined;
   }, []);
 
@@ -215,6 +231,8 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
         error = validateName(value as string);
       } else if (field === 'mileageInputPreference') {
         error = validateMileagePreference(value as string);
+      } else if (field === 'initialOdometer') {
+        error = validateInitialOdometer(value);
       }
 
       setFormErrors((prev) => {
@@ -227,17 +245,22 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
 
       return !error;
     },
-    [formState, validateName, validateMileagePreference]
+    [formState, validateName, validateMileagePreference, validateInitialOdometer]
   );
 
   // Validate all fields
   const validateAllFields = useCallback((): boolean => {
     const nameValid = validateField('name');
+    const odometerValid = validateField('initialOdometer');
     const preferenceValid = validateField('mileageInputPreference');
 
     // Focus first invalid field
     if (!nameValid) {
       nameInputRef.current?.focus();
+      return false;
+    }
+    if (!odometerValid) {
+      // We don't have ref for odometer yet, but validation failed
       return false;
     }
     if (!preferenceValid) {
@@ -253,6 +276,7 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
 
     return (
       formState.name.trim() !== originalCarData.name ||
+      formState.initialOdometer !== (originalCarData.initial_odometer ?? 0) ||
       formState.mileageInputPreference !== originalCarData.mileage_input_preference
     );
   }, [formState, originalCarData]);
@@ -260,7 +284,13 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
   // Handle field change with real-time validation
   const handleFieldChange = useCallback(
     (field: keyof EditCarFormState, value: string) => {
-      const newState = { ...formState, [field]: value };
+      let parsedValue: string | number = value;
+      if (field === 'initialOdometer') {
+        const num = parseInt(value, 10);
+        parsedValue = isNaN(num) ? 0 : num;
+      }
+      
+      const newState = { ...formState, [field]: parsedValue };
       setFormState(newState);
       setTouchedFields((prev) => new Set(prev).add(field));
 
@@ -343,6 +373,11 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
           hasAnyChanges = true;
         }
 
+        if (formState.initialOdometer !== (originalCarData?.initial_odometer ?? 0)) {
+          requestBody.initial_odometer = formState.initialOdometer;
+          hasAnyChanges = true;
+        }
+
         if (!hasAnyChanges) {
           setFormErrors({ submit: 'Nie wprowadzono żadnych zmian' });
           setIsSubmitting(false);
@@ -398,6 +433,9 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
               }
               if (issues.toLowerCase().includes('preference') || issues.toLowerCase().includes('mileage')) {
                 errors.mileageInputPreference = 'Nieprawidłowa preferencja';
+              }
+              if (issues.toLowerCase().includes('initial_odometer')) {
+                errors.initialOdometer = 'Nieprawidłowy początkowy stan licznika';
               }
             }
 

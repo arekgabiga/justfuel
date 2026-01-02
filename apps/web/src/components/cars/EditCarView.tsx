@@ -66,6 +66,7 @@ const EditCarView: React.FC<EditCarViewProps> = ({ carId }) => {
   // Check if there are changes in the form
   const hasChanges = originalCarData
     ? formState.name.trim() !== originalCarData.name ||
+      formState.initialOdometer !== (originalCarData.initial_odometer ?? 0) ||
       formState.mileageInputPreference !== originalCarData.mileage_input_preference
     : false;
 
@@ -143,6 +144,43 @@ const EditCarView: React.FC<EditCarViewProps> = ({ carId }) => {
             {touchedFields.has('name') && formErrors.name && (
               <p id="name-error" className="text-sm text-destructive mt-1" role="alert" aria-live="polite">
                 {formErrors.name}
+              </p>
+            )}
+          </div>
+
+          {/* Initial Odometer field */}
+          <div className="space-y-2 md:col-span-2">
+            <Label htmlFor="initialOdometer" aria-required="true">
+              Początkowy stan licznika
+              <span aria-label="Pole wymagane" className="text-destructive ml-1">
+                *
+              </span>
+            </Label>
+            <Input
+              id="initialOdometer"
+              name="initialOdometer"
+              type="number"
+              min="0"
+              value={formState.initialOdometer}
+              onChange={(e) => handleFieldChange('initialOdometer', e.target.value)}
+              onBlur={() => handleFieldBlur('initialOdometer')}
+              placeholder="0"
+              aria-invalid={touchedFields.has('initialOdometer') && !!formErrors.initialOdometer}
+              aria-describedby={
+                touchedFields.has('initialOdometer') && formErrors.initialOdometer
+                  ? 'odometer-error'
+                  : undefined
+              }
+              aria-required="true"
+              autoComplete="off"
+              disabled={isSubmitting || isDeleting}
+              className={touchedFields.has('initialOdometer') && formErrors.initialOdometer ? 'border-destructive' : ''}
+              data-test-id="edit-car-initial-odometer-input"
+              required
+            />
+            {touchedFields.has('initialOdometer') && formErrors.initialOdometer && (
+              <p id="odometer-error" className="text-sm text-destructive mt-1" role="alert" aria-live="polite">
+                {formErrors.initialOdometer}
               </p>
             )}
           </div>
