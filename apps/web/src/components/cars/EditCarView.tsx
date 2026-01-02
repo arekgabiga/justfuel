@@ -167,9 +167,7 @@ const EditCarView: React.FC<EditCarViewProps> = ({ carId }) => {
               placeholder="0"
               aria-invalid={touchedFields.has('initialOdometer') && !!formErrors.initialOdometer}
               aria-describedby={
-                touchedFields.has('initialOdometer') && formErrors.initialOdometer
-                  ? 'odometer-error'
-                  : undefined
+                touchedFields.has('initialOdometer') && formErrors.initialOdometer ? 'odometer-error' : undefined
               }
               aria-required="true"
               autoComplete="off"

@@ -59,8 +59,6 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
 
         const token = authToken || cookieToken || devToken;
 
-
-
         // Build headers - only include Authorization if we have a valid token
         const headers: Record<string, string> = {
           'Content-Type': 'application/json',
@@ -74,8 +72,6 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
           method: 'GET',
           headers,
         });
-
-
 
         if (!response.ok) {
           if (response.status === 401) {
@@ -102,7 +98,6 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
         }
 
         const carData: CarDetailsDTO = await response.json();
-
 
         setOriginalCarData(carData);
         setFormState({
@@ -161,7 +156,7 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
     // Allow empty string as valid input during typing, but transform to 0 or check required on submit?
     // Actually input type="number" returns empty string if invalid.
     if (value === '' || value === undefined) return undefined;
-    
+
     if (isNaN(num)) return 'Początkowy stan licznika musi być liczbą';
     if (num < 0) return 'Początkowy stan licznika nie może być ujemny';
     if (!Number.isInteger(num)) return 'Początkowy stan licznika musi być liczbą całkowitą';
@@ -289,7 +284,7 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
         const num = parseInt(value, 10);
         parsedValue = isNaN(num) ? 0 : num;
       }
-      
+
       const newState = { ...formState, [field]: parsedValue };
       setFormState(newState);
       setTouchedFields((prev) => new Set(prev).add(field));
@@ -393,8 +388,6 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
           headers.Authorization = `Bearer ${token}`;
         }
 
-
-
         // API call with timeout
         const fetchRequest = abortableFetch(`/api/cars/${carId}`, {
           method: 'PATCH',
@@ -405,8 +398,6 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
         abortController = fetchRequest.abort;
 
         const response = await fetchRequest.ready;
-
-
 
         if (!response.ok) {
           let errorData: ErrorResponseDTO | undefined;
@@ -580,8 +571,6 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
           headers.Authorization = `Bearer ${token}`;
         }
 
-
-
         // API call with timeout
         const fetchRequest = abortableFetch(`/api/cars/${carId}`, {
           method: 'DELETE',
@@ -592,8 +581,6 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
         abortController = fetchRequest.abort;
 
         const response = await fetchRequest.ready;
-
-
 
         if (!response.ok) {
           let errorData: ErrorResponseDTO | undefined;

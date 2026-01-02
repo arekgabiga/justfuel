@@ -1192,7 +1192,7 @@ export async function getAllFillups(supabase: AppSupabaseClient, userId: string,
 /**
  * Recalculates distance and fuel consumption for all fillups of a car.
  * Used when initial_odometer is updated or when chain consistency needs to be restored.
- * 
+ *
  * @param supabase - Supabase client instance
  * @param carId - ID of the car
  * @param initialOdometer - The car's initial odometer value

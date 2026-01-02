@@ -685,12 +685,12 @@ describe('cars.service', () => {
     it('should trigger fillup recalculation when initial_odometer changes', async () => {
       // Arrange
       const input: UpdateCarCommand = { initial_odometer: 10200 };
-      const existingCar = { 
-        id: carId, 
-        name: 'Audi A4', 
-        user_id: userId, 
-        initial_odometer: 10000, 
-        mileage_input_preference: 'odometer' 
+      const existingCar = {
+        id: carId,
+        name: 'Audi A4',
+        user_id: userId,
+        initial_odometer: 10000,
+        mileage_input_preference: 'odometer',
       };
       const updatedCar = {
         id: carId,
@@ -700,13 +700,13 @@ describe('cars.service', () => {
         created_at: '2024-01-01T00:00:00Z',
       };
       const mockFillups = [
-        { id: 'f1', odometer: 10500, fuel_amount: 50, total_price: 300, distance_traveled: 500, fuel_consumption: 10 }
+        { id: 'f1', odometer: 10500, fuel_amount: 50, total_price: 300, distance_traveled: 500, fuel_consumption: 10 },
       ];
 
       let recalculateCalled = false;
 
       vi.mocked(mockSupabase.from).mockImplementation((table: string) => {
-        const calls = vi.mocked(mockSupabase.from).mock.calls.filter(c => c[0] === table).length;
+        const calls = vi.mocked(mockSupabase.from).mock.calls.filter((c) => c[0] === table).length;
 
         if (table === 'cars') {
           // First call: fetch existing car

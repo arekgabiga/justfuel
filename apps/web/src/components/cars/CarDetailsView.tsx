@@ -113,8 +113,8 @@ export const CarDetailsView: React.FC<CarDetailsViewProps> = ({ carId }) => {
 
     const text = await file.text();
 
-    const parseResult = await parseCsv(text, { 
-      mileage_input_preference: car.mileage_input_preference as 'odometer' | 'distance'
+    const parseResult = await parseCsv(text, {
+      mileage_input_preference: car.mileage_input_preference as 'odometer' | 'distance',
     });
     const validationErrors = validateImportAgainstCar(parseResult.fillups, car);
 

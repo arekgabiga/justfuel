@@ -171,7 +171,7 @@ describe('useEditCarForm', () => {
       expect(mockFetch).toHaveBeenCalledTimes(2);
       const updateCall = mockFetch.mock.calls[1];
       expect(JSON.parse(updateCall[1].body)).toEqual({ initial_odometer: 2000 });
-      
+
       vi.useRealTimers();
     });
   });
