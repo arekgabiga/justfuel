@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { View, FlatList, StyleSheet, TouchableOpacity, Alert } from 'react-native';
-import { Text, FAB, Card, useTheme, Divider, ActivityIndicator, Menu, Appbar } from 'react-native-paper';
+import { Text, FAB, Card, useTheme, Divider, ActivityIndicator, Modal, Portal, Appbar, List } from 'react-native-paper';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FillupRepository } from '../database/FillupRepository';
@@ -12,9 +12,6 @@ import { saveLastActiveCarId } from '../utils/storage';
 import { CarDetailsScreenProps, RootStackNavigationProp } from '../navigation/types';
 import * as Sharing from 'expo-sharing';
 // Using legacy API as per Expo SDK 52+ deprecation warning for writeAsStringAsync
-// The error message explicitly suggests importing from "expo-file-system/legacy"
-// We cast to 'any' initially if types are missing, or rely on standard types if they support it.
-// However, the cleanest way based on the error is:
 import * as FileSystem from 'expo-file-system/legacy';
 import * as DocumentPicker from 'expo-document-picker';
 import { generateCsv, parseCsv, validateImportAgainstCar } from '@justfuel/shared';
@@ -35,10 +32,12 @@ export default function CarDetailsScreen({ route }: CarDetailsScreenProps) {
   const [car, setCar] = useState<Car | null>(null);
   const [activeTab, setActiveTab] = useState<'fillups' | 'charts'>('fillups');
   const [loading, setLoading] = useState(true);
-  const [menuVisible, setMenuVisible] = useState(false);
 
-  const openMenu = () => setMenuVisible(true);
-  const closeMenu = () => setMenuVisible(false);
+  // --- PAPER BOTTOM SHEET START ---
+  const [menuVisible, setMenuVisible] = useState(false);
+  const showMenu = useCallback(() => setMenuVisible(true), []);
+  const hideMenu = useCallback(() => setMenuVisible(false), []);
+  // --- PAPER BOTTOM SHEET END ---
 
   const loadData = useCallback(async () => {
     try {
@@ -57,14 +56,14 @@ export default function CarDetailsScreen({ route }: CarDetailsScreenProps) {
   }, [carId]);
 
   const handleEdit = useCallback(() => {
-    closeMenu();
+    hideMenu();
     if (car) {
       navigation.navigate('AddCar', { car });
     }
   }, [car, navigation]);
 
   const handleExport = useCallback(async () => {
-    closeMenu();
+    hideMenu();
     try {
       setLoading(true);
       const csvData = generateCsv(fillups);
@@ -87,7 +86,7 @@ export default function CarDetailsScreen({ route }: CarDetailsScreenProps) {
   }, [fillups, carName]);
 
   const handleImport = useCallback(async () => {
-    closeMenu();
+    hideMenu();
     try {
         const result = await DocumentPicker.getDocumentAsync({ type: ['text/csv', 'text/comma-separated-values', 'application/csv'] });
         
@@ -110,8 +109,6 @@ export default function CarDetailsScreen({ route }: CarDetailsScreenProps) {
              return;
         }
 
-        // Validate against Car Config
-        // We cast car to match expected type because shared/types CarDTO vs mobile/types Car might differ slightly but structure is key
         const configErrors = validateImportAgainstCar(parsedFillups, { mileage_input_preference: car.mileage_input_preference });
         if (configErrors.length > 0) {
              Alert.alert('Błąd Konfiguracji', `Dane niezgodne z ustawieniami auta:\n${configErrors.map(e => `Wiersz ${e.row}: ${e.message}`).join('\n')}`);
@@ -119,9 +116,7 @@ export default function CarDetailsScreen({ route }: CarDetailsScreenProps) {
              return;
         }
 
-        // Preview Logic
         const newCount = parsedFillups.length;
-        const replaceCount = uniqueDates.length; // Approximation of "batches" to replace. Ideally we check DB overlap.
         
         Alert.alert(
             'Potwierdzenie Importu',
@@ -134,7 +129,7 @@ export default function CarDetailsScreen({ route }: CarDetailsScreenProps) {
                         try {
                            await FillupRepository.batchImportFillups(carId, parsedFillups);
                            Alert.alert('Sukces', 'Dane zaimportowane pomyślnie.');
-                           loadData(); // Reload
+                           loadData(); 
                         } catch (e) {
                            console.error(e);
                            Alert.alert('Błąd', 'Import nie powiódł się.');
@@ -153,7 +148,7 @@ export default function CarDetailsScreen({ route }: CarDetailsScreenProps) {
   }, [car, carId, loadData]);
 
   const handleDelete = useCallback(() => {
-    closeMenu();
+    hideMenu();
     Alert.alert(
       'Usuń samochód',
       'Czy na pewno chcesz usunąć ten samochód i wszystkie jego tankowania? Tej operacji nie można cofnąć.',
@@ -170,7 +165,7 @@ export default function CarDetailsScreen({ route }: CarDetailsScreenProps) {
             } catch (e) {
               console.error(e);
               Alert.alert('Błąd', 'Nie udało się usunąć samochodu.');
-              setLoading(false); // Restore state if failed
+              setLoading(false); 
             }
           },
         },
@@ -178,23 +173,19 @@ export default function CarDetailsScreen({ route }: CarDetailsScreenProps) {
     );
   }, [carId, navigation]);
 
+  // --- Native Header Config ---
   React.useLayoutEffect(() => {
     navigation.setOptions({
+      headerShown: true, // Re-enable native header
       headerRight: () => (
-        <Menu
-          visible={menuVisible}
-          onDismiss={closeMenu}
-          anchor={<Appbar.Action icon="dots-vertical" onPress={openMenu} testID="menu-action" />}
-        >
-          <Menu.Item onPress={handleEdit} title="Edytuj" leadingIcon="pencil" />
-          <Menu.Item onPress={handleExport} title="Eksportuj (CSV)" leadingIcon="export" />
-          <Menu.Item onPress={handleImport} title="Importuj (CSV)" leadingIcon="import" />
-          <Divider />
-          <Menu.Item onPress={handleDelete} title="Usuń" leadingIcon="delete" />
-        </Menu>
+        <Appbar.Action 
+            icon="dots-vertical" 
+            onPress={showMenu} 
+            testID="menu-action"
+        />
       ),
     });
-  }, [navigation, menuVisible, handleEdit, handleDelete]);
+  }, [navigation, showMenu]);
 
   useFocusEffect(
     useCallback(() => {
@@ -203,12 +194,9 @@ export default function CarDetailsScreen({ route }: CarDetailsScreenProps) {
   );
 
   const renderFillupItem = ({ item, index }: { item: Fillup; index: number }) => {
-    // Check consistency with the previous fillup (which is next in the list sorted DESC)
     let isInvalid = false;
     if (index < fillups.length - 1) {
       const olderFillup = fillups[index + 1];
-      // Check consistency with the previous fillup (which is next in the list sorted DESC)
-      // Only enforce this for Odometer preference, as Distance preference can have disconnected odometers due to calculation logic
       if (car?.mileage_input_preference !== 'distance' && item.odometer != null && olderFillup.odometer != null && item.odometer < olderFillup.odometer) {
         isInvalid = true;
       }
@@ -218,22 +206,14 @@ export default function CarDetailsScreen({ route }: CarDetailsScreenProps) {
       if (avg === undefined) return theme.colors.onSurface;
       const deviation = getConsumptionDeviation(consumption, avg);
       switch (deviation) {
-        case ConsumptionDeviation.EXTREMELY_LOW:
-          return '#166534'; // Green 800
-        case ConsumptionDeviation.VERY_LOW:
-          return '#16a34a'; // Green 600
-        case ConsumptionDeviation.LOW:
-          return '#65a30d'; // Lime 600
-        case ConsumptionDeviation.NEUTRAL:
-          return '#ca8a04'; // Yellow 600
-        case ConsumptionDeviation.HIGH:
-          return '#ea580c'; // Orange 600
-        case ConsumptionDeviation.VERY_HIGH:
-          return '#dc2626'; // Red 600
-        case ConsumptionDeviation.EXTREMELY_HIGH:
-          return '#991b1b'; // Red 800
-        default:
-          return theme.colors.onSurface;
+        case ConsumptionDeviation.EXTREMELY_LOW: return '#166534';
+        case ConsumptionDeviation.VERY_LOW: return '#16a34a';
+        case ConsumptionDeviation.LOW: return '#65a30d';
+        case ConsumptionDeviation.NEUTRAL: return '#ca8a04';
+        case ConsumptionDeviation.HIGH: return '#ea580c';
+        case ConsumptionDeviation.VERY_HIGH: return '#dc2626';
+        case ConsumptionDeviation.EXTREMELY_HIGH: return '#991b1b';
+        default: return theme.colors.onSurface;
       }
     };
 
@@ -257,22 +237,16 @@ export default function CarDetailsScreen({ route }: CarDetailsScreenProps) {
         <Divider />
         <Card.Content style={styles.cardContent}>
           <View style={styles.statCol}>
-            <Text variant="bodySmall" style={styles.label}>
-              Spalanie
-            </Text>
+            <Text variant="bodySmall" style={styles.label}>Spalanie</Text>
             {typeof item.fuel_consumption === 'number' ? (
               <>
                 <Text variant="titleLarge" style={{ fontWeight: 'bold', color: consumptionColor }}>
                   {item.fuel_consumption.toFixed(2)}
                 </Text>
-                <Text variant="labelSmall" style={{ color: consumptionColor, marginTop: -4 }}>
-                  L/100km
-                </Text>
+                <Text variant="labelSmall" style={{ color: consumptionColor, marginTop: -4 }}>L/100km</Text>
               </>
             ) : (
-              <Text variant="titleMedium" style={{ fontWeight: 'bold', color: theme.colors.onSurfaceDisabled }}>
-                -
-              </Text>
+              <Text variant="titleMedium" style={{ fontWeight: 'bold', color: theme.colors.onSurfaceDisabled }}>-</Text>
             )}
           </View>
 
@@ -281,25 +255,17 @@ export default function CarDetailsScreen({ route }: CarDetailsScreenProps) {
               {car?.mileage_input_preference === 'distance' ? 'Dystans' : 'Przebieg'}
             </Text>
             <Text variant="titleMedium" style={{ fontWeight: 'bold' }}>
-              {car?.mileage_input_preference === 'distance'
-                ? item.distance_traveled ?? '-'
-                : item.odometer ?? '-'}
+              {car?.mileage_input_preference === 'distance' ? item.distance_traveled ?? '-' : item.odometer ?? '-'}
             </Text>
-            <Text variant="labelSmall" style={{ marginTop: -2 }}>
-              km
-            </Text>
+            <Text variant="labelSmall" style={{ marginTop: -2 }}>km</Text>
           </View>
 
           <View style={styles.statCol}>
-            <Text variant="bodySmall" style={styles.label}>
-              Cena
-            </Text>
+            <Text variant="bodySmall" style={styles.label}>Cena</Text>
             <Text variant="titleMedium" style={{ fontWeight: 'bold' }}>
               {item.price_per_liter?.toFixed(2) ?? '-'}
             </Text>
-            <Text variant="labelSmall" style={{ marginTop: -2 }}>
-              zł/L
-            </Text>
+            <Text variant="labelSmall" style={{ marginTop: -2 }}>zł/L</Text>
           </View>
         </Card.Content>
       </Card>
@@ -316,6 +282,7 @@ export default function CarDetailsScreen({ route }: CarDetailsScreenProps) {
 
   return (
     <View style={styles.container}>
+
       {/* Tabs */}
       <View style={styles.tabContainer}>
         <TouchableOpacity
@@ -334,12 +301,11 @@ export default function CarDetailsScreen({ route }: CarDetailsScreenProps) {
 
       {activeTab === 'fillups' ? (
         <React.Fragment>
-          {/* Fillups List */}
           <FlatList
           style={{ flex: 1 }}
           data={fillups}
-          extraData={fillups} // Force re-render when the array changes, important for relative checks (index+1)
-          removeClippedSubviews={false} // Prevent blank views issues on Android
+          extraData={fillups} 
+          removeClippedSubviews={false} 
           keyExtractor={(item) => item.id}
           renderItem={renderFillupItem}
           contentContainerStyle={[styles.listContent, { paddingBottom: 140 }]}
@@ -353,6 +319,42 @@ export default function CarDetailsScreen({ route }: CarDetailsScreenProps) {
       ) : (
         <ChartsTab fillups={fillups} />
       )}
+
+      {/* --- BOTTOM SHEET MODAL --- */}
+      <Portal>
+        <Modal 
+            visible={menuVisible} 
+            onDismiss={hideMenu} 
+            contentContainerStyle={[styles.modalContent, { paddingBottom: insets.bottom + 20 }]}
+        >
+            <View style={styles.modalHandle} />
+            <Text variant="titleMedium" style={styles.modalTitle}>Opcje pojazdu</Text>
+            <Divider style={styles.divider} />
+            
+            <List.Item 
+                title="Edytuj" 
+                left={props => <List.Icon {...props} icon="pencil" />} 
+                onPress={handleEdit} 
+            />
+            <List.Item 
+                title="Eksportuj (CSV)" 
+                left={props => <List.Icon {...props} icon="export" />} 
+                onPress={handleExport} 
+            />
+            <List.Item 
+                title="Importuj (CSV)" 
+                left={props => <List.Icon {...props} icon="import" />} 
+                onPress={handleImport} 
+            />
+            <Divider style={styles.divider} />
+            <List.Item 
+                title="Usuń" 
+                titleStyle={{color: theme.colors.error}}
+                left={props => <List.Icon {...props} color={theme.colors.error} icon="delete" />} 
+                onPress={handleDelete} 
+            />
+        </Modal>
+      </Portal>
 
       {activeTab === 'fillups' && (
         <FAB
@@ -368,93 +370,54 @@ export default function CarDetailsScreen({ route }: CarDetailsScreenProps) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
+  container: { flex: 1, backgroundColor: '#f5f5f5' },
+  centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  tabContainer: { flexDirection: 'row', backgroundColor: 'white', elevation: 2 },
+  tab: { flex: 1, paddingVertical: 16, alignItems: 'center', borderBottomWidth: 2, borderBottomColor: 'transparent' },
+  activeTab: { borderBottomColor: '#0066CC' },
+  tabText: { fontSize: 16, color: '#666' },
+  activeTabText: { color: '#0066CC', fontWeight: 'bold' },
+  listContent: { padding: 16 },
+  card: { marginBottom: 12, backgroundColor: 'white', borderRadius: 12, elevation: 2, overflow: 'hidden', borderWidth: 1, borderColor: 'transparent' },
+  cardHeader: { paddingHorizontal: 16, paddingVertical: 12, backgroundColor: '#f9f9f9' },
+  cardContent: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 16 },
+  statCol: { alignItems: 'center', flex: 1 },
+  label: { color: '#888', marginBottom: 4, textTransform: 'uppercase', fontSize: 10, fontWeight: '600' },
+  row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  emptyState: { padding: 24, alignItems: 'center', justifyContent: 'center' },
+  chartContainer: { padding: 16 },
+  fab: { position: 'absolute', margin: 16, right: 0 },
+  invalidCard: { borderColor: '#dc2626' },
+  invalidCardHeader: { backgroundColor: '#fef2f2' },
+  // Bottom Sheet Styles
+  modalContent: {
+      backgroundColor: 'white',
+      padding: 20,
+      margin: 20,
+      borderRadius: 12,
+      position: 'absolute',
+      bottom: 0,
+      left: 0, 
+      right: 0,
+      marginHorizontal: 0,
+      marginBottom: 0,
+      borderTopLeftRadius: 24,
+      borderTopRightRadius: 24,
   },
-  centered: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+  modalTitle: {
+      textAlign: 'center',
+      marginBottom: 10,
+      fontWeight: 'bold',
   },
-  tabContainer: {
-    flexDirection: 'row',
-    backgroundColor: 'white',
-    elevation: 2,
+  modalHandle: {
+      width: 40,
+      height: 4,
+      backgroundColor: '#e0e0e0',
+      borderRadius: 2,
+      alignSelf: 'center',
+      marginBottom: 16,
   },
-  tab: {
-    flex: 1,
-    paddingVertical: 16,
-    alignItems: 'center',
-    borderBottomWidth: 2,
-    borderBottomColor: 'transparent',
-  },
-  activeTab: {
-    borderBottomColor: '#0066CC',
-  },
-  tabText: {
-    fontSize: 16,
-    color: '#666',
-  },
-  activeTabText: {
-    color: '#0066CC',
-    fontWeight: 'bold',
-  },
-  listContent: {
-    padding: 16,
-  },
-  card: {
-    marginBottom: 12,
-    backgroundColor: 'white',
-    borderRadius: 12,
-    elevation: 2,
-    overflow: 'hidden', // for header radius
-    borderWidth: 1,
-    borderColor: 'transparent',
-  },
-  cardHeader: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: '#f9f9f9',
-  },
-  cardContent: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 16,
-  },
-  statCol: {
-    alignItems: 'center',
-    flex: 1,
-  },
-  label: {
-    color: '#888',
-    marginBottom: 4,
-    textTransform: 'uppercase',
-    fontSize: 10,
-    fontWeight: '600',
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  emptyState: {
-    padding: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  chartContainer: {
-    padding: 16,
-  },
-  fab: {
-    position: 'absolute',
-    margin: 16,
-    right: 0,
-  },
-  invalidCard: {
-    borderColor: '#dc2626', // error color
-  },
-  invalidCardHeader: {
-    backgroundColor: '#fef2f2', // light red
-  },
+  divider: {
+      marginVertical: 4
+  }
 });
