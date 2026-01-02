@@ -1,4 +1,5 @@
 import React from 'react';
+import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer, InitialState } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { PaperProvider, MD3LightTheme } from 'react-native-paper';
@@ -87,6 +88,7 @@ export default function App() {
     <PaperProvider theme={theme}>
       <ErrorBoundary>
         <NavigationContainer initialState={initialState}>
+          <StatusBar style="dark" />
           <Stack.Navigator initialRouteName="CarList">
             <Stack.Screen name="CarList" component={CarListScreen} options={{ title: 'Moje Samochody' }} />
             <Stack.Screen name="AddCar" component={AddCarScreen} options={{ title: 'Dodaj Samochód' }} />
