@@ -128,26 +128,36 @@ export default function CarDetailsScreen({ route }: CarDetailsScreenProps) {
 
   const handleImport = useCallback(async () => {
     closeMenu();
-    try {
-        const result = await DocumentPicker.getDocumentAsync({ type: ['text/csv', 'text/comma-separated-values', 'application/csv'] });
+    const mileageColumn = car?.mileage_input_preference === 'distance' ? 'DISTANCE' : 'ODOMETER';
+    const requiredColumns = `DATE, FUEL_AMOUNT, TOTAL_PRICE, ${mileageColumn}`;
+
+    Alert.alert(
+      'Format pliku CSV',
+      `Upewnij się, że plik CSV zawiera odpowiednie kolumny.\n\nWymagane:\n${requiredColumns}`,
+      [
+        { text: 'Anuluj', style: 'cancel' },
+        { 
+          text: 'Wybierz plik', 
+          onPress: async () => {
+            try {
+              const result = await DocumentPicker.getDocumentAsync({ type: ['text/csv', 'text/comma-separated-values', 'application/csv'] });
         
         if (result.canceled) return;
         
         const fileUri = result.assets[0].uri;
         const fileContent = await FileSystem.readAsStringAsync(fileUri);
         
+        if (!car) return;
+
         setLoading(true);
-        const { fillups: parsedFillups, errors, uniqueDates } = await parseCsv(fileContent);
+        const { fillups: parsedFillups, errors } = await parseCsv(fileContent, { 
+            mileage_input_preference: car.mileage_input_preference as 'odometer' | 'distance' 
+        });
         
         if (errors.length > 0) {
             Alert.alert('Błąd Importu', `Znaleziono błędy:\n${errors.map(e => `Wiersz ${e.row}: ${e.message}`).join('\n').slice(0, 500)}...`);
             setLoading(false);
             return;
-        }
-
-        if (!car) {
-             setLoading(false);
-             return;
         }
 
         const configErrors = validateImportAgainstCar(parsedFillups, { mileage_input_preference: car.mileage_input_preference });
@@ -181,11 +191,15 @@ export default function CarDetailsScreen({ route }: CarDetailsScreenProps) {
             ]
         );
 
-    } catch (e) {
-        console.error(e);
-        Alert.alert('Błąd', 'Wystąpił błąd podczas importu.');
-        setLoading(false);
-    }
+            } catch (e) {
+                console.error(e);
+                Alert.alert('Błąd', 'Wystąpił błąd podczas importu.');
+                setLoading(false);
+            }
+          } 
+        }
+      ]
+    );
   }, [car, carId, loadData, closeMenu]);
 
   const handleDelete = useCallback(() => {

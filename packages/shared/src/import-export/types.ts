@@ -42,4 +42,5 @@ export interface ParseResult {
 
 export interface ImportConfig {
   dateFormat?: string; // e.g. 'dd.MM.yyyy'
+  mileage_input_preference?: 'odometer' | 'distance';
 }

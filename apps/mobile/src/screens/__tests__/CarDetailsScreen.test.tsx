@@ -220,6 +220,10 @@ describe('CarDetailsScreen Import/Export', () => {
 
   it('should handle import for odometer car', async () => {
     jest.spyOn(Alert, 'alert').mockImplementation((title: any, message: any, buttons: any) => {
+        const proceedBtn = buttons?.find((b: any) => b.text === 'Wybierz plik');
+        if (proceedBtn && proceedBtn.onPress) {
+            proceedBtn.onPress();
+        }
         const importBtn = buttons?.find((b: any) => b.text === 'Importuj');
         if (importBtn && importBtn.onPress) {
             importBtn.onPress();
@@ -259,6 +263,10 @@ describe('CarDetailsScreen Import/Export', () => {
     });
 
     jest.spyOn(Alert, 'alert').mockImplementation((title: any, message: any, buttons: any) => {
+        const proceedBtn = buttons?.find((b: any) => b.text === 'Wybierz plik');
+        if (proceedBtn && proceedBtn.onPress) {
+            proceedBtn.onPress();
+        }
         const importBtn = buttons?.find((b: any) => b.text === 'Importuj');
         if (importBtn && importBtn.onPress) {
             importBtn.onPress();

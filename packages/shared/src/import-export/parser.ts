@@ -14,18 +14,40 @@ export const parseCsv = async (fileContent: string, config: ImportConfig = {}): 
       complete: (results) => {
         const errors: ImportError[] = [];
         const warnings: any[] = [];
-        const rawRows: { row: CsvImportRow; index: number }[] = [];
         
         // 1. Validate Headers
         const headers = results.meta.fields || [];
-        // Normalize headers for check
         const normalizedHeaders = headers.map(h => h.toLowerCase().trim());
-        const missingHeaders = REQUIRED_HEADERS.filter(h => !normalizedHeaders.some(nh => nh.includes(h.toLowerCase())));
+        
+        const requiredHeaders = [...REQUIRED_HEADERS];
+        if (config.mileage_input_preference === 'odometer') {
+            requiredHeaders.push('odometer');
+        } else if (config.mileage_input_preference === 'distance') {
+            requiredHeaders.push('distance');
+        }
+
+        const missingHeaders = requiredHeaders.filter(h => {
+             // We use includes to match aliases like 'przebieg' or 'dystans' via normalizeKeys logic
+             // But for header validation, we should check if ANY of the allowed aliases for a required field exist.
+             if (h === 'odometer') {
+                 return !normalizedHeaders.some(nh => nh.includes('odometer') || nh.includes('przebieg'));
+             }
+             if (h === 'distance') {
+                 return !normalizedHeaders.some(nh => nh.includes('distance') || nh.includes('dystans'));
+             }
+             if (h === 'fuel_amount') {
+                 return !normalizedHeaders.some(nh => nh.includes('fuel_amount') || nh.includes('amount') || nh.includes('liters'));
+             }
+             if (h === 'total_price') {
+                 return !normalizedHeaders.some(nh => nh.includes('total_price') || nh.includes('total') || nh.includes('cost'));
+             }
+             return !normalizedHeaders.some(nh => nh.includes(h.toLowerCase()));
+        });
 
         if (missingHeaders.length > 0) {
             resolve({
                 fillups: [],
-                errors: [{ row: 0, message: `Missing required columns: ${missingHeaders.join(', ')}` }],
+                errors: [{ row: 0, message: `Brakujące wymagane kolumny: ${missingHeaders.join(', ')}` }],
                 warnings: [],
                 uniqueDates: []
             });
