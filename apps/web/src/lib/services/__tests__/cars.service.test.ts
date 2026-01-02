@@ -681,6 +681,95 @@ describe('cars.service', () => {
         'Car not found or does not belong to user'
       );
     });
+
+    it('should trigger fillup recalculation when initial_odometer changes', async () => {
+      // Arrange
+      const input: UpdateCarCommand = { initial_odometer: 10200 };
+      const existingCar = { 
+        id: carId, 
+        name: 'Audi A4', 
+        user_id: userId, 
+        initial_odometer: 10000, 
+        mileage_input_preference: 'odometer' 
+      };
+      const updatedCar = {
+        id: carId,
+        name: 'Audi A4',
+        initial_odometer: 10200,
+        mileage_input_preference: 'odometer',
+        created_at: '2024-01-01T00:00:00Z',
+      };
+      const mockFillups = [
+        { id: 'f1', odometer: 10500, fuel_amount: 50, total_price: 300, distance_traveled: 500, fuel_consumption: 10 }
+      ];
+
+      let recalculateCalled = false;
+
+      vi.mocked(mockSupabase.from).mockImplementation((table: string) => {
+        const calls = vi.mocked(mockSupabase.from).mock.calls.filter(c => c[0] === table).length;
+
+        if (table === 'cars') {
+          // First call: fetch existing car
+          if (calls === 1) {
+            return {
+              select: vi.fn().mockReturnValue({
+                eq: vi.fn().mockReturnValue({
+                  eq: vi.fn().mockReturnValue({
+                    limit: vi.fn().mockReturnValue({
+                      maybeSingle: vi.fn().mockResolvedValue({ data: existingCar, error: null }),
+                    }),
+                  }),
+                }),
+              }),
+            } as any;
+          }
+          // Second call: update
+          return {
+            update: vi.fn().mockReturnValue({
+              eq: vi.fn().mockReturnValue({
+                eq: vi.fn().mockReturnValue({
+                  select: vi.fn().mockReturnValue({
+                    single: vi.fn().mockResolvedValue({ data: updatedCar, error: null }),
+                  }),
+                }),
+              }),
+            }),
+          } as any;
+        }
+        if (table === 'car_statistics') {
+          return {
+            select: vi.fn().mockReturnValue({
+              eq: vi.fn().mockReturnValue({
+                limit: vi.fn().mockReturnValue({
+                  maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
+                }),
+              }),
+            }),
+          } as any;
+        }
+        if (table === 'fillups') {
+          recalculateCalled = true;
+          return {
+            select: vi.fn().mockReturnValue({
+              eq: vi.fn().mockReturnValue({
+                order: vi.fn().mockResolvedValue({ data: mockFillups, error: null }),
+              }),
+            }),
+            update: vi.fn().mockReturnValue({
+              eq: vi.fn().mockResolvedValue({ error: null }),
+            }),
+          } as any;
+        }
+        return {} as any;
+      });
+
+      // Act
+      const result = await updateCar(mockSupabase, userId, carId, input);
+
+      // Assert
+      expect(result.initial_odometer).toBe(10200);
+      expect(recalculateCalled).toBe(true);
+    });
   });
 
   describe('deleteCar', () => {

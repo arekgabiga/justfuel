@@ -71,12 +71,27 @@ export const CarRepository = {
 
   updateCar: async (car: Car): Promise<void> => {
     const db = await getDBConnection();
+    
+    // Get old car data to check if initial_odometer changed
+    const oldCar = await db.getFirstAsync<{ initial_odometer: number | null }>(
+      'SELECT initial_odometer FROM cars WHERE id = ?',
+      [car.id]
+    );
+    
     await db.runAsync('UPDATE cars SET name = ?, initial_odometer = ?, mileage_input_preference = ? WHERE id = ?', [
       car.name,
       car.initial_odometer,
       car.mileage_input_preference,
       car.id,
     ]);
+    
+    // If initial_odometer changed, recalculate fillup stats
+    if (oldCar && oldCar.initial_odometer !== car.initial_odometer) {
+      // Use require to avoid circular dependency issues and Jest ESM limitations
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const { FillupRepository } = require('./FillupRepository');
+      await FillupRepository.recalculateStats(car.id);
+    }
   },
 
   deleteCar: async (id: string): Promise<void> => {

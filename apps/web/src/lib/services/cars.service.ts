@@ -9,6 +9,7 @@ import type {
   DeleteResponseDTO,
 } from '../../types.ts';
 import type { AppSupabaseClient } from '../../db/supabase.client.ts';
+import { recalculateAllFillups } from './fillups.service.ts';
 
 export interface ListCarsParams {
   sort?: 'name' | 'created_at';
@@ -263,9 +264,10 @@ export async function updateCar(
   input: UpdateCarCommand
 ): Promise<CarDetailsDTO> {
   // First, verify the car exists and belongs to the user
+  // Also fetch initial_odometer and mileage_input_preference for recalculation check
   const { data: existingCar, error: fetchError } = await supabase
     .from('cars')
-    .select('id, name, user_id')
+    .select('id, name, user_id, initial_odometer, mileage_input_preference')
     .eq('id', carId)
     .eq('user_id', userId)
     .limit(1)
@@ -338,6 +340,12 @@ export async function updateCar(
   if (statsError) {
     // If stats view fails, still return car with zeroed statistics instead of failing the whole request
     // Intentionally swallow the error to provide a resilient response
+  }
+
+  // If initial_odometer changed, recalculate all fillup stats
+  if (input.initial_odometer !== undefined && existingCar.initial_odometer !== input.initial_odometer) {
+    const preference = (data.mileage_input_preference ?? 'odometer') as 'odometer' | 'distance';
+    await recalculateAllFillups(supabase, carId, data.initial_odometer ?? 0, preference);
   }
 
   // Return updated car details with current statistics

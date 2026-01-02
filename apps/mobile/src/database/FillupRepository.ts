@@ -159,6 +159,14 @@ export const FillupRepository = {
 
   recalculateStats: async (carId: string): Promise<void> => {
     const db = await getDBConnection();
+    
+    // Fetch car's initial_odometer for proper first fillup calculation
+    const car = await db.getFirstAsync<{ initial_odometer: number | null }>(
+      'SELECT initial_odometer FROM cars WHERE id = ?',
+      [carId]
+    );
+    const initialOdometer = car?.initial_odometer ?? 0;
+    
     const fillups = await db.getAllAsync<Fillup>(
       'SELECT * FROM fillups WHERE car_id = ? ORDER BY date ASC',
       [carId]
@@ -166,38 +174,30 @@ export const FillupRepository = {
 
     for (let i = 0; i < fillups.length; i++) {
         const current = fillups[i];
-        let previous = i > 0 ? fillups[i - 1] : null;
+        const previous = i > 0 ? fillups[i - 1] : null;
         
         let newDist: number | null = null;
         let newCons: number | null = null;
 
-        if (previous && current.odometer != null && previous.odometer != null) {
-            newDist = current.odometer - previous.odometer;
+        if (current.odometer != null) {
+            // Odometer-based entry: calculate distance from previous odometer or initial_odometer
+            const prevOdometer = previous?.odometer ?? initialOdometer;
+            newDist = current.odometer - prevOdometer;
             if (newDist > 0) {
                 newCons = (current.fuel_amount / newDist) * 100;
             } else {
-                newDist = 0;
+                newDist = Math.max(0, newDist); // Clamp to 0 if negative
                 newCons = null;
             }
         } else {
-             // If odometer is missing (distance-based mode) OR chain is broken:
-             // We MUST preserve the existing distance if it was manually entered (distance mode).
-             // However, our logic here is "recalculate".
-             // If current.odometer is NULL, it means it's a distance-based entry. We trust its distance_traveled.
-             
-             if (current.odometer == null) {
-                 newDist = current.distance_traveled;
-             } else {
-                 // It has odometer, but previous is missing or broken chain.
-                 // In this case, we default to current distance, effectively "resetting" the chain or keeping manual edit.
-                 newDist = current.distance_traveled;
-             }
+            // Distance-based entry (odometer is NULL): trust the stored distance_traveled
+            newDist = current.distance_traveled;
 
-             if (newDist && newDist > 0) {
-                 newCons = (current.fuel_amount / newDist) * 100;
-             } else {
-                 newCons = null;
-             }
+            if (newDist && newDist > 0) {
+                newCons = (current.fuel_amount / newDist) * 100;
+            } else {
+                newCons = null;
+            }
         }
 
         const distChanged = current.distance_traveled !== newDist;

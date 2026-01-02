@@ -28,6 +28,7 @@ export const createCarCommandSchema = z
 export const updateCarCommandSchema = z
   .object({
     name: z.string().trim().min(1).max(100).optional(),
+    initial_odometer: z.number().int().nonnegative().optional(),
     mileage_input_preference: z.enum(['odometer', 'distance']).optional(),
   })
   .strict()

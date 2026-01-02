@@ -186,6 +186,18 @@ export const createMockDb = () => ({
                fuel_consumption: params[1],
            };
        }
+    } else if (sql.includes('UPDATE cars')) {
+       // UPDATE cars SET name = ?, initial_odometer = ?, mileage_input_preference = ? WHERE id = ?
+       const id = params[3];
+       const index = mockCars.findIndex(c => c.id === id);
+       if (index !== -1) {
+           mockCars[index] = {
+               ...mockCars[index],
+               name: params[0],
+               initial_odometer: params[1],
+               mileage_input_preference: params[2],
+           };
+       }
     }
     return undefined;
   }),
@@ -208,6 +220,14 @@ export const createMockDb = () => ({
   }),
   
   getFirstAsync: jest.fn().mockImplementation(async (sql: string, params?: any[]) => {
+    // Handle SELECT initial_odometer FROM cars (used by updateCar and recalculateStats)
+    if (sql.includes('SELECT initial_odometer FROM cars') && params?.[0]) {
+      const car = mockCars.find(c => c.id === params[0]);
+      if (car) {
+        return { initial_odometer: car.initial_odometer };
+      }
+      return null;
+    }
     if (sql.includes('FROM cars') && params?.[0]) {
       const car = mockCars.find(c => c.id === params[0]);
       if (car) {

@@ -88,7 +88,7 @@ export type CreateCarCommand = Pick<TablesInsert<'cars'>, 'name' | 'initial_odom
  * Used in request body for: PATCH /api/cars/{carId}
  * All fields are optional - only provided fields will be updated
  */
-export type UpdateCarCommand = Partial<Pick<Car, 'name' | 'mileage_input_preference'>>;
+export type UpdateCarCommand = Partial<Pick<Car, 'name' | 'initial_odometer' | 'mileage_input_preference'>>;
 
 /**
  * Command to delete a car (requires confirmation)

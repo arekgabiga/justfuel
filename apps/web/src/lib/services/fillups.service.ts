@@ -1184,3 +1184,92 @@ export async function getAllFillups(supabase: AppSupabaseClient, userId: string,
     price_per_liter: f.price_per_liter,
   }));
 }
+
+// ----------------------------------------------------------------------------
+// Recalculate all fillups
+// ----------------------------------------------------------------------------
+
+/**
+ * Recalculates distance and fuel consumption for all fillups of a car.
+ * Used when initial_odometer is updated or when chain consistency needs to be restored.
+ * 
+ * @param supabase - Supabase client instance
+ * @param carId - ID of the car
+ * @param initialOdometer - The car's initial odometer value
+ * @param preference - The car's mileage input preference
+ */
+export async function recalculateAllFillups(
+  supabase: AppSupabaseClient,
+  carId: string,
+  initialOdometer: number,
+  preference: 'odometer' | 'distance'
+): Promise<void> {
+  if (preference === 'odometer') {
+    const { data: allFillups } = await supabase
+      .from('fillups')
+      .select('id, odometer, fuel_amount, total_price, distance_traveled, fuel_consumption')
+      .eq('car_id', carId)
+      .order('date', { ascending: true });
+
+    if (allFillups) {
+      let lastOdometer = initialOdometer;
+      const updates = [];
+
+      for (const fillup of allFillups) {
+        const update: { id: string; distance_traveled?: number; fuel_consumption?: number | null } = { id: fillup.id };
+        let shouldUpdate = false;
+
+        if (fillup.odometer !== null) {
+          const dist = Math.max(0, fillup.odometer - lastOdometer);
+          if (Math.abs(dist - (fillup.distance_traveled ?? 0)) > 0.1) {
+            update.distance_traveled = dist;
+            shouldUpdate = true;
+          }
+          lastOdometer = fillup.odometer;
+
+          // Calc consumption
+          const cons = calculateFuelConsumption(dist, fillup.fuel_amount);
+          if (Math.abs((cons ?? 0) - (fillup.fuel_consumption ?? 0)) > 0.01) {
+            update.fuel_consumption = cons;
+            shouldUpdate = true;
+          }
+        }
+
+        if (shouldUpdate) updates.push(update);
+      }
+
+      if (updates.length > 0) {
+        await Promise.all(
+          updates.map((u) => {
+            const { id, ...rest } = u;
+            return supabase.from('fillups').update(rest).eq('id', id);
+          })
+        );
+      }
+    }
+  } else {
+    // Distance Mode - just recalculate fuel consumption
+    const { data: allFillups } = await supabase
+      .from('fillups')
+      .select('id, distance_traveled, fuel_amount, fuel_consumption')
+      .eq('car_id', carId);
+
+    if (allFillups) {
+      const updates = [];
+      for (const fillup of allFillups) {
+        const cons = calculateFuelConsumption(fillup.distance_traveled ?? 0, fillup.fuel_amount);
+        if (Math.abs((cons ?? 0) - (fillup.fuel_consumption ?? 0)) > 0.01) {
+          updates.push({ id: fillup.id, fuel_consumption: cons });
+        }
+      }
+      if (updates.length > 0) {
+        await Promise.all(
+          updates.map((u) => {
+            const { id, ...rest } = u;
+            return supabase.from('fillups').update(rest).eq('id', id);
+          })
+        );
+      }
+    }
+  }
+}
