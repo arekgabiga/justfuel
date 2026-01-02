@@ -180,8 +180,23 @@ describe('useCarDetails', () => {
   });
 
   describe('Dialogs', () => {
-    it('should toggle edit dialog', () => {
+    beforeEach(() => {
+      vi.mocked(localStorage.getItem).mockReturnValue('fake-token');
+      // Mock car fetch for dialogs tests
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => mockCarData,
+      });
+    });
+
+    it('should toggle edit dialog', async () => {
       const { result } = renderHook(() => useCarDetails(carId));
+
+      // Wait for initial fetch to complete
+      await waitFor(() => {
+        expect(result.current.loading).toBe(false);
+      });
 
       act(() => {
         result.current.openEditDialog();
@@ -194,8 +209,13 @@ describe('useCarDetails', () => {
       expect(result.current.editDialogOpen).toBe(false);
     });
 
-    it('should toggle delete dialog', () => {
+    it('should toggle delete dialog', async () => {
       const { result } = renderHook(() => useCarDetails(carId));
+
+      // Wait for initial fetch to complete
+      await waitFor(() => {
+        expect(result.current.loading).toBe(false);
+      });
 
       act(() => {
         result.current.openDeleteDialog();

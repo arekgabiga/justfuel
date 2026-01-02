@@ -132,7 +132,11 @@ describe('DeleteCarDialog', () => {
       expect(screen.getByRole('button', { name: /usuwanie/i })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /usuwanie/i })).toBeDisabled();
 
+      // Resolve and wait for state update to complete
       if (resolveDelete) resolveDelete();
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /usuń samochód/i })).toBeInTheDocument();
+      });
     });
 
     it('should display error message when deletion fails', async () => {
@@ -184,7 +188,11 @@ describe('DeleteCarDialog', () => {
       const cancelButton = screen.getByRole('button', { name: /anuluj/i });
       expect(cancelButton).toBeDisabled();
 
+      // Resolve and wait for state update to complete
       if (resolveDelete) resolveDelete();
+      await waitFor(() => {
+        expect(cancelButton).not.toBeDisabled();
+      });
     });
   });
 
@@ -218,7 +226,11 @@ describe('DeleteCarDialog', () => {
 
       expect(mockOnCancel).not.toHaveBeenCalled();
 
+      // Resolve and wait for state update to complete
       if (resolveDelete) resolveDelete();
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /usuń samochód/i })).toBeInTheDocument();
+      });
     });
   });
 

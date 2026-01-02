@@ -64,8 +64,7 @@ describe('Out of Order Insertion Odometer Logic', () => {
     const storedNew = fillups.find(f => f.id === fNew.id);
     const storedOld = fillups.find(f => f.id === fOld.id);
 
-    console.log('Stored New:', storedNew?.odometer);
-    console.log('Stored Old:', storedOld?.odometer);
+    // Both fillups should be null as they are distance-based cars
 
     // Assert that odometers are NULL (as we stopped calculating them for distance pref)
     expect(storedNew?.odometer).toBeNull();

@@ -102,7 +102,7 @@ describe('Recalculate Stats Logic Bug', () => {
     c = fillups.find(f => f.id === fC.id);
     
     // Debug log
-    console.log('Final C:', JSON.stringify(c, null, 2));
+    // Verify the final fillup C has correct values
     
     expect(c?.distance_traveled).toBe(550);
     expect(c?.fuel_consumption).not.toBeNull();

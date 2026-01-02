@@ -159,8 +159,22 @@ describe('useCarsList', () => {
   });
 
   describe('Navigation', () => {
-    it('should navigate to car details', () => {
+    beforeEach(() => {
+      // Mock successful fetch for navigation tests
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({ data: mockCars }),
+      });
+    });
+
+    it('should navigate to car details', async () => {
       const { result } = renderHook(() => useCarsList());
+
+      // Wait for initial fetch to complete
+      await waitFor(() => {
+        expect(result.current.loading).toBe(false);
+      });
 
       act(() => {
         result.current.handleCarClick('car-1');
@@ -169,8 +183,13 @@ describe('useCarsList', () => {
       expect(navigateTo).toHaveBeenCalledWith('/cars/car-1');
     });
 
-    it('should navigate to add car', () => {
+    it('should navigate to add car', async () => {
       const { result } = renderHook(() => useCarsList());
+
+      // Wait for initial fetch to complete
+      await waitFor(() => {
+        expect(result.current.loading).toBe(false);
+      });
 
       act(() => {
         result.current.handleAddCar();

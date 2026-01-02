@@ -25,7 +25,13 @@ jest.mock('@react-navigation/native', () => {
     return {
         ...Actual,
         useNavigation: jest.fn(() => mockNavigation),
-        useFocusEffect: jest.fn((cb) => React.useEffect(cb, [cb])),
+        // Use empty dependency array to prevent multiple calls
+        useFocusEffect: jest.fn((cb) => {
+          React.useEffect(() => {
+            const cleanup = cb();
+            return cleanup;
+          }, []);  // Empty array - only run once per mount
+        }),
     };
 });
 
@@ -130,6 +136,13 @@ describe('CarDetailsScreen Import/Export', () => {
     (FileSystem as any).documentDirectory = 'file:///test/';
     (Sharing.shareAsync as any).mockResolvedValue(undefined);
     (Sharing.isAvailableAsync as any).mockResolvedValue(true);
+  });
+
+  afterEach(async () => {
+    // Wait for any pending async operations to settle before cleanup
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0));
+    });
   });
 
   const renderWithProvider = (component: any) => {
@@ -244,7 +257,11 @@ describe('CarDetailsScreen Import/Export', () => {
      await triggerMenu();
 
      const importMenuBtn = await waitFor(() => getByText('Importuj (CSV)'));
-     fireEvent.press(importMenuBtn);
+     await act(async () => {
+       fireEvent.press(importMenuBtn);
+       // Wait for async import operations to complete
+       await new Promise(resolve => setTimeout(resolve, 100));
+     });
     
     await waitFor(() => {
         expect(FillupRepository.batchImportFillups).toHaveBeenCalledWith(
@@ -288,6 +305,15 @@ describe('CarDetailsScreen Import/Export', () => {
      
      const importMenuBtn = await waitFor(() => getByText('Importuj (CSV)'));
      
-     fireEvent.press(importMenuBtn);
+     await act(async () => {
+       fireEvent.press(importMenuBtn);
+       // Wait for async import operations to complete
+       await new Promise(resolve => setTimeout(resolve, 100));
+     });
+     
+     // Verify import was called (even though this is distance car)
+     await waitFor(() => {
+       expect(FillupRepository.batchImportFillups).toHaveBeenCalled();
+     });
   });
 });

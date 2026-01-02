@@ -83,7 +83,7 @@ describe('Distance Input Preference Logic', () => {
     const updatedC = fillups.find(f => f.id === fC.id);
 
     // Debug
-    console.log('Updated B:', JSON.stringify(updatedB, null, 2));
+    // Verify updated fillup B has correct values after recalculation
 
     // Assertions
     // A should arguably stay 500 (since it has no previous, logic might keep it)

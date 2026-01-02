@@ -24,7 +24,7 @@ jest.mock('@expo/vector-icons', () => ({
     MaterialCommunityIcons: (props: any) => null,
 }));
 
-// Silence specific warnings (only environment-related ones, NOT act() warnings)
+// Silence specific warnings (only environment-related ones)
 const originalWarn = console.warn;
 console.warn = (...args) => {
   const msg = args.join(' ');
