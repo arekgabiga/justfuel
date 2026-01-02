@@ -1,5 +1,5 @@
-import React, { useState, useCallback } from 'react';
-import { View, FlatList, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
+import { View, FlatList, StyleSheet, TouchableOpacity, Alert, PanResponder, Animated } from 'react-native';
 import { Text, FAB, Card, useTheme, Divider, ActivityIndicator, Modal, Portal, Appbar, List } from 'react-native-paper';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -36,7 +36,48 @@ export default function CarDetailsScreen({ route }: CarDetailsScreenProps) {
   // --- PAPER BOTTOM SHEET START ---
   const [menuVisible, setMenuVisible] = useState(false);
   const showMenu = useCallback(() => setMenuVisible(true), []);
-  const hideMenu = useCallback(() => setMenuVisible(false), []);
+  
+  const panY = useRef(new Animated.Value(0)).current;
+
+  const closeMenu = useCallback(() => {
+    Animated.timing(panY, {
+      toValue: 1000,
+      duration: 200,
+      useNativeDriver: false,
+    }).start(() => setMenuVisible(false));
+  }, [panY]);
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: (_, gestureState) => {
+        // Only capture if dragging down
+        return gestureState.dy > 5;
+      },
+      onPanResponderMove: Animated.event(
+        [null, { dy: panY }],
+        { useNativeDriver: false }
+      ),
+      onPanResponderRelease: (_, gestureState) => {
+        if (gestureState.dy > 100) {
+          closeMenu();
+        } else {
+          Animated.spring(panY, {
+            toValue: 0,
+            useNativeDriver: false,
+            bounciness: 10
+          }).start();
+        }
+      },
+    })
+  ).current;
+
+  useEffect(() => {
+    if (menuVisible) {
+      panY.setValue(0);
+    }
+  }, [menuVisible, panY]);
+
   // --- PAPER BOTTOM SHEET END ---
 
   const loadData = useCallback(async () => {
@@ -56,14 +97,14 @@ export default function CarDetailsScreen({ route }: CarDetailsScreenProps) {
   }, [carId]);
 
   const handleEdit = useCallback(() => {
-    hideMenu();
+    closeMenu();
     if (car) {
       navigation.navigate('AddCar', { car });
     }
-  }, [car, navigation]);
+  }, [car, navigation, closeMenu]);
 
   const handleExport = useCallback(async () => {
-    hideMenu();
+    closeMenu();
     try {
       setLoading(true);
       const csvData = generateCsv(fillups);
@@ -83,10 +124,10 @@ export default function CarDetailsScreen({ route }: CarDetailsScreenProps) {
     } finally {
       setLoading(false);
     }
-  }, [fillups, carName]);
+  }, [fillups, carName, closeMenu]);
 
   const handleImport = useCallback(async () => {
-    hideMenu();
+    closeMenu();
     try {
         const result = await DocumentPicker.getDocumentAsync({ type: ['text/csv', 'text/comma-separated-values', 'application/csv'] });
         
@@ -145,10 +186,10 @@ export default function CarDetailsScreen({ route }: CarDetailsScreenProps) {
         Alert.alert('Błąd', 'Wystąpił błąd podczas importu.');
         setLoading(false);
     }
-  }, [car, carId, loadData]);
+  }, [car, carId, loadData, closeMenu]);
 
   const handleDelete = useCallback(() => {
-    hideMenu();
+    closeMenu();
     Alert.alert(
       'Usuń samochód',
       'Czy na pewno chcesz usunąć ten samochód i wszystkie jego tankowania? Tej operacji nie można cofnąć.',
@@ -171,7 +212,7 @@ export default function CarDetailsScreen({ route }: CarDetailsScreenProps) {
         },
       ]
     );
-  }, [carId, navigation]);
+  }, [carId, navigation, closeMenu]);
 
   // --- Native Header Config ---
   React.useLayoutEffect(() => {
@@ -324,35 +365,51 @@ export default function CarDetailsScreen({ route }: CarDetailsScreenProps) {
       <Portal>
         <Modal 
             visible={menuVisible} 
-            onDismiss={hideMenu} 
-            contentContainerStyle={[styles.modalContent, { paddingBottom: insets.bottom + 20 }]}
+            onDismiss={closeMenu} 
+            contentContainerStyle={[styles.modalContainer, { paddingBottom: insets.bottom }]}
         >
-            <View style={styles.modalHandle} />
-            <Text variant="titleMedium" style={styles.modalTitle}>Opcje pojazdu</Text>
-            <Divider style={styles.divider} />
-            
-            <List.Item 
-                title="Edytuj" 
-                left={props => <List.Icon {...props} icon="pencil" />} 
-                onPress={handleEdit} 
-            />
-            <List.Item 
-                title="Eksportuj (CSV)" 
-                left={props => <List.Icon {...props} icon="export" />} 
-                onPress={handleExport} 
-            />
-            <List.Item 
-                title="Importuj (CSV)" 
-                left={props => <List.Icon {...props} icon="import" />} 
-                onPress={handleImport} 
-            />
-            <Divider style={styles.divider} />
-            <List.Item 
-                title="Usuń" 
-                titleStyle={{color: theme.colors.error}}
-                left={props => <List.Icon {...props} color={theme.colors.error} icon="delete" />} 
-                onPress={handleDelete} 
-            />
+             <Animated.View 
+                style={[
+                    styles.menuCard,
+                    { 
+                        transform: [{ 
+                            translateY: panY.interpolate({
+                                inputRange: [0, 1000],
+                                outputRange: [0, 1000],
+                                extrapolate: 'clamp' // Prevent dragging up
+                            }) 
+                        }]
+                    }
+                ]}
+                {...panResponder.panHandlers}
+            >
+                <View style={styles.modalHandle} />
+                <Text variant="headlineSmall" style={styles.modalTitle}>Opcje pojazdu</Text>
+                
+                <List.Item 
+                    title="Edytuj pojazd" 
+                    titleStyle={{ color: theme.colors.onSurface }}
+                    left={props => <List.Icon {...props} icon="pencil" color={theme.colors.primary} />} 
+                    onPress={handleEdit} 
+                />
+                <List.Item 
+                    title="Eksportuj (CSV)" 
+                    left={props => <List.Icon {...props} icon="file-export" color={theme.colors.primary} />} 
+                    onPress={handleExport} 
+                />
+                <List.Item 
+                    title="Importuj (CSV)" 
+                    left={props => <List.Icon {...props} icon="file-import" color={theme.colors.primary} />} 
+                    onPress={handleImport} 
+                />
+                <Divider style={styles.divider} />
+                <List.Item 
+                    title="Usuń pojazd" 
+                    titleStyle={{color: theme.colors.error}}
+                    left={props => <List.Icon {...props} color={theme.colors.error} icon="delete" />} 
+                    onPress={handleDelete} 
+                />
+            </Animated.View>
         </Modal>
       </Portal>
 
@@ -390,34 +447,48 @@ const styles = StyleSheet.create({
   invalidCard: { borderColor: '#dc2626' },
   invalidCardHeader: { backgroundColor: '#fef2f2' },
   // Bottom Sheet Styles
-  modalContent: {
-      backgroundColor: 'white',
-      padding: 20,
-      margin: 20,
-      borderRadius: 12,
+  modalContainer: {
       position: 'absolute',
       bottom: 0,
       left: 0, 
       right: 0,
-      marginHorizontal: 0,
-      marginBottom: 0,
-      borderTopLeftRadius: 24,
-      borderTopRightRadius: 24,
+      margin: 0,
+      justifyContent: 'flex-end', // Ensure content sits at bottom
+  },
+  menuCard: {
+      backgroundColor: 'white',
+      padding: 24,
+      paddingTop: 12,
+      margin: 12,
+      borderRadius: 28,
+      borderTopLeftRadius: 28,
+      borderTopRightRadius: 28,
+      // Shadow for elevation
+      shadowColor: "#000",
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.25,
+      shadowRadius: 3.84,
+      elevation: 5,
   },
   modalTitle: {
-      textAlign: 'center',
-      marginBottom: 10,
+      textAlign: 'left', // Aligned left
+      marginBottom: 16,
       fontWeight: 'bold',
+      marginLeft: 8, // Align with list items text approx
   },
   modalHandle: {
-      width: 40,
+      width: 32,
       height: 4,
-      backgroundColor: '#e0e0e0',
+      backgroundColor: '#79747E', // M3 handle color
       borderRadius: 2,
       alignSelf: 'center',
       marginBottom: 16,
+      marginTop: 8,
   },
   divider: {
-      marginVertical: 4
+      marginVertical: 8
   }
 });
