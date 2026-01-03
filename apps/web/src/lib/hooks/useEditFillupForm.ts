@@ -147,7 +147,11 @@ export const useEditFillupForm = ({ carId, fillupId }: UseEditFillupFormProps) =
 
         setOriginalFillupData(fillupData);
         setFormState({
-          date: new Date(fillupData.date).toISOString().split('T')[0],
+          // Use local date part to avoid timezone shifts (e.g. from 00:00 local to 23:00 previous day UTC)
+          date:
+            typeof fillupData.date === 'string'
+              ? fillupData.date.split('T')[0]
+              : new Date(fillupData.date).toISOString().split('T')[0],
           fuelAmount: fillupData.fuel_amount.toString(),
           totalPrice: fillupData.total_price.toString(),
           inputMode,
