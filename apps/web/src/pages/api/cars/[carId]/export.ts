@@ -23,7 +23,7 @@ export const GET: APIRoute = async ({ params, request, cookies }) => {
 
   try {
     const fillups = await getAllFillups(supabase, user.id, carId);
-    const csv = generateCsv(fillups);
+    const csv = generateCsv([...fillups].reverse());
 
     return new Response(csv, {
       status: 200,

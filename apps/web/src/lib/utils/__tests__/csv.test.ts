@@ -58,6 +58,7 @@ describe('CSV Parsing Logic', () => {
     expect(fillup.fuel_amount).toBe(50.12);
     expect(fillup.total_price).toBe(300.57);
     expect(fillup.odometer).toBe(1501.0); // 1500.999 -> 1501.00
-    expect(fillup.distance_traveled).toBe(500.11);
+    // In odometer mode, 'distance' column from CSV is ignored/nulled by parser
+    expect(fillup.distance_traveled).toBeNull();
   });
 });

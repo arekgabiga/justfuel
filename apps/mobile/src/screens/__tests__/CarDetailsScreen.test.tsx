@@ -185,6 +185,10 @@ describe('CarDetailsScreen Import/Export', () => {
 
      const { generateCsv } = require('@justfuel/shared');
      expect(generateCsv).toHaveBeenCalled();
+     // Verify explicit order: Should be Oldest -> Newest (reversed mockFillups)
+     const calledFillups = (generateCsv as any).mock.calls[0][0];
+     expect(calledFillups[0].id).toBe('f2'); // Older date: 2024-12-01
+     expect(calledFillups[1].id).toBe('f1'); // Newer date: 2025-01-01
 
      await waitFor(() => {
          expect(FileSystem.writeAsStringAsync).toHaveBeenCalledWith(

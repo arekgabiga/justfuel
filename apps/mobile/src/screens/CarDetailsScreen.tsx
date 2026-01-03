@@ -107,7 +107,7 @@ export default function CarDetailsScreen({ route }: CarDetailsScreenProps) {
     closeMenu();
     try {
       setLoading(true);
-      const csvData = generateCsv(fillups);
+      const csvData = generateCsv([...fillups].reverse());
       const fileName = `justfuel_${carName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.csv`;
       const filePath = `${FileSystem.documentDirectory}${fileName}`;
       
