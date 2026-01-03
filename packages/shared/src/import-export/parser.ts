@@ -101,9 +101,9 @@ export const parseCsv = async (fileContent: string, config: ImportConfig = {}): 
               return;
            }
 
-           // Optional / Calculation fields
            let odometer: number | null = null;
-           if (row.odometer) {
+           // Strict filtering: Only parse odometer if preference is 'odometer'
+           if (config.mileage_input_preference === 'odometer' && row.odometer) {
                odometer = roundToTwo(parseFloat(row.odometer.replace(',', '.')));
                if (isNaN(odometer)) {
                    errors.push({ row: rowNumber, message: 'Invalid Odometer value' });
@@ -112,7 +112,8 @@ export const parseCsv = async (fileContent: string, config: ImportConfig = {}): 
            }
 
            let distance: number | null = null;
-           if (row.distance) {
+           // Strict filtering: Only parse distance if preference is 'distance'
+           if (config.mileage_input_preference === 'distance' && row.distance) {
                distance = roundToTwo(parseFloat(row.distance.replace(',', '.')));
                if (isNaN(distance)) {
                    errors.push({ row: rowNumber, message: 'Invalid Distance value' });
