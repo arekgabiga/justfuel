@@ -1,3 +1,4 @@
+
 import { FillupRepository } from '../FillupRepository';
 import { getDBConnection } from '../schema';
 import { NewFillup } from '../../types';
@@ -10,6 +11,24 @@ jest.mock('expo-sqlite', () => ({
 jest.mock('../schema', () => ({
   getDBConnection: jest.fn(),
 }));
+
+// Mock shared
+jest.mock('@justfuel/shared', () => {
+    const originalModule = jest.requireActual('@justfuel/shared');
+    return {
+        __esModule: true,
+        ...originalModule,
+        injectTimeIntoDate: jest.fn((dateStr) => dateStr), // Pass through by default
+        getDateWithOffset: jest.fn((dateStr) => dateStr),
+        detectSortDirection: jest.fn().mockReturnValue('desc'),
+        calculateFuelConsumption: jest.fn().mockReturnValue(null), // Simplification
+        calculatePricePerLiter: jest.fn().mockReturnValue(2),
+        calculateDistanceTraveled: jest.fn().mockReturnValue(0),
+        roundToTwo: jest.fn((val) => val),
+    };
+});
+
+import { injectTimeIntoDate, detectSortDirection } from '@justfuel/shared';
 
 describe('FillupRepository', () => {
   let mockDb: any;
@@ -50,7 +69,7 @@ describe('FillupRepository', () => {
         expect.arrayContaining([
             expect.any(String), // id
             'car-123',
-            mockDate,
+            mockDate, // In this mock it returns same date, but we verify call below
             50,
             100,
             15000,
@@ -60,6 +79,9 @@ describe('FillupRepository', () => {
             expect.any(String) // created_at
         ])
       );
+      
+      expect(injectTimeIntoDate).toHaveBeenCalled();
+      // detectSortDirection is not called in addFillup, only import
     });
   });
 

@@ -15,6 +15,7 @@ import {
   calculateDistanceTraveled,
   calculateOdometer,
   roundToTwo,
+  injectTimeIntoDate,
 } from '@justfuel/shared';
 
 export interface ListFillupsParams {
@@ -428,6 +429,9 @@ export async function createFillup(
     // created_at is handled by DB default or we should omit it if type doesn't demand it,
     // strictly speaking types usually have created_at as readonly/generated.
   };
+
+  // Inject current time into date to ensure precise ordering
+  fillupData.date = injectTimeIntoDate(fillupData.date);
 
   // Insert the new fillup
   const { data: newFillup, error: insertError } = await supabase

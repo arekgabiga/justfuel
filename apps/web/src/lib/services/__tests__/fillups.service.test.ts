@@ -234,7 +234,7 @@ describe('fillups.service', () => {
       const mockCreatedFillup = {
         id: 'fillup-123',
         car_id: carId,
-        date: '2024-01-15',
+        date: '2024-01-15T12:00:00.000Z', // Expect time injection
         fuel_amount: 50,
         total_price: 250,
         odometer: 50500,
@@ -242,6 +242,15 @@ describe('fillups.service', () => {
         fuel_consumption: 10.0,
         price_per_liter: 5.0,
       };
+
+      // Mock shared helper to return predictable time
+      vi.mock('@justfuel/shared', async (importOriginal) => {
+        const mod = await importOriginal<typeof import('@justfuel/shared')>();
+        return {
+          ...mod,
+          injectTimeIntoDate: vi.fn().mockReturnValue('2024-01-15T12:00:00.000Z'),
+        };
+      });
 
       vi.mocked(mockSupabase.from).mockImplementation((table: string) => {
         if (table === 'cars') {

@@ -2,6 +2,7 @@ import type { APIRoute } from 'astro';
 import { createSupabaseServerInstance } from '../../../../db/supabase.client';
 import { batchCreateFillups } from '../../../../lib/services/fillups.service';
 import type { CreateFillupCommand } from '../../../../types';
+import { getDateWithOffset, detectSortDirection } from '@justfuel/shared';
 
 export const POST: APIRoute = async ({ params, request, cookies }) => {
   const { carId } = params;
@@ -51,6 +52,14 @@ export const POST: APIRoute = async ({ params, request, cookies }) => {
           distance: Number(f.distance_traveled || f.distance || 0),
         };
       }
+    });
+
+    // Inject time with offset to preserve order
+    const baseTime = new Date();
+    const sortDirection = detectSortDirection(commands);
+
+    commands.forEach((cmd, index) => {
+      cmd.date = getDateWithOffset(cmd.date, baseTime, index, 1000, sortDirection);
     });
 
     await batchCreateFillups(supabase, user.id, carId, commands);

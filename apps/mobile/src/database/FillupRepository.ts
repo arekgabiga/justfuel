@@ -1,5 +1,5 @@
 import { Fillup, NewFillup } from '../types';
-import { ValidatedFillup, calculateFuelConsumption, calculatePricePerLiter, calculateDistanceTraveled, roundToTwo } from '@justfuel/shared';
+import { ValidatedFillup, calculateFuelConsumption, calculatePricePerLiter, calculateDistanceTraveled, roundToTwo, injectTimeIntoDate, getDateWithOffset, detectSortDirection } from '@justfuel/shared';
 import { getDBConnection } from './schema';
 import { generateUUID } from '../utils/uuid';
 
@@ -24,6 +24,7 @@ export const FillupRepository = {
     try {
         await db.runAsync('BEGIN TRANSACTION');
         const now = new Date().toISOString();
+        const sortDirection = detectSortDirection(fillups.map(f => ({ date: f.date })));
         
         for (const fillup of fillups) {
             const id = generateUUID();
@@ -35,7 +36,7 @@ export const FillupRepository = {
                [
                    id,
                    carId,
-                   fillup.date.toISOString(),
+                   getDateWithOffset(fillup.date.toISOString(), new Date(now), fillups.indexOf(fillup), 1000, sortDirection),
                    fillup.fuel_amount,
                    fillup.total_price,
                    fillup.odometer ? roundToTwo(fillup.odometer) : null,
@@ -79,7 +80,7 @@ export const FillupRepository = {
       [
         id,
         newFillup.car_id,
-        newFillup.date,
+        injectTimeIntoDate(newFillup.date, new Date(now)),
         newFillup.fuel_amount,
         newFillup.total_price,
         newFillup.odometer ? roundToTwo(newFillup.odometer) : null,
