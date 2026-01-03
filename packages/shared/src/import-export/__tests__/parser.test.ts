@@ -57,4 +57,21 @@ describe('CSV Parser Logic', () => {
         expect(fillup.distance_traveled).toBe(100.00);
         expect(fillup.odometer).toBeNull();
     });
+    it('should parse date as UTC Noon (12:00:00Z)', async () => {
+        const csvContent = `date,fuel_amount,total_price,odometer
+01.01.2023,50.00,300.00,1500.00`;
+        
+        const result = await parseCsv(csvContent, { mileage_input_preference: 'odometer' });
+        
+        const fillup = result.fillups[0];
+        const date = fillup.date;
+        
+        // Month is 0-indexed in JS Date (0 = Jan)
+        expect(date.getUTCFullYear()).toBe(2023);
+        expect(date.getUTCMonth()).toBe(0); 
+        expect(date.getUTCDate()).toBe(1);
+        expect(date.getUTCHours()).toBe(12); // Verify 12:00 UTC
+        expect(date.getUTCMinutes()).toBe(0);
+        expect(date.getUTCSeconds()).toBe(0);
+    });
 });

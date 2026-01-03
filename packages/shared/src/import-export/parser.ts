@@ -78,8 +78,23 @@ export const parseCsv = async (fileContent: string, config: ImportConfig = {}): 
            }
 
            // Parse Date
-           const parsedDate = parse(row.date.trim(), DATE_FORMAT, new Date());
-           if (!isValid(parsedDate)) {
+           // Parse Date manually to ensure UTC Noon (12:00:00Z)
+           // This prevents timezone shifts when the server (e.g., Vercel in UTC) 
+           // processes the date and injects local time.
+           // date-fns parse() creates a local midnight date, which can be previous day in UTC.
+           const dateParts = row.date.trim().split('.');
+           if (dateParts.length !== 3) {
+                errors.push({ row: rowNumber, message: `Invalid Date format. Expected ${DATE_FORMAT}` });
+                return;
+           }
+           
+           const day = parseInt(dateParts[0], 10);
+           const month = parseInt(dateParts[1], 10) - 1; // Months are 0-indexed
+           const year = parseInt(dateParts[2], 10);
+
+           const parsedDate = new Date(Date.UTC(year, month, day, 12, 0, 0));
+
+           if (isNaN(parsedDate.getTime())) {
                errors.push({ row: rowNumber, message: `Invalid Date format. Expected ${DATE_FORMAT}` });
                return;
            }
