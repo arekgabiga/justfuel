@@ -411,7 +411,7 @@ describe('createCarCommandSchema', () => {
       }
     });
 
-    it('CARS-CC-N007: initial_odometer jako float', () => {
+    it('CARS-CC-008: initial_odometer jako float (akceptowalne)', () => {
       const input = {
         name: 'Audi',
         initial_odometer: 50.5,
@@ -419,9 +419,9 @@ describe('createCarCommandSchema', () => {
       };
       const result = createCarCommandSchema.safeParse(input);
 
-      expect(result.success).toBe(false);
-      if (!result.success) {
-        expect(result.error.issues[0].message).toContain('integer');
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.initial_odometer).toBe(50.5);
       }
     });
 

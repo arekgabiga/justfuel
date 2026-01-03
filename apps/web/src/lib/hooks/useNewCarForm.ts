@@ -55,11 +55,11 @@ export const useNewCarForm = () => {
     }
 
     // Check if it's a valid integer format
-    if (!/^-?\d+$/.test(odometer.trim())) {
-      return 'Stan licznika musi być liczbą całkowitą';
+    if (!/^-?\d*\.?\d+$/.test(odometer.trim())) {
+      return 'Stan licznika musi być liczbą';
     }
 
-    const num = parseInt(odometer, 10);
+    const num = parseFloat(odometer);
     if (isNaN(num)) {
       return 'Stan licznika musi być liczbą';
     }
@@ -238,7 +238,7 @@ export const useNewCarForm = () => {
         };
 
         if (formState.initialOdometer.trim()) {
-          const odometerValue = parseInt(formState.initialOdometer, 10);
+          const odometerValue = parseFloat(formState.initialOdometer);
           if (!isNaN(odometerValue)) {
             requestBody.initial_odometer = odometerValue;
           }

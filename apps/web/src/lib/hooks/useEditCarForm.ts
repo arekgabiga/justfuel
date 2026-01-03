@@ -159,7 +159,6 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
 
     if (isNaN(num)) return 'Początkowy stan licznika musi być liczbą';
     if (num < 0) return 'Początkowy stan licznika nie może być ujemny';
-    if (!Number.isInteger(num)) return 'Początkowy stan licznika musi być liczbą całkowitą';
     return undefined;
   }, []);
 
@@ -281,7 +280,7 @@ export const useEditCarForm = ({ carId }: UseEditCarFormProps) => {
     (field: keyof EditCarFormState, value: string) => {
       let parsedValue: string | number = value;
       if (field === 'initialOdometer') {
-        const num = parseInt(value, 10);
+        const num = parseFloat(value);
         parsedValue = isNaN(num) ? 0 : num;
       }
 

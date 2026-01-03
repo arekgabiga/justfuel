@@ -259,11 +259,12 @@ export const useEditFillupForm = ({ carId, fillupId }: UseEditFillupFormProps) =
       return 'Stan licznika jest wymagany';
     }
 
-    if (!/^-?\d+$/.test(odometer.trim())) {
-      return 'Stan licznika musi być liczbą całkowitą';
+    // Check if it's a valid number (including decimals)
+    if (!/^-?\d*\.?\d+$/.test(odometer.trim())) {
+      return 'Stan licznika musi być liczbą';
     }
 
-    const num = parseInt(odometer, 10);
+    const num = parseFloat(odometer);
     if (isNaN(num)) {
       return 'Stan licznika musi być liczbą';
     }
@@ -452,7 +453,7 @@ export const useEditFillupForm = ({ carId, fillupId }: UseEditFillupFormProps) =
     // Check input mode and corresponding field
     let inputFieldChanged = false;
     if (formState.inputMode === 'odometer') {
-      const currentOdometer = parseInt(formState.odometer, 10);
+      const currentOdometer = parseFloat(formState.odometer);
       inputFieldChanged = currentOdometer !== (originalFillupData.odometer || 0);
     } else if (formState.inputMode === 'distance') {
       const currentDistance = parseFloat(formState.distance);
@@ -573,7 +574,7 @@ export const useEditFillupForm = ({ carId, fillupId }: UseEditFillupFormProps) =
 
         // Handle odometer/distance based on input mode
         if (formState.inputMode === 'odometer') {
-          const odometerValue = parseInt(formState.odometer, 10);
+          const odometerValue = parseFloat(formState.odometer);
           const originalOdometer = originalFillupData?.odometer || 0;
           if (odometerValue !== originalOdometer) {
             requestBody.odometer = odometerValue;

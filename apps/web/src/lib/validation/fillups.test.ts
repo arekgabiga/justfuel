@@ -480,7 +480,7 @@ describe('createFillupRequestSchema', () => {
       }
     });
 
-    it('FILLUPS-CR-N011: odometer jako float', () => {
+    it('FILLUPS-CR-008: odometer jako float (akceptowalne)', () => {
       const input = {
         date: '2024-01-15T10:30:00Z',
         fuel_amount: 45.5,
@@ -489,9 +489,9 @@ describe('createFillupRequestSchema', () => {
       };
       const result = createFillupRequestSchema.safeParse(input);
 
-      expect(result.success).toBe(false);
-      if (!result.success) {
-        expect(result.error.issues[0].message).toContain('integer');
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.odometer).toBe(50000.5);
       }
     });
 
@@ -765,13 +765,13 @@ describe('updateFillupRequestSchema', () => {
       }
     });
 
-    it('FILLUPS-UR-N007: odometer jako float', () => {
+    it('FILLUPS-UR-008: odometer jako float (akceptowalne)', () => {
       const input = { odometer: 50000.5 };
       const result = updateFillupRequestSchema.safeParse(input);
 
-      expect(result.success).toBe(false);
-      if (!result.success) {
-        expect(result.error.issues[0].message).toContain('integer');
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.odometer).toBe(50000.5);
       }
     });
 

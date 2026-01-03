@@ -46,8 +46,8 @@ export default function AddCarScreen() {
             newErrors.initial_odometer = 'Nieprawidłowa liczba';
         } else if (odo < 0) {
             newErrors.initial_odometer = 'Przebieg nie może być ujemny';
-        } else if (!Number.isInteger(odo)) {
-             newErrors.initial_odometer = 'Tylko liczby całkowite';
+        } else if (!/^\d*\.?\d{0,2}$/.test(initialOdometer.replace(',', '.'))) {
+             newErrors.initial_odometer = 'Maksymalnie 2 miejsca po przecinku';
         }
     }
 
@@ -59,9 +59,9 @@ export default function AddCarScreen() {
       const val = initialOdometer.replace(',', '.');
       const num = parseFloat(val);
       if (!isNaN(num)) {
-          // Truncate decimals for integer requirement
-          const integerVal = Math.floor(num);
-          setInitialOdometer(integerVal.toString());
+          // Round to 2 decimal places
+          const formatted = Math.round(num * 100) / 100;
+          setInitialOdometer(formatted.toString());
       }
   };
 
@@ -77,7 +77,7 @@ export default function AddCarScreen() {
     // Validate with Zod
     const validationResult = createCarCommandSchema.safeParse({
       name: name.trim(),
-      initial_odometer: initialOdometer ? parseInt(initialOdometer.replace(',', '.'), 10) : undefined,
+      initial_odometer: initialOdometer ? parseFloat(initialOdometer.replace(',', '.')) : undefined,
       mileage_input_preference: preference,
     });
 

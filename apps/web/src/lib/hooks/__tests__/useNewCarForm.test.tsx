@@ -69,7 +69,7 @@ describe('useNewCarForm', () => {
         result.current.handleFieldChange('initialOdometer', 'abc');
         vi.runAllTimers();
       });
-      expect(result.current.formErrors.initialOdometer).toBe('Stan licznika musi być liczbą całkowitą');
+      expect(result.current.formErrors.initialOdometer).toBe('Stan licznika musi być liczbą');
 
       // Negative
       act(() => {

@@ -20,7 +20,7 @@ export const carIdParamSchema = z
 export const createCarCommandSchema = z
   .object({
     name: z.string().trim().min(1).max(100),
-    initial_odometer: z.number().int().nonnegative().optional(),
+    initial_odometer: z.number().finite().nonnegative().optional(),
     mileage_input_preference: z.enum(['odometer', 'distance']),
   })
   .strict();
@@ -28,7 +28,7 @@ export const createCarCommandSchema = z
 export const updateCarCommandSchema = z
   .object({
     name: z.string().trim().min(1).max(100).optional(),
-    initial_odometer: z.number().int().nonnegative().optional(),
+    initial_odometer: z.number().finite().nonnegative().optional(),
     mileage_input_preference: z.enum(['odometer', 'distance']).optional(),
   })
   .strict()
@@ -70,8 +70,8 @@ export const createFillupRequestSchema = z
     date: z.string().datetime({ message: 'Data musi być w poprawnym formacie ISO 8601' }),
     fuel_amount: z.number().positive({ message: 'Ilość paliwa musi być dodatnia' }).max(2000, { message: 'Ilość paliwa nie może przekraczać 2000L' }),
     total_price: z.number().positive({ message: 'Cena całkowita musi być dodatnia' }).max(100000, { message: 'Całkowita cena nie może przekraczać 100000 PLN' }),
-    odometer: z.number().int().min(0, { message: 'Przebieg musi być liczbą nieujemną' }).optional(),
-    distance: z.number().positive({ message: 'Dystans musi być dodatni' }).optional(),
+    odometer: z.number().finite().min(0, { message: 'Przebieg musi być liczbą nieujemną' }).optional(),
+    distance: z.number().finite().positive({ message: 'Dystans musi być dodatni' }).optional(),
   })
   .strict()
   .refine((data) => (data.odometer !== undefined) !== (data.distance !== undefined), {
@@ -84,8 +84,8 @@ export const updateFillupRequestSchema = z
     date: z.string().datetime({ message: 'Data musi być w poprawnym formacie ISO 8601' }).optional(),
     fuel_amount: z.number().positive({ message: 'Ilość paliwa musi być dodatnia' }).max(2000, { message: 'Ilość paliwa nie może przekraczać 2000L' }).optional(),
     total_price: z.number().positive({ message: 'Cena całkowita musi być dodatnia' }).max(100000, { message: 'Całkowita cena nie może przekraczać 100000 PLN' }).optional(),
-    odometer: z.number().int().min(0, { message: 'Przebieg musi być liczbą nieujemną' }).optional(),
-    distance: z.number().positive({ message: 'Dystans musi być dodatni' }).optional(),
+    odometer: z.number().finite().min(0, { message: 'Przebieg musi być liczbą nieujemną' }).optional(),
+    distance: z.number().finite().positive({ message: 'Dystans musi być dodatni' }).optional(),
   })
   .strict()
   .refine(

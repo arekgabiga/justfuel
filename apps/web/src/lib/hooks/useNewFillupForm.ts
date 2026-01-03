@@ -147,12 +147,12 @@ export const useNewFillupForm = ({ carId, initialInputMode = 'odometer' }: UseNe
       return 'Stan licznika jest wymagany';
     }
 
-    // Check if it's a valid integer
-    if (!/^-?\d+$/.test(odometer.trim())) {
-      return 'Stan licznika musi być liczbą całkowitą';
+    // Check if it's a valid number (including decimals)
+    if (!/^-?\d*\.?\d+$/.test(odometer.trim())) {
+      return 'Stan licznika musi być liczbą';
     }
 
-    const num = parseInt(odometer, 10);
+    const num = parseFloat(odometer);
     if (isNaN(num)) {
       return 'Stan licznika musi być liczbą';
     }
@@ -418,7 +418,7 @@ export const useNewFillupForm = ({ carId, initialInputMode = 'odometer' }: UseNe
             date: convertDateToISO(formState.date),
             fuel_amount: parseFloat(formState.fuelAmount),
             total_price: parseFloat(formState.totalPrice),
-            odometer: parseInt(formState.odometer, 10),
+            odometer: parseFloat(formState.odometer),
           };
         } else {
           requestBody = {

@@ -88,7 +88,7 @@ describe('useNewFillupForm', () => {
         result.current.handleFieldChange('odometer', 'abc');
       });
       await waitFor(() => {
-        expect(result.current.formErrors.odometer).toBe('Stan licznika musi być liczbą całkowitą');
+        expect(result.current.formErrors.odometer).toBe('Stan licznika musi być liczbą');
       });
     });
 

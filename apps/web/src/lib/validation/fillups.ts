@@ -54,7 +54,7 @@ export const createFillupRequestSchema = z
     date: z.string().datetime({ message: 'Date must be a valid ISO 8601 timestamp' }),
     fuel_amount: z.number().positive({ message: 'Fuel amount must be positive' }),
     total_price: z.number().positive({ message: 'Total price must be positive' }),
-    odometer: z.number().int().min(0, { message: 'Odometer must be a non-negative integer' }).optional(),
+    odometer: z.number().min(0, { message: 'Odometer must be a non-negative integer' }).optional(),
     distance: z.number().positive({ message: 'Distance must be positive' }).optional(),
   })
   .strict()
@@ -77,7 +77,7 @@ export const updateFillupRequestSchema = z
     date: z.string().datetime({ message: 'Date must be a valid ISO 8601 timestamp' }).optional(),
     fuel_amount: z.number().positive({ message: 'Fuel amount must be positive' }).optional(),
     total_price: z.number().positive({ message: 'Total price must be positive' }).optional(),
-    odometer: z.number().int().min(0, { message: 'Odometer must be a non-negative integer' }).optional(),
+    odometer: z.number().min(0, { message: 'Odometer must be a non-negative integer' }).optional(),
     distance: z.number().positive({ message: 'Distance must be positive' }).optional(),
   })
   .strict()
