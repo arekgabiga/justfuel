@@ -1,6 +1,7 @@
 
 import Papa from 'papaparse';
 import { parse, isValid, startOfDay, format } from 'date-fns';
+import { roundToTwo } from '../calculations';
 import { CsvImportRow, ImportConfig, ParseResult, ValidatedFillup, ImportError } from './types';
 
 const REQUIRED_HEADERS = ['date', 'fuel_amount', 'total_price'];
@@ -88,8 +89,8 @@ export const parseCsv = async (fileContent: string, config: ImportConfig = {}): 
            uniqueDatesSet.add(isoDate);
 
            // Parse Numbers
-           const fuelAmount = parseFloat(row.fuel_amount.replace(',', '.'));
-           const totalPrice = parseFloat(row.total_price.replace(',', '.'));
+           const fuelAmount = roundToTwo(parseFloat(row.fuel_amount.replace(',', '.')));
+           const totalPrice = roundToTwo(parseFloat(row.total_price.replace(',', '.')));
            
            if (isNaN(fuelAmount) || fuelAmount < 0) {
                errors.push({ row: rowNumber, message: 'Invalid Fuel Amount' });
@@ -103,7 +104,7 @@ export const parseCsv = async (fileContent: string, config: ImportConfig = {}): 
            // Optional / Calculation fields
            let odometer: number | null = null;
            if (row.odometer) {
-               odometer = parseFloat(row.odometer.replace(',', '.'));
+               odometer = roundToTwo(parseFloat(row.odometer.replace(',', '.')));
                if (isNaN(odometer)) {
                    errors.push({ row: rowNumber, message: 'Invalid Odometer value' });
                    return;
@@ -112,7 +113,7 @@ export const parseCsv = async (fileContent: string, config: ImportConfig = {}): 
 
            let distance: number | null = null;
            if (row.distance) {
-               distance = parseFloat(row.distance.replace(',', '.'));
+               distance = roundToTwo(parseFloat(row.distance.replace(',', '.')));
                if (isNaN(distance)) {
                    errors.push({ row: rowNumber, message: 'Invalid Distance value' });
                    return;

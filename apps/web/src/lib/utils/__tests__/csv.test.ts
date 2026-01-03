@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { generateCsv } from '@justfuel/shared';
+import { generateCsv, parseCsv } from '@justfuel/shared';
 
 describe('CSV Generation Logic', () => {
   it('should generate CSV for odometer-based fillups', () => {
@@ -40,14 +40,24 @@ describe('CSV Generation Logic', () => {
     const csv = generateCsv(fillups);
 
     expect(csv).toContain('02.01.2025');
-    // Odometer should be empty or handled
-    // Papa unparse usually leaves empty string for null/undefined
-    // Let's check that we verify the row structure simply
-    // date, fuel, price, odometer, distance...
-    // 02.01.2025, 40, 240, , 400, ...
+    expect(csv).toContain(',400,');
+  });
+});
 
-    // Exact row check might be flaky due to line endings or exact spacing, verify key segments
-    expect(csv).toContain('02.01.2025');
-    expect(csv).toContain(',400,'); // distance 400 surrounded by commas roughly
+describe('CSV Parsing Logic', () => {
+  it('should round numerical values to 2 decimal places during import', async () => {
+    const csvContent = `date,fuel_amount,total_price,odometer,distance
+01.01.2025,50.1234,300.5678,1500.999,500.111`;
+
+    const result = await parseCsv(csvContent, { mileage_input_preference: 'odometer' });
+
+    expect(result.errors).toHaveLength(0);
+    expect(result.fillups).toHaveLength(1);
+
+    const fillup = result.fillups[0];
+    expect(fillup.fuel_amount).toBe(50.12);
+    expect(fillup.total_price).toBe(300.57);
+    expect(fillup.odometer).toBe(1501.0); // 1500.999 -> 1501.00
+    expect(fillup.distance_traveled).toBe(500.11);
   });
 });
