@@ -1,6 +1,6 @@
 import React from 'react';
 import { ChartStatistics } from './ChartStatistics';
-import { View, Dimensions, StyleSheet } from 'react-native';
+import { View, Dimensions, StyleSheet, ScrollView } from 'react-native';
 import { LineChart, BarChart } from 'react-native-chart-kit';
 import { Text, useTheme } from 'react-native-paper';
 import { Fillup, ChartType } from '../types';
@@ -57,16 +57,15 @@ export const ChartVisualization: React.FC<ChartVisualizationProps> = ({ fillups,
       }))
       .filter((p): p is { date: Date; value: number } => p.value !== null && p.value !== undefined && p.value > 0);
 
-    // Calculate stats from ALL valid points (not just the displayed ones)
+    // Calculate stats from ALL valid points
     const count = allPoints.length;
     const sum = allPoints.reduce((acc, curr) => acc + curr.value, 0);
     const average = count > 0 ? sum / count : 0;
     const min = count > 0 ? Math.min(...allPoints.map((p) => p.value)) : 0;
     const max = count > 0 ? Math.max(...allPoints.map((p) => p.value)) : 0;
 
-    // Take last 6 points for the chart
     return {
-      dataPoints: allPoints.slice(-6),
+      dataPoints: allPoints, // Return all points, no slicing
       label,
       suffix,
       unit,
@@ -122,6 +121,9 @@ export const ChartVisualization: React.FC<ChartVisualizationProps> = ({ fillups,
     borderRadius: 16,
   };
 
+  // Calculate width based on number of points, minimum screen width
+  const chartWidth = Math.max(screenWidth - 32, dataPoints.length * 50);
+
   return (
     <View style={styles.container}>
       <ChartStatistics
@@ -133,27 +135,29 @@ export const ChartVisualization: React.FC<ChartVisualizationProps> = ({ fillups,
         count={stats.count}
       />
 
-      {chartType === 'distance' ? (
-        <BarChart
-          data={chartData}
-          width={screenWidth - 32}
-          height={220}
-          yAxisLabel=""
-          yAxisSuffix={chartType === 'distance' ? '' : suffix} // BarChart handles suffix differently sometimes, but here we can try
-          chartConfig={chartConfig}
-          style={commonStyle}
-          showValuesOnTopOfBars // Good for distance bars
-        />
-      ) : (
-        <LineChart
-          data={chartData}
-          width={screenWidth - 32}
-          height={220}
-          chartConfig={chartConfig}
-          bezier
-          style={commonStyle}
-        />
-      )}
+      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        {chartType === 'distance' ? (
+          <BarChart
+            data={chartData}
+            width={chartWidth}
+            height={220}
+            yAxisLabel=""
+            yAxisSuffix={chartType === 'distance' ? '' : suffix}
+            chartConfig={chartConfig}
+            style={commonStyle}
+            showValuesOnTopOfBars
+          />
+        ) : (
+          <LineChart
+            data={chartData}
+            width={chartWidth}
+            height={220}
+            chartConfig={chartConfig}
+            bezier
+            style={commonStyle}
+          />
+        )}
+      </ScrollView>
     </View>
   );
 };
