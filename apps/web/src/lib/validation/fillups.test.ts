@@ -406,7 +406,7 @@ describe('createFillupRequestSchema', () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toContain('positive');
+        expect(result.error.issues[0].message).toContain('musi być dodatnia');
       }
     });
 
@@ -421,7 +421,7 @@ describe('createFillupRequestSchema', () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toContain('positive');
+        expect(result.error.issues[0].message).toContain('musi być dodatnia');
       }
     });
 
@@ -446,7 +446,7 @@ describe('createFillupRequestSchema', () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toContain('positive');
+        expect(result.error.issues[0].message).toContain('musi być dodatnia');
       }
     });
 
@@ -461,7 +461,7 @@ describe('createFillupRequestSchema', () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toContain('positive');
+        expect(result.error.issues[0].message).toContain('musi być dodatnia');
       }
     });
 
@@ -476,7 +476,7 @@ describe('createFillupRequestSchema', () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toContain('non-negative');
+        expect(result.error.issues[0].message).toContain('liczbą nieujemną');
       }
     });
 
@@ -506,7 +506,7 @@ describe('createFillupRequestSchema', () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toContain('positive');
+        expect(result.error.issues[0].message).toContain('musi być dodatni');
       }
     });
 
@@ -521,7 +521,7 @@ describe('createFillupRequestSchema', () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toContain('positive');
+        expect(result.error.issues[0].message).toContain('musi być dodatni');
       }
     });
   });
@@ -533,7 +533,7 @@ describe('createFillupRequestSchema', () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toContain('Either odometer or distance');
+        expect(result.error.issues[0].message).toContain('Podaj przebieg LUB dystans');
       }
     });
 
@@ -549,7 +549,7 @@ describe('createFillupRequestSchema', () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toContain('Either odometer or distance');
+        expect(result.error.issues[0].message).toContain('Podaj przebieg LUB dystans');
       }
     });
   });
@@ -564,8 +564,8 @@ describe('createFillupRequestSchema', () => {
       };
       const result = createFillupRequestSchema.safeParse(input);
 
-      // Zod.positive() accepts Infinity as it is > 0
-      expect(result.success).toBe(true);
+      // Shared schema has max limit of 2000, so Infinity is invalid
+      expect(result.success).toBe(false);
     });
 
     it('FILLUPS-CR-E002: fuel_amount = NaN', () => {
@@ -589,8 +589,8 @@ describe('createFillupRequestSchema', () => {
       };
       const result = createFillupRequestSchema.safeParse(input);
 
-      // Zod.positive() accepts Infinity as it is > 0
-      expect(result.success).toBe(true);
+      // Shared schema has max limit of 100000, so Infinity is invalid
+      expect(result.success).toBe(false);
     });
 
     it('FILLUPS-CR-E004: odometer = MAX_SAFE_INTEGER', () => {
@@ -721,7 +721,7 @@ describe('updateFillupRequestSchema', () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toContain('positive');
+        expect(result.error.issues[0].message).toContain('musi być dodatnia');
       }
     });
 
@@ -731,7 +731,7 @@ describe('updateFillupRequestSchema', () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toContain('positive');
+        expect(result.error.issues[0].message).toContain('musi być dodatnia');
       }
     });
 
@@ -741,7 +741,7 @@ describe('updateFillupRequestSchema', () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toContain('positive');
+        expect(result.error.issues[0].message).toContain('musi być dodatnia');
       }
     });
 
@@ -751,7 +751,7 @@ describe('updateFillupRequestSchema', () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toContain('positive');
+        expect(result.error.issues[0].message).toContain('musi być dodatnia');
       }
     });
 
@@ -761,7 +761,7 @@ describe('updateFillupRequestSchema', () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toContain('non-negative');
+        expect(result.error.issues[0].message).toContain('liczbą nieujemną');
       }
     });
 
@@ -781,7 +781,7 @@ describe('updateFillupRequestSchema', () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toContain('positive');
+        expect(result.error.issues[0].message).toContain('musi być dodatni');
       }
     });
 
@@ -791,7 +791,7 @@ describe('updateFillupRequestSchema', () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toContain('positive');
+        expect(result.error.issues[0].message).toContain('musi być dodatni');
       }
     });
 
@@ -801,7 +801,7 @@ describe('updateFillupRequestSchema', () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toContain('cannot be provided at the same time');
+        expect(result.error.issues[0].message).toContain('Podaj przebieg LUB dystans');
       }
     });
   });

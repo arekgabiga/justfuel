@@ -1,5 +1,5 @@
 import { Fillup, NewFillup } from '../types';
-import { ValidatedFillup } from '@justfuel/shared';
+import { ValidatedFillup, calculateFuelConsumption, calculatePricePerLiter, calculateDistanceTraveled, roundToTwo } from '@justfuel/shared';
 import { getDBConnection } from './schema';
 import { generateUUID } from '../utils/uuid';
 
@@ -38,10 +38,10 @@ export const FillupRepository = {
                    fillup.date.toISOString(),
                    fillup.fuel_amount,
                    fillup.total_price,
-                   fillup.odometer ?? null,
-                   fillup.distance_traveled ?? null,
+                   fillup.odometer ? roundToTwo(fillup.odometer) : null,
+                   fillup.distance_traveled ? roundToTwo(fillup.distance_traveled) : null,
                    null, // consumption will be recalculated
-                   fillup.price_per_liter,
+                   calculatePricePerLiter(fillup.total_price, fillup.fuel_amount),
                    now
                ]
             );
@@ -82,10 +82,10 @@ export const FillupRepository = {
         newFillup.date,
         newFillup.fuel_amount,
         newFillup.total_price,
-        newFillup.odometer ?? null,
-        (newFillup as any).distance_traveled ?? null,
+        newFillup.odometer ? roundToTwo(newFillup.odometer) : null,
+        (newFillup as any).distance_traveled ? roundToTwo((newFillup as any).distance_traveled) : null,
         (newFillup as any).fuel_consumption || null,
-        newFillup.total_price / newFillup.fuel_amount,
+        calculatePricePerLiter(newFillup.total_price, newFillup.fuel_amount),
         now,
       ]
     );
@@ -96,9 +96,12 @@ export const FillupRepository = {
     return {
       id,
       ...newFillup,
-      distance_traveled: (newFillup as any).distance_traveled || null,
+      fuel_amount: newFillup.fuel_amount,
+      total_price: newFillup.total_price,
+      odometer: newFillup.odometer ? roundToTwo(newFillup.odometer) : null,
+      distance_traveled: (newFillup as any).distance_traveled ? roundToTwo((newFillup as any).distance_traveled) : null,
       fuel_consumption: (newFillup as any).fuel_consumption || null,
-      price_per_liter: newFillup.total_price / newFillup.fuel_amount,
+      price_per_liter: calculatePricePerLiter(newFillup.total_price, newFillup.fuel_amount) ?? 0,
       created_at: now,
     };
   },
@@ -182,19 +185,19 @@ export const FillupRepository = {
         if (current.odometer != null) {
             // Odometer-based entry: calculate distance from previous odometer or initial_odometer
             const prevOdometer = previous?.odometer ?? initialOdometer;
-            newDist = current.odometer - prevOdometer;
+            newDist = calculateDistanceTraveled(current.odometer, prevOdometer);
             if (newDist > 0) {
-                newCons = (current.fuel_amount / newDist) * 100;
+                newCons = calculateFuelConsumption(newDist, current.fuel_amount);
             } else {
                 newDist = Math.max(0, newDist); // Clamp to 0 if negative
                 newCons = null;
             }
         } else {
             // Distance-based entry (odometer is NULL): trust the stored distance_traveled
-            newDist = current.distance_traveled;
+            newDist = current.distance_traveled ? roundToTwo(current.distance_traveled) : current.distance_traveled;
 
             if (newDist && newDist > 0) {
-                newCons = (current.fuel_amount / newDist) * 100;
+                newCons = calculateFuelConsumption(newDist, current.fuel_amount);
             } else {
                 newCons = null;
             }

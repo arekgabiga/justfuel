@@ -4,6 +4,13 @@
  */
 
 /**
+ * Formats a number to 2 decimal places.
+ */
+export function roundToTwo(num: number): number {
+  return Math.round((num + Number.EPSILON) * 100) / 100;
+}
+
+/**
  * Calculates fuel consumption in L/100km.
  * @param distanceTraveled - Distance traveled in km.
  * @param fuelAmount - Amount of fuel consumed in liters.
@@ -32,7 +39,7 @@ export function calculatePricePerLiter(totalPrice: number, fuelAmount: number): 
  * @returns Distance traveled.
  */
 export function calculateDistanceTraveled(currentOdometer: number, previousOdometer: number): number {
-  return currentOdometer - previousOdometer;
+  return roundToTwo(currentOdometer - previousOdometer);
 }
 
 /**
@@ -42,7 +49,7 @@ export function calculateDistanceTraveled(currentOdometer: number, previousOdome
  * @returns Current odometer reading.
  */
 export function calculateOdometer(previousOdometer: number, distanceTraveled: number): number {
-  return previousOdometer + distanceTraveled;
+  return roundToTwo(previousOdometer + distanceTraveled);
 }
 
 export enum ConsumptionDeviation {
