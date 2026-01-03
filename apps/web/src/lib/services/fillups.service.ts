@@ -14,6 +14,7 @@ import {
   calculatePricePerLiter,
   calculateDistanceTraveled,
   calculateOdometer,
+  roundToTwo,
 } from '@justfuel/shared';
 
 export interface ListFillupsParams {
@@ -406,7 +407,7 @@ export async function createFillup(
     if (input.distance === undefined) {
       throw new Error('Distance traveled is required for this car');
     }
-    distance_traveled = input.distance;
+    distance_traveled = roundToTwo(input.distance);
     odometer = null; // Enforce NULL odometer for distance-based cars
   }
 
@@ -516,7 +517,7 @@ export async function createFillup(
         let calculatedDistance = 0;
         if (currentOdometer !== null) {
           // Odometer mode entry
-          calculatedDistance = Math.max(0, currentOdometer - lastOdometer);
+          calculatedDistance = Math.max(0, calculateDistanceTraveled(currentOdometer, lastOdometer));
 
           const currentDistance = fillup.distance_traveled ?? 0;
           // If this is the fillup we just created, distance should match already.
@@ -719,7 +720,7 @@ export async function updateFillup(
   } else {
     // STRICT DISTANCE MODE
     if (input.distance !== undefined) {
-      updateData.distance_traveled = input.distance;
+      updateData.distance_traveled = roundToTwo(input.distance);
       updateData.odometer = null;
     }
     // If they try to set odometer in distance mode, it should be ignored or nulled?
@@ -782,7 +783,7 @@ export async function updateFillup(
         let calculatedDistance = 0;
         if (currentOdometer !== null) {
           // Odometer mode entry
-          calculatedDistance = Math.max(0, currentOdometer - lastOdometer);
+          calculatedDistance = Math.max(0, calculateDistanceTraveled(currentOdometer, lastOdometer));
           // Check if calculated distance differs from stored distance
           // Default fillup.distance_traveled to 0 if null (though schema should enforce non-null or we handle it)
           const currentDistance = fillup.distance_traveled ?? 0;
@@ -1096,7 +1097,7 @@ export async function batchCreateFillups(
         let shouldUpdate = false;
 
         if (fillup.odometer !== null) {
-          const dist = Math.max(0, fillup.odometer - lastOdometer);
+          const dist = Math.max(0, calculateDistanceTraveled(fillup.odometer, lastOdometer));
           if (Math.abs(dist - (fillup.distance_traveled ?? 0)) > 0.1) {
             update.distance_traveled = dist;
             shouldUpdate = true;
