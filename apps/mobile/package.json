@@ -9,8 +9,8 @@
     "web": "expo start --web",
     "test": "jest",
     "test:watch": "jest --watch",
-    "build:local": "eas-cli build --platform android --profile preview --local --output dist/app-release.apk",
-    "build:preview": "eas-cli build --platform android --profile preview"
+    "build:local": "npx eas-cli build --platform android --profile preview --local --output dist/app-release.apk",
+    "build:preview": "npx eas-cli build --platform android --profile preview"
   },
   "dependencies": {
     "@justfuel/shared": "*",
